@@ -1,0 +1,10 @@
+{
+  "game_mode": 1,
+  "arm_speed": 50,
+  "rail_speed_rpm": 300,
+  "scan_settle_time": 1.5,
+  "vacuum_on_delay_ms": 1500,
+  "vacuum_off_delay_ms": 300,
+  "led_idle_effect": "idle",
+  "led_brightness": 82
+}

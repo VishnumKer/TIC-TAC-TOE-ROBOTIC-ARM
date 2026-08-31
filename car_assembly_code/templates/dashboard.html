@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera View — MechArm Control</title>
+    <!-- Modern Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #06070a;
+            --card-bg: rgba(18, 22, 32, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-green: #00ff88;
+            --accent-blue: #00d2ff;
+            --accent-red: #ff3c5f;
+            --accent-orange: #ff9100;
+            --text-primary: #f5f7fa;
+            --text-secondary: #8a96a7;
+            --text-dim: #444c5a;
+            
+            --glow-green: 0 0 15px rgba(0, 255, 136, 0.35);
+            --glow-blue: 0 0 15px rgba(0, 210, 255, 0.35);
+            --glow-red: 0 0 20px rgba(255, 60, 95, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(18, 28, 45, 0.7) 0%, rgba(6, 7, 10, 1) 100%);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(6, 7, 10, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 10;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #8a96a7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+        }
+
+        .header-title p {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-top: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-title p::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--accent-blue);
+            box-shadow: var(--glow-blue);
+            display: inline-block;
+        }
+
+        .sys-badges {
+            display: flex;
+            gap: 15px;
+        }
+
+        .badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.02);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .badge-live {
+            color: var(--accent-green);
+            border-color: rgba(0, 255, 136, 0.2);
+            background: rgba(0, 255, 136, 0.03);
+            text-shadow: var(--glow-green);
+        }
+
+        .badge-live::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+            box-shadow: var(--glow-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 1.35fr 1.65fr;
+            flex: 1;
+            padding: 30px 40px;
+            gap: 30px;
+            max-width: 1920px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .left-column, .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Error Alert Panel */
+        .error-panel {
+            display: none;
+            background: rgba(255, 60, 95, 0.1);
+            border: 1px solid rgba(255, 60, 95, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--glow-red);
+            animation: slideDown 0.4s ease-out;
+        }
+
+        .error-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--accent-red);
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+        }
+
+        .error-panel-body {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Control Panel Buttons */
+        .controls-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid transparent;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-play {
+            background: var(--accent-green);
+            color: #000000;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .btn-play:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.35);
+        }
+
+        .btn-stop {
+            background: var(--accent-red);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(255, 60, 95, 0.2);
+        }
+
+        .btn-stop:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 60, 95, 0.35);
+        }
+
+        .btn-restart {
+            background: transparent;
+            color: var(--accent-orange);
+            border: 1px solid rgba(255, 145, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 145, 0, 0.05);
+        }
+
+        .btn-restart:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(255, 145, 0, 0.05);
+            border-color: var(--accent-orange);
+            box-shadow: 0 6px 20px rgba(255, 145, 0, 0.2);
+        }
+
+        /* Progress Card */
+        .progress-section {
+            margin-top: 10px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-text {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        /* Video Feed Viewport */
+        .video-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+        }
+
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: rgba(15, 17, 23, 0.5);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .video-header h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .video-header h3::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+            box-shadow: var(--glow-green);
+        }
+
+        .video-viewport {
+            width: 100%;
+            background-color: #030406;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            position: relative;
+            min-height: 280px;
+        }
+
+        .video-viewport img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Car Checklists */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .car-card {
+            background: rgba(22, 26, 36, 0.45);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .car-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(22, 26, 36, 0.6);
+        }
+
+        .car-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .car-status-badge {
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.03);
+            color: var(--accent-blue);
+        }
+
+        .part-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .part-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            transition: all 0.2s ease;
+        }
+
+        .part-row.completed {
+            background: rgba(0, 255, 136, 0.02);
+            border-color: rgba(0, 255, 136, 0.15);
+        }
+
+        .part-row-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .part-row.completed .part-row-label {
+            color: var(--text-primary);
+        }
+
+        .part-position-lbl {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            background: rgba(255,255,255,0.04);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: var(--text-secondary);
+        }
+
+        .part-check-icon {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            transition: color 0.3s ease;
+        }
+
+        .part-row.completed .part-check-icon {
+            color: var(--accent-green);
+        }
+
+        /* Combined Vision Status & Simulation switches */
+        .vision-status-panel {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+        }
+
+        .part-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .part-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.2s ease;
+        }
+
+        .part-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .part-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .part-method {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .part-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-offline {
+            background: rgba(139, 148, 158, 0.08);
+            color: var(--text-secondary);
+            border: 1px solid rgba(139, 148, 158, 0.15);
+        }
+
+        .status-online {
+            background: rgba(0, 255, 136, 0.08);
+            color: var(--accent-green);
+            border: 1px solid rgba(0, 255, 136, 0.25);
+            text-shadow: var(--glow-green);
+        }
+
+        .part-status::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: currentColor;
+            display: inline-block;
+        }
+
+        .status-online::before {
+            box-shadow: var(--glow-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Mock Controls inside Unified Dashboard */
+        .mock-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-left: 1px solid var(--border-color);
+            padding-left: 24px;
+        }
+
+        .mock-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mock-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Premium Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--text-dim);
+            transition: .25s ease;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #ffffff;
+            transition: .25s ease;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-green);
+            box-shadow: var(--glow-green);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Logs card */
+        .logs-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 200px;
+        }
+
+        .logs-viewport {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            line-height: 1.45;
+            color: var(--text-secondary);
+            overflow-y: auto;
+            max-height: 230px;
+        }
+
+        .log-entry {
+            margin-bottom: 6px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .log-timestamp {
+            color: var(--text-dim);
+            flex-shrink: 0;
+        }
+
+        .log-message {
+            color: var(--text-primary);
+        }
+
+        .log-message.success {
+            color: var(--accent-green);
+        }
+
+        .log-message.error {
+            color: var(--accent-red);
+        }
+
+        .log-message.info {
+            color: var(--accent-blue);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.35; }
+            50% { opacity: 1; }
+            100% { opacity: 0.35; }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            border-top: 1px solid var(--border-color);
+            background: rgba(6, 7, 10, 0.95);
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <h1>Camera View</h1>
+            <p>MechArm Control &amp; Camera Settings</p>
+        </div>
+        <div class="sys-badges">
+            <a href="/" class="badge" style="color: var(--accent-green); text-decoration: none; border-color: rgba(0, 255, 136, 0.3); background: rgba(0, 255, 136, 0.05); font-weight: 700;">🏠 Home</a>
+            <a href="/editor" class="badge" style="color: var(--accent-blue); text-decoration: none; border-color: rgba(0, 210, 255, 0.3); background: rgba(0, 210, 255, 0.05); font-weight: 700;">🛠️ Waypoint Editor</a>
+            <div class="badge" id="robot-conn-badge">Arm: Disconnected</div>
+            <div class="badge badge-live">Vision: Continuous Stream</div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Left Column: Controls & MJPEG viewports -->
+        <section class="left-column">
+            <!-- Command Console -->
+            <div class="card">
+                <!-- Red Attention-Grabbing Error Alert -->
+                <div class="error-panel" id="error-panel">
+                    <div class="error-panel-header">
+                        <span>⚠️ PRE-PICK VERIFICATION FAULT</span>
+                    </div>
+                    <div class="error-panel-body" id="error-message">
+                        Chassis tag not found at position P1 — Sequence stopped.
+                    </div>
+                </div>
+
+                <div class="controls-group">
+                    <button class="btn btn-play" id="btn-play" onclick="triggerPlay()">Play Sequence</button>
+                    <button class="btn btn-stop" id="btn-stop" onclick="triggerStop()" disabled>Stop Arm</button>
+                    <button class="btn btn-restart" id="btn-restart" onclick="triggerRestart()" disabled>Clear Error / Restart</button>
+                </div>
+
+                <!-- Sequence Progress bar -->
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span>Overall Build Progress</span>
+                        <span class="progress-text" id="progress-text">Step 0 / 0</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progress-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integrated Webcam Feed -->
+            <div class="video-container">
+                <div class="video-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Integrated Camera Feed</h3>
+                    <div style="display:flex; align-items:center; gap:16px;">
+                        <label style="display:flex; align-items:center; gap:8px; font-size:0.75rem; cursor:pointer; color:var(--accent-blue); font-weight:600;">
+                            <input type="checkbox" id="chk-debug-overlays" onchange="toggleDebugOverlays(this.checked)" style="accent-color: var(--accent-blue); cursor:pointer;">
+                            <span>Show CV Overlays</span>
+                        </label>
+                        <div class="badge badge-live" id="cam-stream-badge">Streaming</div>
+                    </div>
+                </div>
+                <div class="video-viewport">
+                    <img id="vision-mjpeg" src="/stream" onerror="handleStreamError(this)" alt="Vision camera offline">
+                </div>
+            </div>
+            <!-- Camera Settings Card -->
+            <div class="card" style="margin-top: 20px;">
+                <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    Camera Settings
+                </h3>
+                <div id="cam-settings-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px;">
+                    <!-- Brightness -->
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between;">Brightness <span id="lbl-brightness">—</span></label>
+                        <input type="range" id="sl-brightness" min="-64" max="64" step="1" value="0" style="width:100%; accent-color: var(--accent-green);">
+                    </div>
+                    <!-- Contrast -->
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between;">Contrast <span id="lbl-contrast">—</span></label>
+                        <input type="range" id="sl-contrast" min="0" max="255" step="1" value="128" style="width:100%; accent-color: var(--accent-green);">
+                    </div>
+                    <!-- Saturation -->
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between;">Saturation <span id="lbl-saturation">—</span></label>
+                        <input type="range" id="sl-saturation" min="0" max="255" step="1" value="128" style="width:100%; accent-color: var(--accent-green);">
+                    </div>
+                    <!-- Gain -->
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between;">Gain <span id="lbl-gain">—</span></label>
+                        <input type="range" id="sl-gain" min="0" max="255" step="1" value="0" style="width:100%; accent-color: var(--accent-green);">
+                    </div>
+                    <!-- Exposure -->
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between;">Exposure <span id="lbl-exposure">—</span></label>
+                        <input type="range" id="sl-exposure" min="-13" max="0" step="1" value="-6" style="width:100%; accent-color: var(--accent-green);">
+                    </div>
+                    <!-- Sharpness -->
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between;">Sharpness <span id="lbl-sharpness">—</span></label>
+                        <input type="range" id="sl-sharpness" min="0" max="255" step="1" value="128" style="width:100%; accent-color: var(--accent-green);">
+                    </div>
+                    <!-- Auto Exposure -->
+                    <div style="grid-column: span 2; display:flex; align-items:center; gap: 12px;">
+                        <label style="font-size:0.75rem; color:var(--text-secondary);">Auto Exposure</label>
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.75rem; cursor:pointer;">
+                            <input type="checkbox" id="chk-auto-exposure" style="accent-color: var(--accent-green);">
+                            <span>Enable auto</span>
+                        </label>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:16px;">
+                    <button id="btn-cam-apply" onclick="applyCameraSettings()" style="flex:1; padding: 8px; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); color: var(--accent-green); border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.8rem;">Apply</button>
+                    <button id="btn-cam-reset" onclick="resetCameraSettings()" style="flex:1; padding: 8px; background: rgba(255,60,95,0.08); border: 1px solid rgba(255,60,95,0.3); color: var(--accent-red); border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.8rem;">Reset to Default</button>
+                </div>
+                <p id="cam-settings-status" style="font-size:0.7rem; color:var(--text-dim); margin-top:8px; min-height:1em;"></p>
+
+                <!-- Vision wait timeout -->
+                <div style="margin-top:16px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05);">
+                    <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between;">
+                        Vision wait timeout
+                        <span id="lbl-wait-timeout">∞ (infinite)</span>
+                    </label>
+                    <input type="range" id="sl-wait-timeout" min="0" max="300" step="10" value="0"
+                           oninput="updateWaitTimeoutLabel(this.value)"
+                           onchange="applyWaitTimeout(this.value)"
+                           style="width:100%; accent-color:var(--accent-blue); margin-top:4px;">
+                    <p style="font-size:0.68rem; color:var(--text-dim); margin-top:4px;">
+                        Seconds to wait for missing part before stopping (0 = wait indefinitely).
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Checklists & Vision Badging -->
+        <section class="right-column">
+            <!-- Assembly Checklists removed (shown on home showcase page) -->
+            <div class="card" style="display:none">
+                <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05)">
+                    <span>Assembly Checklists</span>
+                    <span style="font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; color: var(--accent-blue);">Build Sequence</span>
+                </h3>
+                <div class="dashboard-grid">
+                    <!-- CAR 1 -->
+                    <div class="car-card" id="car-1-card">
+                        <div class="car-title">
+                            <span>Car 1 Build</span>
+                            <span class="car-status-badge" id="car-1-status">0%</span>
+                        </div>
+                        <div class="part-list">
+                            <div class="part-row" id="car-1-part-0">
+                                <span class="part-row-label">1. Chassis <span class="part-position-lbl">P1</span></span>
+                                <span class="part-check-icon" id="car-1-check-0">⬜</span>
+                            </div>
+                            <div class="part-row" id="car-1-part-1">
+                                <span class="part-row-label">2. WheelBase 1 <span class="part-position-lbl">P2</span></span>
+                                <span class="part-check-icon" id="car-1-check-1">⬜</span>
+                            </div>
+                            <div class="part-row" id="car-1-part-2">
+                                <span class="part-row-label">3. WheelBase 2 <span class="part-position-lbl">P2</span></span>
+                                <span class="part-check-icon" id="car-1-check-2">⬜</span>
+                            </div>
+                            <div class="part-row" id="car-1-part-3">
+                                <span class="part-row-label">4. Upper Body <span class="part-position-lbl">P5</span></span>
+                                <span class="part-check-icon" id="car-1-check-3">⬜</span>
+                            </div>
+                            <div class="part-row" id="car-1-part-4">
+                                <span class="part-row-label">5. Wheels <span class="part-position-lbl">P4</span></span>
+                                <span class="part-check-icon" id="car-1-check-4">⬜</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAR 2 -->
+                    <div class="car-card" id="car-2-card">
+                        <div class="car-title">
+                            <span>Car 2 Build</span>
+                            <span class="car-status-badge" id="car-2-status">0%</span>
+                        </div>
+                        <div class="part-list">
+                            <div class="part-row" id="car-2-part-0">
+                                <span class="part-row-label">1. Chassis <span class="part-position-lbl">P1</span></span>
+                                <span class="part-check-icon" id="car-2-check-0">⬜</span>
+                            </div>
+                            <div class="part-row" id="car-2-part-1">
+                                <span class="part-row-label">2. WheelBase 1 <span class="part-position-lbl">P2</span></span>
+                                <span class="part-check-icon" id="car-2-check-1">⬜</span>
+                            </div>
+                            <div class="part-row" id="car-2-part-2">
+                                <span class="part-row-label">3. WheelBase 2 <span class="part-position-lbl">P2</span></span>
+                                <span class="part-check-icon" id="car-2-check-2">⬜</span>
+                            </div>
+                            <div class="part-row" id="car-2-part-3">
+                                <span class="part-row-label">4. Upper Body <span class="part-position-lbl">P5</span></span>
+                                <span class="part-check-icon" id="car-2-check-3">⬜</span>
+                            </div>
+                            <div class="part-row" id="car-2-part-4">
+                                <span class="part-row-label">5. Wheels <span class="part-position-lbl">P4</span></span>
+                                <span class="part-check-icon" id="car-2-check-4">⬜</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vision Detections removed (available via /status API) -->
+            <div class="card" style="display:none">
+                <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05)">
+                    <span>Vision Detections</span>
+                    <span style="font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; color: var(--accent-blue);">Pre-Pick Telemetry</span>
+                </h3>
+                
+                <div class="vision-status-panel">
+                    <!-- Real-Time CV Badges -->
+                    <div class="part-grid" style="display: flex; flex-direction: column; gap: 8px;">
+                        <div class="part-item" style="padding: 6px 12px;">
+                            <div class="part-info">
+                                <span class="part-name" style="font-size: 0.85rem;">Chassis 1</span>
+                                <span class="part-method" style="font-size: 0.6rem;">AprilTag (ID 0)</span>
+                            </div>
+                            <span class="part-status status-offline" id="status-Chassis-1" style="font-size: 0.65rem; padding: 2px 6px;">Missing</span>
+                        </div>
+                        <div class="part-item" style="padding: 6px 12px;">
+                            <div class="part-info">
+                                <span class="part-name" style="font-size: 0.85rem;">Chassis 2</span>
+                                <span class="part-method" style="font-size: 0.6rem;">AprilTag (ID 1)</span>
+                            </div>
+                            <span class="part-status status-offline" id="status-Chassis-2" style="font-size: 0.65rem; padding: 2px 6px;">Missing</span>
+                        </div>
+                        <div class="part-item" style="padding: 6px 12px;">
+                            <div class="part-info">
+                                <span class="part-name" style="font-size: 0.85rem;">WheelBase 1a</span>
+                                <span class="part-method" style="font-size: 0.6rem;">AprilTag (ID 2)</span>
+                            </div>
+                            <span class="part-status status-offline" id="status-WheelBase-1a" style="font-size: 0.65rem; padding: 2px 6px;">Missing</span>
+                        </div>
+                        <div class="part-item" style="padding: 6px 12px;">
+                            <div class="part-info">
+                                <span class="part-name" style="font-size: 0.85rem;">WheelBase 2a</span>
+                                <span class="part-method" style="font-size: 0.6rem;">AprilTag (ID 3)</span>
+                            </div>
+                            <span class="part-status status-offline" id="status-WheelBase-2a" style="font-size: 0.65rem; padding: 2px 6px;">Missing</span>
+                        </div>
+                        <div class="part-item" style="padding: 6px 12px;">
+                            <div class="part-info">
+                                <span class="part-name" style="font-size: 0.85rem;">WheelBase 1b</span>
+                                <span class="part-method" style="font-size: 0.6rem;">AprilTag (ID 4)</span>
+                            </div>
+                            <span class="part-status status-offline" id="status-WheelBase-1b" style="font-size: 0.65rem; padding: 2px 6px;">Missing</span>
+                        </div>
+                        <div class="part-item" style="padding: 6px 12px;">
+                            <div class="part-info">
+                                <span class="part-name" style="font-size: 0.85rem;">WheelBase 2b</span>
+                                <span class="part-method" style="font-size: 0.6rem;">AprilTag (ID 5)</span>
+                            </div>
+                            <span class="part-status status-offline" id="status-WheelBase-2b" style="font-size: 0.65rem; padding: 2px 6px;">Missing</span>
+                        </div>
+                        <div class="part-item" style="padding: 6px 12px;">
+                            <div class="part-info">
+                                <span class="part-name" style="font-size: 0.85rem;">Wheels</span>
+                                <span class="part-method" style="font-size: 0.6rem;">Blue Sticker (P4)</span>
+                            </div>
+                            <span class="part-status status-offline" id="status-Wheels" style="font-size: 0.65rem; padding: 2px 6px;">Missing</span>
+                        </div>
+                        <div class="part-item" style="padding: 6px 12px;">
+                            <div class="part-info">
+                                <span class="part-name" style="font-size: 0.85rem;">Upper Body</span>
+                                <span class="part-method" style="font-size: 0.6rem;">Green Sticker (P5)</span>
+                            </div>
+                            <span class="part-status status-offline" id="status-Body-1" style="font-size: 0.65rem; padding: 2px 6px;">Missing</span>
+                        </div>
+                        <div class="part-item" style="padding: 6px 12px;">
+                            <div class="part-info">
+                                <span class="part-name" style="font-size: 0.85rem;">Body 2</span>
+                                <span class="part-method" style="font-size: 0.6rem;">Black ROI (P5)</span>
+                            </div>
+                            <span class="part-status status-offline" id="status-Body-2" style="font-size: 0.65rem; padding: 2px 6px;">Missing</span>
+                        </div>
+                    </div>
+
+                    <!-- Side Panel: Hardware Simulator Controls -->
+                    <div class="mock-controls" style="border: none; padding-left: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%;">
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">
+                                Mock Car 1
+                            </h4>
+                            <div class="mock-row">
+                                <span class="mock-label">Chassis 1 (Tag 0)</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="mock-Chassis-1" onchange="toggleMock('Chassis 1', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="mock-row">
+                                <span class="mock-label">WheelBase 1a (Tag 2)</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="mock-WheelBase-1a" onchange="toggleMock('WheelBase 1a', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="mock-row">
+                                <span class="mock-label">WheelBase 2a (Tag 3)</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="mock-WheelBase-2a" onchange="toggleMock('WheelBase 2a', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 10px; border-left: 1px solid var(--border-color); padding-left: 15px;">
+                            <h4 style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px;">
+                                Mock Car 2 & Common
+                            </h4>
+                            <div class="mock-row">
+                                <span class="mock-label">Chassis 2 (Tag 1)</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="mock-Chassis-2" onchange="toggleMock('Chassis 2', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="mock-row">
+                                <span class="mock-label">WheelBase 1b (Tag 4)</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="mock-WheelBase-1b" onchange="toggleMock('WheelBase 1b', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="mock-row">
+                                <span class="mock-label">WheelBase 2b (Tag 5)</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="mock-WheelBase-2b" onchange="toggleMock('WheelBase 2b', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="mock-row" style="border-top: 1px solid var(--border-color); padding-top: 8px;">
+                                <span class="mock-label">Wheels (Blue)</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="mock-Wheels" onchange="toggleMock('Wheels', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="mock-row">
+                                <span class="mock-label">Body 1</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="mock-Body-1" onchange="toggleMock('Body 1', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- Closes vision-status-panel -->
+            </div> <!-- Closes card -->
+
+            <!-- ROI Setup Card -->
+            <div class="card" style="margin-bottom: 25px;">
+                <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center;">
+                    <span>ROI Setup — Black Colour Detection</span>
+                    <span style="font-size:0.72rem; font-family:'JetBrains Mono',monospace; color:var(--accent-blue);">CV Zones</span>
+                </h3>
+                <p style="font-size:0.73rem; color:var(--text-dim); margin-bottom:14px;">
+                    Draw a rectangle on the live feed to assign the camera region for each part slot.
+                    Saved to <code>roi_boundaries.json</code> and used immediately.
+                </p>
+
+                <!-- Part selector -->
+                <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+                    <label style="font-size:0.78rem; color:var(--text-secondary); white-space:nowrap;">Active part:</label>
+                    <select id="roi-part-select" style="flex:1; min-width:160px; padding:6px 10px; background:rgba(255,255,255,0.06); border:1px solid var(--border-color); color:#fff; border-radius:6px; font-size:0.8rem; cursor:pointer;">
+                        <option value="">— select part —</option>
+                        <option>Chassis 1</option>
+                        <option>Chassis 2</option>
+                        <option>WheelBase 1a</option>
+                        <option>WheelBase 2a</option>
+                        <option>WheelBase 1b</option>
+                        <option>WheelBase 2b</option>
+                        <option>Wheel Slot 1</option>
+                        <option>Wheel Slot 2</option>
+                        <option>Wheel Slot 3</option>
+                        <option>Wheel Slot 4</option>
+                        <option>Wheel Slot 5</option>
+                        <option>Wheel Slot 6</option>
+                        <option>Wheel Slot 7</option>
+                        <option>Wheel Slot 8</option>
+                        <option>Body 1</option>
+                        <option>Body 2</option>
+                    </select>
+                    <button onclick="roiResetPart()" style="padding:6px 12px; background:rgba(255,60,95,0.08); border:1px solid rgba(255,60,95,0.3); color:var(--accent-red); border-radius:6px; cursor:pointer; font-size:0.78rem; font-weight:700;">Reset to Default</button>
+                </div>
+
+                <!-- Canvas for drag-to-draw ROI -->
+                <div style="position:relative; width:100%; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--border-color);">
+                    <canvas id="roi-canvas" style="display:block; width:100%; cursor:crosshair;"></canvas>
+                    <div id="roi-canvas-hint" style="position:absolute; top:8px; left:0; right:0; text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.5); pointer-events:none;">
+                        Select a part above, then click and drag to draw its ROI
+                    </div>
+                </div>
+
+                <!-- Current ROI readout -->
+                <div style="display:flex; gap:12px; margin-top:10px; font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--text-secondary); flex-wrap:wrap; align-items:center;">
+                    <span>ROI:</span>
+                    <span>x0=<b id="roi-x0">—</b></span>
+                    <span>y0=<b id="roi-y0">—</b></span>
+                    <span>x1=<b id="roi-x1">—</b></span>
+                    <span>y1=<b id="roi-y1">—</b></span>
+                    <span id="roi-status" style="margin-left:auto; color:var(--accent-green);"></span>
+                </div>
+
+                <!-- Black ratio threshold slider -->
+                <div style="margin-top:14px;">
+                    <label style="font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between;">
+                        Black pixel threshold (ratio)
+                        <span id="lbl-roi-threshold">5%</span>
+                    </label>
+                    <input type="range" id="sl-roi-threshold" min="1" max="30" step="1" value="5"
+                           oninput="document.getElementById('lbl-roi-threshold').textContent=this.value+'%'"
+                           style="width:100%; accent-color:var(--accent-blue);">
+                    <p style="font-size:0.68rem; color:var(--text-dim); margin-top:4px;">
+                        Fraction of ROI pixels that must be black to count as "part present". Lower = more sensitive.
+                    </p>
+                </div>
+            </div>
+
+            <!-- scrolling log viewport -->
+            <div class="card logs-card">
+                <h3 class="card-title">Live Status Feed</h3>
+                <div class="logs-viewport" id="logs-viewport">
+                    <div class="log-entry">
+                        <span class="log-timestamp">[SYSTEM]</span>
+                        <span class="log-message info">Camera View loaded. Unified server connection online.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        MechArm 270 Camera View &amp; Control. port: 5000.
+    </footer>
+
+    <!-- Socket.IO library -->
+    <script src="/static/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('connect', () => {
+            addLog("Unified WebSocket connection online.", "info");
+        });
+
+        socket.on('status', (data) => {
+            updateDashboardState(data.state, data.step, data.total, data.message);
+            if (data.message) {
+                const lvl = data.state === 'ERROR' ? 'error'
+                          : data.message.includes('retry') || data.message.includes('⚠') ? 'warning'
+                          : data.message.includes('confirmed') || data.message.includes('verified') ? 'success'
+                          : 'info';
+                addLog(data.message, lvl);
+            }
+        });
+
+        socket.on('vision_log', (data) => {
+            addLog(data.message, data.level || 'info');
+        });
+
+        socket.on('error', (data) => {
+            addLog(data.message, "error");
+            showErrorPanel(data.message);
+            pollServerState();
+        });
+
+        socket.on('complete', (data) => {
+            addLog("🏆 Sequence complete! Both cars assembled successfully.", "success");
+            pollServerState();
+        });
+
+        // Combined robot + vision broadcast updates at 10Hz
+        socket.on('robot_status', (data) => {
+            const badge = document.getElementById('robot-conn-badge');
+            if (data.connection_state === "connected") {
+                badge.className = "badge badge-live";
+                badge.innerText = `Arm: Connected (${data.ip})`;
+            } else {
+                badge.className = "badge";
+                badge.innerText = `Arm: Simulated`;
+            }
+
+
+        });
+
+        // Listen for real-time verification checklist updates from backend
+        socket.on('part_verified', (data) => {
+            const part = data.part;
+            const count = data.count;
+            let target = null;
+            
+            if (part === "Chassis 1") target = { car: "car-1", index: 0 };
+            else if (part === "WheelBase 1a") target = { car: "car-1", index: 1 };
+            else if (part === "WheelBase 2a") target = { car: "car-1", index: 2 };
+            else if (part === "Chassis 2") target = { car: "car-2", index: 0 };
+            else if (part === "WheelBase 1b") target = { car: "car-2", index: 1 };
+            else if (part === "WheelBase 2b") target = { car: "car-2", index: 2 };
+            else if (part === "Body 1") target = { car: "car-1", index: 3 };
+            else if (part === "Body 2") target = { car: "car-2", index: 3 }; else if (part === "Wheels") {
+                if (count === 1) target = { car: "car-1", index: 4 };
+                else if (count >= 2) target = { car: "car-2", index: 4 };
+            }
+            
+            if (target) {
+                markPartCompleted(target.car, target.index);
+                updateProgress();
+                addLog(`✓ ${part} verified successfully (Count: ${count})`, "success");
+            }
+        });
+
+        // ── CV detection lifecycle badges ───────────────────────────────────
+        socket.on('detection_started', (data) => {
+            const badge = document.getElementById('cam-stream-badge');
+            if (badge) {
+                badge.innerText = `🔍 SCANNING: ${data.part}`;
+                badge.style.background = 'rgba(245,158,11,0.15)';
+                badge.style.color = '#f59e0b';
+                badge.style.borderColor = 'rgba(245,158,11,0.4)';
+                badge.style.animation = 'pulse 1.2s infinite';
+            }
+            addLog(`👁️ CV scanning for ${data.part} at ${data.station}`, 'info');
+        });
+
+        socket.on('detection_stopped', (data) => {
+            const badge = document.getElementById('cam-stream-badge');
+            if (badge) {
+                badge.innerText = 'Streaming';
+                badge.style.background = '';
+                badge.style.color = '';
+                badge.style.borderColor = '';
+                badge.style.animation = '';
+            }
+            if (data.found) {
+                addLog(`✅ CV confirmed ${data.part} — overlays off`, 'success');
+            }
+        });
+
+
+        function handleStreamError(img) {
+            console.log("Webcam MJPEG stream reconnecting...");
+            setTimeout(() => {
+                img.src = "/stream?t=" + new Date().getTime();
+            }, 3000);
+        }
+
+        function addLog(msg, type = "info") {
+            const viewport = document.getElementById('logs-viewport');
+            const entry = document.createElement('div');
+            entry.className = "log-entry";
+            
+            const timestamp = document.createElement('span');
+            timestamp.className = "log-timestamp";
+            const now = new Date();
+            timestamp.innerText = `[${now.toTimeString().split(' ')[0]}]`;
+            
+            const message = document.createElement('span');
+            message.className = `log-message ${type}`;
+            message.innerText = msg;
+            
+            entry.appendChild(timestamp);
+            entry.appendChild(message);
+            viewport.appendChild(entry);
+            viewport.scrollTop = viewport.scrollHeight;
+        }
+
+        function showErrorPanel(msg) {
+            document.getElementById('error-panel').style.display = "block";
+            document.getElementById('error-message').innerText = msg;
+        }
+
+        function hideErrorPanel() {
+            document.getElementById('error-panel').style.display = "none";
+        }
+
+        function updateDashboardState(state, step, total, message) {
+            const playBtn = document.getElementById('btn-play');
+            const stopBtn = document.getElementById('btn-stop');
+            const restartBtn = document.getElementById('btn-restart');
+
+            if (state === "PLAYING") {
+                playBtn.disabled = true;
+                stopBtn.disabled = false;
+                restartBtn.disabled = true;
+                hideErrorPanel();
+            } else if (state === "WAITING") {
+                playBtn.disabled = true;
+                stopBtn.disabled = false;   // operator can still abort
+                restartBtn.disabled = true;
+                hideErrorPanel();
+            } else if (state === "ERROR") {
+                playBtn.disabled = false; // Enable direct retry!
+                stopBtn.disabled = true;
+                restartBtn.disabled = false;
+            } else if (state === "COMPLETE") {
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+                restartBtn.disabled = true;
+                hideErrorPanel();
+            } else {
+                playBtn.disabled = false;
+                stopBtn.disabled = true;
+                restartBtn.disabled = true;
+                hideErrorPanel();
+            }
+
+            if (state === "IDLE") {
+                resetChecklists();
+            }
+
+            if (total > 0) {
+                const percentage = (step / total) * 100;
+                document.getElementById('progress-text').innerText = `Step ${step} / ${total}`;
+                document.getElementById('progress-bar').style.width = `${percentage}%`;
+            } else {
+                document.getElementById('progress-text').innerText = "Step 0 / 0";
+                document.getElementById('progress-bar').style.width = `0%`;
+            }
+
+            if (message) {
+                let logType = "info";
+                if (state === "ERROR") logType = "error";
+                else if (state === "COMPLETE") logType = "success";
+                else if (state === "WAITING") logType = "warning";
+                addLog(message, logType);
+            }
+        }
+
+        function resetChecklists() {
+            for (let i = 0; i < 5; i++) {
+                document.getElementById(`car-1-part-${i}`).className = "part-row";
+                document.getElementById(`car-1-check-${i}`).innerText = "⬜";
+                document.getElementById(`car-2-part-${i}`).className = "part-row";
+                document.getElementById(`car-2-check-${i}`).innerText = "⬜";
+            }
+            document.getElementById('car-1-status').innerText = "0%";
+            document.getElementById('car-2-status').innerText = "0%";
+        }
+
+        function updateProgress() {
+            let c1Checked = 0;
+            let c2Checked = 0;
+            for (let i = 0; i < 5; i++) {
+                if (document.getElementById(`car-1-check-${i}`).innerText === "✅") {
+                    c1Checked++;
+                }
+                if (document.getElementById(`car-2-check-${i}`).innerText === "✅") {
+                    c2Checked++;
+                }
+            }
+            const c1Pct = c1Checked * 20;
+            const c2Pct = c2Checked * 20;
+            document.getElementById('car-1-status').innerText = `${c1Pct}%`;
+            document.getElementById('car-2-status').innerText = `${c2Pct}%`;
+        }
+
+        function markPartCompleted(carId, partIdx) {
+            const row = document.getElementById(`${carId}-part-${partIdx}`);
+            const check = document.getElementById(`${carId}-check-${partIdx}`);
+            if (row && check) {
+                row.className = "part-row completed";
+                check.innerText = "✅";
+            }
+        }
+
+        async function triggerPlay() {
+            try {
+                addLog("Sending PLAY command...", "info");
+                const r = await fetch('/play', { method: 'POST' });
+                const res = await r.json();
+                if (!res.success) addLog(`Play error: ${res.error}`, "error");
+            } catch (err) {
+                addLog(`Connection error: ${err}`, "error");
+            }
+        }
+
+        async function triggerStop() {
+            try {
+                addLog("Sending EMERGENCY STOP...", "error");
+                await fetch('/stop', { method: 'POST' });
+            } catch (err) {
+                console.error("Stop error:", err);
+            }
+        }
+
+        async function triggerRestart() {
+            try {
+                addLog("Clearing sequence error status.", "info");
+                const r = await fetch('/restart', { method: 'POST' });
+                const res = await r.json();
+                if (res.success) {
+                    hideErrorPanel();
+                    pollServerState();
+                }
+            } catch (err) {
+                console.error("Restart error:", err);
+            }
+        }
+
+        async function toggleMock(part, state) {
+            try {
+                const response = await fetch('/mock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ part: part, state: state })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    addLog(`Mock ${part} validation changed to ${state ? 'ONLINE' : 'OFFLINE'}.`, "info");
+                }
+            } catch (err) {
+                console.error(`Error toggling mock for ${part}:`, err);
+            }
+        }
+
+        async function mapRawTag(cx, cy, selectId, btn) {
+            const selectEl = document.getElementById(selectId);
+            if (!selectEl) return;
+            const partName = selectEl.value;
+            if (!partName) {
+                addLog("Please select a target part/slot to map.", "warning");
+                return;
+            }
+            
+            btn.disabled = true;
+            const origText = btn.innerText;
+            btn.innerText = "Mapping...";
+            
+            try {
+                const response = await fetch('/api/map_coordinate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ part: partName, cx: cx, cy: cy })
+                });
+                const res = await response.json();
+                if (res.success) {
+                    addLog(`🎯 Mapped ${partName} to coordinate [X: ${cx}, Y: ${cy}] successfully!`, "success");
+                    loadZones(); // Refresh zones definitions
+                } else {
+                    addLog(`❌ Mapping failed: ${res.error}`, "error");
+                }
+            } catch (err) {
+                addLog(`❌ Connection error during mapping.`, "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = origText;
+            }
+        }
+
+        async function pollServerState() {
+            try {
+                const response = await fetch('/state');
+                if (response.ok) {
+                    const data = await response.json();
+                    updateDashboardState(data.state, data.step, data.total, null);
+                    if (data.state === "ERROR") {
+                        showErrorPanel(data.message);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed syncing cockpit: ", err);
+            }
+        }
+
+        // Global Javascript error catcher to log exceptions directly to the Cockpit logs card
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error("GLOBAL ERROR:", message, "at", source, ":", lineno);
+            if (typeof addLog === 'function') {
+                addLog(`❌ Javascript Error: ${message} (Line ${lineno})`, "error");
+            }
+        };
+    </script>
+
+    <!-- Camera Settings Script (Isolated from Socket.IO script for robust offline support) -->
+    <script>
+        // Camera settings connection
+        const camKeys = ["brightness", "contrast", "saturation", "gain", "exposure", "sharpness"];
+
+        function initializeSliderLabels() {
+            camKeys.forEach(k => {
+                const sl = document.getElementById(`sl-${k}`);
+                const lbl = document.getElementById(`lbl-${k}`);
+                if (sl && lbl) {
+                    lbl.innerText = sl.value;
+                }
+            });
+        }
+
+        async function loadCameraSettings() {
+            try {
+                const r = await fetch('/api/camera_settings');
+                if (r.ok) {
+                    const settings = await r.json();
+                    camKeys.forEach(k => {
+                        const sl = document.getElementById(`sl-${k}`);
+                        const lbl = document.getElementById(`lbl-${k}`);
+                        if (sl && settings[k] !== undefined) {
+                            sl.value = settings[k];
+                            if (lbl) lbl.innerText = settings[k];
+                        }
+                    });
+                    const chkAuto = document.getElementById('chk-auto-exposure');
+                    if (chkAuto && settings['auto_exposure'] !== undefined) {
+                        chkAuto.checked = settings['auto_exposure'] == 1 || settings['auto_exposure'] === true;
+                    }
+                    updateSettingsStatus("Settings loaded.", "info");
+                } else {
+                    addLog(`❌ Failed to load camera settings: HTTP ${r.status}`, "error");
+                    updateSettingsStatus("Failed loading settings.", "error");
+                }
+            } catch (err) {
+                console.error("Error loading camera settings:", err);
+                addLog(`❌ Error loading camera settings: ${err.name} - ${err.message}`, "error");
+                updateSettingsStatus("Failed loading settings.", "error");
+            }
+        }
+
+        function updateSettingsStatus(msg, type) {
+            const statusEl = document.getElementById('cam-settings-status');
+            if (statusEl) {
+                statusEl.innerText = msg;
+                statusEl.style.color = type === 'error' ? 'var(--accent-red)' : type === 'success' ? 'var(--accent-green)' : 'var(--text-dim)';
+            }
+        }
+
+        // Setup slider input listeners to update labels live, and change listeners for instant preview
+        camKeys.forEach(k => {
+            const sl = document.getElementById(`sl-${k}`);
+            const lbl = document.getElementById(`lbl-${k}`);
+            if (sl && lbl) {
+                sl.addEventListener('input', () => {
+                    lbl.innerText = sl.value;
+                });
+                sl.addEventListener('change', () => {
+                    applyCameraSettings();
+                });
+            }
+        });
+
+        // Setup auto-exposure change listener for instant preview
+        const chkAuto = document.getElementById('chk-auto-exposure');
+        if (chkAuto) {
+            chkAuto.addEventListener('change', () => {
+                applyCameraSettings();
+            });
+        }
+
+        // Apply settings handler (exposed to inline onclick)
+        async function applyCameraSettings() {
+            const payload = {};
+            camKeys.forEach(k => {
+                const sl = document.getElementById(`sl-${k}`);
+                if (sl) {
+                    payload[k] = parseFloat(sl.value);
+                }
+            });
+            const chkAuto = document.getElementById('chk-auto-exposure');
+            if (chkAuto) {
+                payload['auto_exposure'] = chkAuto.checked ? 1.0 : 0.0;
+            }
+            updateSettingsStatus("Applying...", "info");
+            try {
+                const r = await fetch('/api/camera_settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const res = await r.json();
+                if (res.success) {
+                    updateSettingsStatus("Settings applied successfully.", "success");
+                    // We don't need local addLog because the server now broadcasts vision_log
+                } else {
+                    addLog(`❌ Apply failed: ${res.error || 'Unknown error'}`, "error");
+                    updateSettingsStatus("Failed applying settings.", "error");
+                }
+            } catch (err) {
+                addLog(`❌ Apply request failed: ${err.name} - ${err.message}`, "error");
+                updateSettingsStatus("Network error.", "error");
+            }
+        }
+
+        // Reset settings handler (exposed to inline onclick)
+        async function resetCameraSettings() {
+            updateSettingsStatus("Resetting...", "info");
+            try {
+                const r = await fetch('/api/camera_settings/reset', { method: 'POST' });
+                const res = await r.json();
+                if (res.success) {
+                    updateSettingsStatus("Settings reset to defaults.", "success");
+                    // We don't need local addLog because the server now broadcasts vision_log
+                    await loadCameraSettings();
+                } else {
+                    addLog(`❌ Reset failed: ${res.error || 'Unknown error'}`, "error");
+                    updateSettingsStatus("Failed resetting settings.", "error");
+                }
+            } catch (err) {
+                addLog(`❌ Reset request failed: ${err.name} - ${err.message}`, "error");
+                updateSettingsStatus("Network error.", "error");
+            }
+        }
+
+        function updateWaitTimeoutLabel(val) {
+            const lbl = document.getElementById('lbl-wait-timeout');
+            lbl.textContent = val == 0 ? '∞ (infinite)' : `${val}s`;
+        }
+
+        async function applyWaitTimeout(val) {
+            try {
+                await fetch('/api/set_vision_timeout', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({seconds: parseInt(val)})
+                });
+            } catch (err) {
+                addLog(`❌ Timeout update failed: ${err.message}`, "error");
+            }
+        }
+
+
+        // Expose to window for inline onclick attributes
+        window.applyCameraSettings = applyCameraSettings;
+        window.resetCameraSettings = resetCameraSettings;
+
+        async function loadDebugOverlaysState() {
+            try {
+                const r = await fetch('/api/debug_overlays');
+                if (r.ok) {
+                    const data = await r.json();
+                    const chk = document.getElementById('chk-debug-overlays');
+                    if (chk) {
+                        chk.checked = !!data.enabled;
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading debug overlays state:", err);
+            }
+        }
+
+        async function toggleDebugOverlays(state) {
+            try {
+                const r = await fetch('/api/debug_overlays', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled: state })
+                });
+                const res = await r.json();
+                if (!res.success) {
+                    addLog(`❌ Failed to toggle debug overlays: ${res.error}`, "error");
+                }
+            } catch (err) {
+                addLog(`❌ Network error while toggling debug overlays.`, "error");
+            }
+        }
+
+        window.toggleDebugOverlays = toggleDebugOverlays;
+
+        function initDashboard() {
+            pollServerState();
+            initializeSliderLabels();
+            loadCameraSettings();
+            loadDebugOverlaysState();
+        }
+
+        // Initialize once DOM is ready or immediately if already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDashboard);
+        } else {
+            initDashboard();
+        }
+    </script>
+
+    <!-- ROI Setup canvas drag-to-draw -->
+    <script>
+    (function () {
+        const canvas = document.getElementById('roi-canvas');
+        const ctx    = canvas.getContext('2d');
+
+        // Stream resolution (server encodes at 640×480)
+        const CAM_W = 640, CAM_H = 480;
+        // Detection frame resolution — camera now captures at 640×480 (same as stream)
+        const DET_W = 640, DET_H = 480;
+        canvas.width  = CAM_W;
+        canvas.height = CAM_H;
+
+        // Convert canvas px → detection px (1:1 — both are 640×480)
+        function toDetect(x, y) {
+            return [Math.round(x * DET_W / CAM_W), Math.round(y * DET_H / CAM_H)];
+        }
+        // Convert detection px → canvas px (1:1 — both are 640×480)
+        function toCanvas(x, y) {
+            return [Math.round(x * CAM_W / DET_W), Math.round(y * CAM_H / DET_H)];
+        }
+
+        let img = new Image();
+        let rois = {};            // { partName: [x0,y0,x1,y1] } in detection (1280×720) pixels
+        let drag = null;          // { x0, y0, x1?, y1? } in canvas pixels
+
+        // Refresh camera frame into canvas ~5fps
+        function refreshFrame() {
+            let snap = new Image();
+            snap.onload = function () {
+                img = snap;
+                redraw();
+            };
+            snap.src = '/frame?' + Date.now();
+        }
+        setInterval(refreshFrame, 200);
+        refreshFrame();
+
+        // Load saved ROIs from server
+        function loadRois() {
+            fetch('/api/get_roi')
+                .then(r => r.json())
+                .then(d => { rois = d.rois || {}; redraw(); })
+                .catch(() => {});
+        }
+        loadRois();
+        setInterval(loadRois, 5000);
+
+        function redraw() {
+            ctx.clearRect(0, 0, CAM_W, CAM_H);
+            if (img.complete && img.naturalWidth) {
+                ctx.drawImage(img, 0, 0, CAM_W, CAM_H);
+            } else {
+                ctx.fillStyle = '#111';
+                ctx.fillRect(0, 0, CAM_W, CAM_H);
+            }
+
+            // Draw all saved ROIs (coords stored in 1280×720; scale to canvas)
+            for (const [part, roi] of Object.entries(rois)) {
+                const [cx0, cy0] = toCanvas(roi[0], roi[1]);
+                const [cx1, cy1] = toCanvas(roi[2], roi[3]);
+                ctx.strokeStyle = '#00ff88';
+                ctx.lineWidth   = 2;
+                ctx.strokeRect(cx0, cy0, cx1 - cx0, cy1 - cy0);
+                ctx.fillStyle = 'rgba(0,255,136,0.12)';
+                ctx.fillRect(cx0, cy0, cx1 - cx0, cy1 - cy0);
+                ctx.fillStyle = '#00ff88';
+                ctx.font = 'bold 11px monospace';
+                ctx.fillText(part, cx0 + 4, cy0 + 14);
+            }
+
+            // Draw active drag rect
+            if (drag && drag.x1 !== undefined) {
+                const rx = Math.min(drag.x0, drag.x1);
+                const ry = Math.min(drag.y0, drag.y1);
+                const rw = Math.abs(drag.x1 - drag.x0);
+                const rh = Math.abs(drag.y1 - drag.y0);
+                ctx.strokeStyle = '#ff4444';
+                ctx.lineWidth   = 2;
+                ctx.setLineDash([6, 3]);
+                ctx.strokeRect(rx, ry, rw, rh);
+                ctx.setLineDash([]);
+            }
+        }
+
+        function canvasXY(e) {
+            const rect  = canvas.getBoundingClientRect();
+            const scaleX = CAM_W / rect.width;
+            const scaleY = CAM_H / rect.height;
+            const src = e.touches ? e.touches[0] : e;
+            return {
+                x: Math.round((src.clientX - rect.left) * scaleX),
+                y: Math.round((src.clientY - rect.top)  * scaleY),
+            };
+        }
+
+        canvas.addEventListener('mousedown', e => {
+            const part = document.getElementById('roi-part-select').value;
+            if (!part) { alert('Select a part first.'); return; }
+            const {x, y} = canvasXY(e);
+            drag = { x0: x, y0: y };
+        });
+
+        canvas.addEventListener('mousemove', e => {
+            if (!drag) return;
+            const {x, y} = canvasXY(e);
+            drag.x1 = x; drag.y1 = y;
+            redraw();
+        });
+
+        canvas.addEventListener('mouseup', e => {
+            if (!drag || drag.x1 === undefined) { drag = null; return; }
+            const {x, y} = canvasXY(e);
+            drag.x1 = x; drag.y1 = y;
+            const x0 = Math.min(drag.x0, drag.x1);
+            const y0 = Math.min(drag.y0, drag.y1);
+            const x1 = Math.max(drag.x0, drag.x1);
+            const y1 = Math.max(drag.y0, drag.y1);
+            drag = null;
+            if (x1 - x0 < 5 || y1 - y0 < 5) { redraw(); return; }
+            const part = document.getElementById('roi-part-select').value;
+            saveRoi(part, x0, y0, x1, y1);
+        });
+
+        canvas.addEventListener('mouseleave', () => { drag = null; redraw(); });
+
+        function saveRoi(part, x0, y0, x1, y1) {
+            // x0/y0/x1/y1 are in canvas (640×480) pixels — detection res is also 640×480, so 1:1
+            const [dx0, dy0] = toDetect(x0, y0);
+            const [dx1, dy1] = toDetect(x1, y1);
+            document.getElementById('roi-x0').textContent = dx0;
+            document.getElementById('roi-y0').textContent = dy0;
+            document.getElementById('roi-x1').textContent = dx1;
+            document.getElementById('roi-y1').textContent = dy1;
+            fetch('/api/set_roi', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({part, roi: [dx0, dy0, dx1, dy1]})
+            })
+            .then(r => r.json())
+            .then(d => {
+                const st = document.getElementById('roi-status');
+                if (d.success) {
+                    rois[part] = [dx0, dy0, dx1, dy1];
+                    st.style.color = 'var(--accent-green)';
+                    st.textContent = `✓ ${part} saved`;
+                } else {
+                    st.style.color = 'var(--accent-red)';
+                    st.textContent = `Error: ${d.error}`;
+                }
+                redraw();
+            });
+        }
+
+        window.roiResetPart = function () {
+            const part = document.getElementById('roi-part-select').value;
+            if (!part) { alert('Select a part first.'); return; }
+            fetch('/api/reset_roi', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({part})
+            })
+            .then(r => r.json())
+            .then(d => {
+                const st = document.getElementById('roi-status');
+                if (d.success) {
+                    delete rois[part];
+                    st.style.color = 'var(--text-secondary)';
+                    st.textContent = `${part} reset to default`;
+                    ['roi-x0','roi-y0','roi-x1','roi-y1'].forEach(id =>
+                        document.getElementById(id).textContent = '—');
+                    loadRois();
+                } else {
+                    st.style.color = 'var(--accent-red)';
+                    st.textContent = `Error: ${d.error}`;
+                }
+            });
+        };
+
+        // Update readout when part changes
+        document.getElementById('roi-part-select').addEventListener('change', function () {
+            const roi = rois[this.value];
+            if (roi) {
+                document.getElementById('roi-x0').textContent = roi[0];
+                document.getElementById('roi-y0').textContent = roi[1];
+                document.getElementById('roi-x1').textContent = roi[2];
+                document.getElementById('roi-y1').textContent = roi[3];
+            } else {
+                ['roi-x0','roi-y0','roi-x1','roi-y1'].forEach(id =>
+                    document.getElementById(id).textContent = '—');
+            }
+            document.getElementById('roi-status').textContent = '';
+            redraw();
+        });
+    })();
+    </script>
+</body>
+</html>

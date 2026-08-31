@@ -1,0 +1,2617 @@
+[
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "chasis-1",
+    "rail_preset": "P1",
+    "data": [
+      -88.16,
+      1.49,
+      2.02,
+      -1.4,
+      4.57,
+      0.13
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.904222,
+    "is_reference": false
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "chasis-1",
+    "rail_preset": "P1",
+    "data": [
+      -85.29,
+      57.65,
+      -12.3,
+      0.52,
+      37.8,
+      -0.87
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.904639,
+    "is_reference": false
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "chasis-1",
+    "rail_preset": "P1",
+    "data": [
+      -84.03,
+      87.36,
+      -12.21,
+      0.08,
+      34.04,
+      -0.87
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9050841,
+    "is_reference": false
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "chasis-1",
+    "rail_preset": "P1",
+    "data": [
+      -81.38,
+      62.05,
+      -19.95,
+      -6.06,
+      61.34,
+      5.62
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9054997
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "chasis-1",
+    "rail_preset": "P3",
+    "data": [
+      93.28,
+      41.04,
+      -55.72,
+      -1.05,
+      73.91,
+      -9.22
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.905978,
+    "is_reference": false
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "chasis-1",
+    "rail_preset": "P3",
+    "data": [
+      88.91,
+      53.44,
+      -10.34,
+      0.17,
+      55.22,
+      -7.52
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9066467,
+    "is_reference": false
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "chasis-1",
+    "rail_preset": "P3",
+    "data": [
+      90.35,
+      58.85,
+      -12.43,
+      0.43,
+      53.61,
+      -8.01
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9071262
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "chasis-1",
+    "rail_preset": "P3",
+    "data": [
+      88.47,
+      15.2,
+      -16.25,
+      0.43,
+      62.4,
+      -8.61
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9076316
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-1",
+    "rail_preset": "P2",
+    "data": [
+      -92.1,
+      16.61,
+      -15.46,
+      -0.43,
+      63.28,
+      -9.4
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9083228
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-1",
+    "rail_preset": "P2",
+    "data": [
+      -87.51,
+      48.07,
+      16.47,
+      2.02,
+      24.73,
+      -7.73
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9088979
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-1",
+    "rail_preset": "P2",
+    "data": [
+      -88.16,
+      70.66,
+      15.47,
+      2.63,
+      27.41,
+      -7.73
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9094853
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-1",
+    "rail_preset": "NONE",
+    "data": [
+      -87.36,
+      43.76,
+      14.58,
+      0.17,
+      50.11,
+      -6.73
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9103065
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-1",
+    "rail_preset": "P3",
+    "data": [
+      91.05,
+      36.82,
+      -48.16,
+      -2.72,
+      75.49,
+      -99.56
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9111705
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-1",
+    "rail_preset": "P3",
+    "data": [
+      90.84,
+      30.49,
+      3.95,
+      -1.4,
+      55.64,
+      -97.71
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.91198
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-1",
+    "rail_preset": "NONE",
+    "data": [
+      91.93,
+      44.84,
+      3.95,
+      -1.4,
+      53.23,
+      -97.71
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9128842
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-2",
+    "rail_preset": "NONE",
+    "data": [
+      88.5,
+      30.84,
+      -54.49,
+      -0.87,
+      85.51,
+      -102.65
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9203908
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-2",
+    "rail_preset": "P2",
+    "data": [
+      -93.42,
+      30.58,
+      -54.49,
+      -0.87,
+      84.51,
+      -102.65
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.924534
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-2",
+    "rail_preset": "P2",
+    "data": [
+      -104.93,
+      58.18,
+      10.25,
+      -10.28,
+      32.65,
+      -102.74
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9347427
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-2",
+    "rail_preset": "P2",
+    "data": [
+      -100.91,
+      74.97,
+      4.33,
+      -11.68,
+      32.68,
+      -102.74
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.935954
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-2",
+    "rail_preset": "P2",
+    "data": [
+      -101.75,
+      52.47,
+      12.3,
+      -6.59,
+      49.21,
+      -102.74
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9369307
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-2",
+    "rail_preset": "P3",
+    "data": [
+      89.79,
+      42.45,
+      -58.97,
+      -1.66,
+      73.74,
+      -8.7
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9513583
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-2",
+    "rail_preset": "NONE",
+    "data": [
+      90.29,
+      54.05,
+      -21.29,
+      -1.31,
+      55.68,
+      3.87
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9524636
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-2",
+    "rail_preset": "P3",
+    "data": [
+      91.29,
+      63.63,
+      -21.29,
+      -1.37,
+      57.63,
+      4.87
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9535162
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "wheelbase-2",
+    "rail_preset": "NONE",
+    "data": [
+      91.29,
+      8.08,
+      -15.29,
+      -2.98,
+      58.77,
+      -8.87
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9718416
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-1",
+    "rail_preset": "P5",
+    "data": [
+      -89.73,
+      18.72,
+      -44.12,
+      -0.79,
+      103.18,
+      -14.32
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352742.9731793
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-1",
+    "rail_preset": "P5",
+    "data": [
+      -103.71,
+      61.43,
+      -10.19,
+      -5.8,
+      52.11,
+      -15.11
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.004645
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-1",
+    "rail_preset": "NONE",
+    "data": [
+      -103.62,
+      76.41,
+      -16.58,
+      -6.76,
+      53.41,
+      -15.11
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0099256
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-1",
+    "rail_preset": "NONE",
+    "data": [
+      -104.15,
+      20.1,
+      -20.47,
+      -5.97,
+      87.29,
+      -15.11
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0116606
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-1",
+    "rail_preset": "P3",
+    "data": [
+      91.22,
+      21.62,
+      -20.93,
+      -5.0,
+      96.15,
+      -15.29
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.017671
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-1",
+    "rail_preset": "NONE",
+    "data": [
+      92.41,
+      30.09,
+      -39.81,
+      -1.31,
+      87.0,
+      -3.19
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0199869
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-1",
+    "rail_preset": "NONE",
+    "data": [
+      91.94,
+      64.59,
+      -39.81,
+      -0.52,
+      89.12,
+      -2.81
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0243163
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-1",
+    "rail_preset": "NONE",
+    "data": [
+      -84.11,
+      9.4,
+      -14.5,
+      -2.54,
+      57.65,
+      -9.58
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0261474
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-1",
+    "rail_preset": "P4",
+    "data": [
+      -88.5,
+      52.18,
+      12.68,
+      -1.05,
+      30.9,
+      -9.58
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0279787
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-1",
+    "rail_preset": "NONE",
+    "data": [
+      -90.76,
+      69.52,
+      16.47,
+      -0.43,
+      29.41,
+      -9.58
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 100,
+    "timestamp": 1781352743.029693
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-1",
+    "rail_preset": "NONE",
+    "data": [
+      -87.76,
+      57.04,
+      19.68,
+      1.14,
+      35.39,
+      -8.52
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0331664
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-1",
+    "rail_preset": "P5",
+    "data": [
+      -89.71,
+      48.69,
+      -133.33,
+      -89.64,
+      84.9,
+      -26.71
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0435293
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-1",
+    "rail_preset": "NONE",
+    "data": [
+      -97.73,
+      -50.53,
+      -164.97,
+      -100.2,
+      85.69,
+      -60.2
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0461783
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-1",
+    "rail_preset": "NONE",
+    "data": [
+      -84.19,
+      -50.53,
+      -155.14,
+      -88.51,
+      78.87,
+      -60.2
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0487015
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-1",
+    "rail_preset": "P5",
+    "data": [
+      -97.1,
+      -50.53,
+      -164.97,
+      -97.2,
+      85.69,
+      -60.2
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0509126
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-2",
+    "rail_preset": "P5",
+    "data": [
+      -86.79,
+      28.12,
+      -90.87,
+      -102.83,
+      88.24,
+      -13.53
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0527341
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-2",
+    "rail_preset": "P4",
+    "data": [
+      -103.91,
+      45.68,
+      19.73,
+      -2.54,
+      27.72,
+      -14.41
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0545788
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-2",
+    "rail_preset": "NONE",
+    "data": [
+      -103.83,
+      73.56,
+      16.43,
+      -2.81,
+      25.46,
+      -14.41
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0565205
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-2",
+    "rail_preset": "NONE",
+    "data": [
+      -103.44,
+      57.56,
+      15.64,
+      -1.4,
+      35.5,
+      -14.41
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.058409
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-2",
+    "rail_preset": "P1",
+    "data": [
+      -71.27,
+      25.4,
+      -100.85,
+      64.68,
+      93.42,
+      -15.2
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0602903
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-2",
+    "rail_preset": "NONE",
+    "data": [
+      -87.89,
+      -46.66,
+      -158.22,
+      95.65,
+      84.76,
+      -17.29
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0627024
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-2",
+    "rail_preset": "NONE",
+    "data": [
+      -94.74,
+      -46.66,
+      -150.22,
+      95.37,
+      80.69,
+      -17.29
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0652416
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-2 ",
+    "rail_preset": "NONE",
+    "data": [
+      -85.74,
+      -46.66,
+      -150.22,
+      95.37,
+      78.69,
+      -15.29
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0675108
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-3 ",
+    "rail_preset": "P4",
+    "data": [
+      0.63,
+      -29.79,
+      24.08,
+      3.33,
+      82.17,
+      -0.87
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.069698
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-3",
+    "rail_preset": "P4",
+    "data": [
+      -93.76,
+      61.06,
+      -15.46,
+      1.49,
+      47.99,
+      -2.19
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.07197
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-3",
+    "rail_preset": "NONE",
+    "data": [
+      -91.85,
+      80.22,
+      -12.46,
+      0.35,
+      45.38,
+      -2.19
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0743158
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-3",
+    "rail_preset": "NONE",
+    "data": [
+      -88.76,
+      66.97,
+      4.48,
+      -2.02,
+      35.08,
+      -2.1
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0772529
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-3",
+    "rail_preset": "NONE",
+    "data": [
+      -7.55,
+      19.95,
+      -20.83,
+      -5.09,
+      56.07,
+      -1.23
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.07934
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-3",
+    "rail_preset": "NONE",
+    "data": [
+      58.09,
+      79.01,
+      -27.78,
+      50.87,
+      71.51,
+      -1.14
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0816684,
+    "is_reference": false
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-3",
+    "rail_preset": "NONE",
+    "data": [
+      69.47,
+      94.93,
+      -41.22,
+      55.84,
+      68.12,
+      -1.14
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0839868
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-3",
+    "rail_preset": "NONE",
+    "data": [
+      55.63,
+      86.66,
+      -33.22,
+      52.03,
+      78.22,
+      -1.14
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0862765
+  },
+  {
+    "type": "vision_check",
+    "name": "vision-check",
+    "rail_preset": "P4",
+    "check_part": "Wheel Slot 4",
+    "data": [],
+    "vacuum": "none",
+    "speed": 50,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0890827,
+    "vacuum_delay_ms": 300
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre - 4",
+    "rail_preset": "P4",
+    "data": [
+      -93.42,
+      -15.02,
+      -2.37,
+      7.2,
+      83.05,
+      -2.02
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.0919063
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre - 4",
+    "rail_preset": "NONE",
+    "data": [
+      -98.76,
+      70.4,
+      -4.4,
+      -8.65,
+      35.98,
+      -0.26
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.094527
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre - 4",
+    "rail_preset": "NONE",
+    "data": [
+      -98.85,
+      77.25,
+      3.6,
+      -8.92,
+      32.27,
+      -0.26
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 100,
+    "timestamp": 1781352743.0972915
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre - 4",
+    "rail_preset": "NONE",
+    "data": [
+      -97.38,
+      64.51,
+      -0.26,
+      -1.58,
+      36.36,
+      -0.17
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.1002178
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre - 4",
+    "rail_preset": "P1",
+    "data": [
+      -81.03,
+      17.66,
+      -133.65,
+      87.36,
+      86.74,
+      -0.08
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.1029537
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre - 4",
+    "rail_preset": "NONE",
+    "data": [
+      -87.95,
+      -50.0,
+      -108.91,
+      112.82,
+      72.38,
+      0.0
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.1057923
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre - 4",
+    "rail_preset": "NONE",
+    "data": [
+      -98.98,
+      -50.0,
+      -108.91,
+      112.01,
+      68.97,
+      -0.08
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.136088
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre - 4",
+    "rail_preset": "NONE",
+    "data": [
+      -100.98,
+      -50.0,
+      -102.91,
+      131.92,
+      75.23,
+      0.0
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.1433952
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Car",
+    "rail_preset": "P3",
+    "data": [
+      -24.08,
+      -1.75,
+      -11.77,
+      0.35,
+      79.1,
+      -0.17
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.147201
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 70",
+    "rail_preset": "P3",
+    "data": [
+      90.17,
+      36.03,
+      -34.27,
+      0.35,
+      88.33,
+      -0.96
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.151319
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 71",
+    "rail_preset": "NONE",
+    "data": [
+      90.26,
+      37.0,
+      -6.67,
+      -0.08,
+      64.99,
+      -0.96
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.1550655
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 72",
+    "rail_preset": "NONE",
+    "data": [
+      89.47,
+      55.76,
+      -6.18,
+      1.31,
+      67.53,
+      -0.96
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.161368
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 73",
+    "rail_preset": "P4",
+    "data": [
+      85.12,
+      35.18,
+      -22.06,
+      2.1,
+      82.52,
+      -0.96
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.1656115
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 74",
+    "rail_preset": "NONE",
+    "data": [
+      51.73,
+      71.92,
+      -27.56,
+      3.16,
+      51.1,
+      -0.08
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.172625
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 75",
+    "rail_preset": "NONE",
+    "data": [
+      51.94,
+      75.25,
+      -21.53,
+      2.19,
+      50.46,
+      0.0
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.1760337
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 76",
+    "rail_preset": "NONE",
+    "data": [
+      55.72,
+      32.16,
+      24.69,
+      -2.54,
+      40.3,
+      -0.79
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.1837533
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 77",
+    "rail_preset": "NONE",
+    "data": [
+      55.63,
+      65.38,
+      23.73,
+      -4.83,
+      15.19,
+      -0.79
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.1916807
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 78",
+    "rail_preset": "NONE",
+    "data": [
+      55.63,
+      65.74,
+      23.73,
+      -0.08,
+      -10.6,
+      -0.7
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2139952
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Point 79",
+    "rail_preset": "NONE",
+    "data": [
+      55.63,
+      -29.79,
+      24.08,
+      3.33,
+      82.17,
+      -0.87
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2275162
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Chasis-2",
+    "rail_preset": "P1",
+    "data": [
+      55.63,
+      -29.79,
+      24.08,
+      3.33,
+      82.17,
+      -0.87
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2362163
+  },
+  {
+    "type": "coords",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Chasis-2",
+    "rail_preset": "NONE",
+    "data": [
+      -6.2,
+      -175.3,
+      175.3,
+      -175.17,
+      26.83,
+      92.43
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2583692
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Chasis-2",
+    "rail_preset": "NONE",
+    "data": [
+      -107.76,
+      77.34,
+      -26.45,
+      -1.93,
+      48.78,
+      -0.08
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2682676
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Chasis-2",
+    "rail_preset": "NONE",
+    "data": [
+      -105.76,
+      95.09,
+      -26.45,
+      -3.07,
+      49.73,
+      -0.08
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2752843
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Chasis-2",
+    "rail_preset": "NONE",
+    "data": [
+      -107.57,
+      69.87,
+      -7.91,
+      -0.52,
+      52.73,
+      -0.08
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2786908
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Chasis-2",
+    "rail_preset": "P3",
+    "data": [
+      91.23,
+      -16.25,
+      -21.18,
+      -1.49,
+      79.8,
+      11.07
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2855127
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Chasis-2",
+    "rail_preset": "NONE",
+    "data": [
+      89.47,
+      62.84,
+      -36.56,
+      2.81,
+      75.75,
+      14.93
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2889864
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Chasis-2",
+    "rail_preset": "NONE",
+    "data": [
+      89.1,
+      63.19,
+      -7.73,
+      0.79,
+      56.93,
+      14.93
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.2931662
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Chasis-2",
+    "rail_preset": "NONE",
+    "data": [
+      92.72,
+      44.64,
+      -5.97,
+      1.66,
+      56.42,
+      9.93
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.297238
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase -3",
+    "rail_preset": "P2",
+    "data": [
+      96.24,
+      -26.45,
+      -113.11,
+      -2.63,
+      -65.34,
+      -7.38
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3088663
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase -3",
+    "rail_preset": "NONE",
+    "data": [
+      94.76,
+      -51.59,
+      -113.02,
+      -1.84,
+      -71.42,
+      -8.17
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3125618
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase -3",
+    "rail_preset": "P3",
+    "data": [
+      96.06,
+      -34.54,
+      -114.08,
+      -2.63,
+      -68.3,
+      -7.38
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.316986
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase -3",
+    "rail_preset": "NONE",
+    "data": [
+      90.0,
+      19.33,
+      -0.79,
+      -0.81,
+      56.24,
+      -107.57
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3204598
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase -3",
+    "rail_preset": "NONE",
+    "data": [
+      88.0,
+      31.67,
+      23.65,
+      0.96,
+      35.99,
+      -107.25
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3252225
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase - 4",
+    "rail_preset": "P2",
+    "data": [
+      88.33,
+      -37.16,
+      13.07,
+      -1.31,
+      51.44,
+      -107.05
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3288958
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase - 4",
+    "rail_preset": "NONE",
+    "data": [
+      80.38,
+      -30.67,
+      -130.6,
+      0.61,
+      -58.91,
+      -125.5
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.333568
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase - 2",
+    "rail_preset": "P2",
+    "data": [
+      79.82,
+      -40.75,
+      -127.25,
+      -0.61,
+      -62.07,
+      -126.47
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3437836
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase - 4 ",
+    "rail_preset": "NONE",
+    "data": [
+      81.38,
+      -30.67,
+      -130.6,
+      0.61,
+      -62.91,
+      -125.5
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3520346
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase-4",
+    "rail_preset": "P3",
+    "data": [
+      89.36,
+      53.87,
+      -52.29,
+      1.23,
+      74.61,
+      -26.63
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3562098
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase-4",
+    "rail_preset": "NONE",
+    "data": [
+      87.8,
+      54.58,
+      -21.53,
+      2.28,
+      56.99,
+      -24.68
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.363
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase-4",
+    "rail_preset": "NONE",
+    "data": [
+      86.7,
+      65.03,
+      -21.44,
+      2.46,
+      56.64,
+      -24.68
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3674238
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheelbase-4",
+    "rail_preset": "NONE",
+    "data": [
+      89.29,
+      -25.13,
+      29.97,
+      2.02,
+      73.65,
+      -39.63
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3716476
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Body-2",
+    "rail_preset": "P5",
+    "data": [
+      -77.95,
+      24.19,
+      -5.88,
+      -3.25,
+      51.67,
+      -23.81
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3757637
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Body-2",
+    "rail_preset": "P5",
+    "data": [
+      -80.95,
+      47.19,
+      -5.88,
+      -3.25,
+      51.67,
+      -23.81
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.379901
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-2",
+    "rail_preset": "NONE",
+    "data": [
+      -80.43,
+      72.15,
+      -5.62,
+      -4.13,
+      46.59,
+      -23.81
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3853416
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-2",
+    "rail_preset": "NONE",
+    "data": [
+      -81.47,
+      42.0,
+      -16.19,
+      -0.52,
+      78.96,
+      -23.81
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3896813
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-2",
+    "rail_preset": "P3",
+    "data": [
+      88.68,
+      21.88,
+      -15.46,
+      0.43,
+      87.97,
+      -38.32
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3936994
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-2",
+    "rail_preset": "NONE",
+    "data": [
+      87.97,
+      26.95,
+      -13.44,
+      2.98,
+      72.86,
+      -42.48
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.3978074
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "body-2",
+    "rail_preset": "NONE",
+    "data": [
+      88.68,
+      50.44,
+      -12.74,
+      1.84,
+      68.73,
+      -42.03
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4098215
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Body-2",
+    "rail_preset": "P4",
+    "data": [
+      88.68,
+      -13.71,
+      21.97,
+      2.1,
+      85.86,
+      -44.82
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4148593
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-5",
+    "rail_preset": "P4",
+    "data": [
+      -89.53,
+      79.98,
+      -26.27,
+      -2.19,
+      44.97,
+      -59.76
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.421781
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-5",
+    "rail_preset": "NONE",
+    "data": [
+      -90.62,
+      92.1,
+      -26.27,
+      -2.28,
+      46.36,
+      -59.58
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4271414
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-5",
+    "rail_preset": "NONE",
+    "data": [
+      -88.06,
+      70.75,
+      -21.44,
+      -2.46,
+      61.78,
+      -60.2
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4352264
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-5",
+    "rail_preset": "P5",
+    "data": [
+      -91.49,
+      -24.52,
+      8.87,
+      -0.96,
+      87.71,
+      -59.67
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4395256
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-5",
+    "rail_preset": "NONE",
+    "data": [
+      -97.73,
+      -50.53,
+      -164.97,
+      -95.2,
+      85.69,
+      -60.2
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4493887
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-5",
+    "rail_preset": "P5",
+    "data": [
+      -83.19,
+      -50.53,
+      -165.14,
+      -87.51,
+      77.87,
+      -60.2
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4540267
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-5",
+    "rail_preset": "NONE",
+    "data": [
+      -97.73,
+      -50.53,
+      -164.97,
+      -97.2,
+      85.69,
+      -60.2
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4594736
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-6",
+    "rail_preset": "P4",
+    "data": [
+      -91.49,
+      -22.76,
+      9.14,
+      -0.35,
+      86.92,
+      -60.02
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4642172
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-6",
+    "rail_preset": "NONE",
+    "data": [
+      -100.55,
+      81.38,
+      -30.49,
+      -1.58,
+      48.87,
+      -72.42
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4690533
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-6",
+    "rail_preset": "NONE",
+    "data": [
+      -100.08,
+      95.71,
+      -31.28,
+      -1.75,
+      44.91,
+      -72.42
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4794483
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-6",
+    "rail_preset": "P1",
+    "data": [
+      -97.82,
+      64.68,
+      -30.41,
+      0.08,
+      75.14,
+      -73.38
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4842777
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-6",
+    "rail_preset": "NONE",
+    "data": [
+      -75.32,
+      -1.23,
+      -127.61,
+      86.39,
+      95.8,
+      -64.33
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4895527
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-6",
+    "rail_preset": "NONE",
+    "data": [
+      -85.16,
+      -51.24,
+      -165.66,
+      92.97,
+      84.46,
+      -76.81
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.494567
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-6",
+    "rail_preset": "NONE",
+    "data": [
+      -92.84,
+      -51.24,
+      -162.66,
+      89.35,
+      82.59,
+      -76.99
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.4999146
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-6",
+    "rail_preset": "NONE",
+    "data": [
+      -78.75,
+      -51.24,
+      -165.57,
+      101.51,
+      88.15,
+      -77.43
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.5116365
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-7",
+    "rail_preset": "P4",
+    "data": [
+      87.97,
+      3.6,
+      0.26,
+      0.79,
+      93.07,
+      -30.67
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.5166442
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-7",
+    "rail_preset": "NONE",
+    "data": [
+      86.5,
+      -46.23,
+      -93.3,
+      3.16,
+      -76.35,
+      -33.48
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.5215414
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-7",
+    "rail_preset": "NONE",
+    "data": [
+      86.5,
+      -46.75,
+      -114.28,
+      3.77,
+      -69.59,
+      -33.66
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.5269816
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-7",
+    "rail_preset": "NONE",
+    "data": [
+      89.2,
+      -17.31,
+      -138.51,
+      2.72,
+      -61.87,
+      -27.86
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.5492344
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-7",
+    "rail_preset": "NONE",
+    "data": [
+      90.79,
+      38.49,
+      -83.49,
+      89.56,
+      85.73,
+      -70.57
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.5548673
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-7",
+    "rail_preset": "NONE",
+    "data": [
+      58.09,
+      79.01,
+      -27.78,
+      50.87,
+      71.51,
+      -1.14
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.5600815,
+    "is_reference": false
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-7",
+    "rail_preset": "NONE",
+    "data": [
+      69.47,
+      94.93,
+      -41.22,
+      55.84,
+      68.12,
+      -1.14
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.56578
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-7",
+    "rail_preset": "NONE",
+    "data": [
+      55.63,
+      86.66,
+      -33.22,
+      52.03,
+      78.22,
+      -1.14
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.572062
+  },
+  {
+    "type": "vision_check",
+    "name": "vision-check",
+    "rail_preset": "P4",
+    "check_part": "Wheel Slot 8",
+    "data": [],
+    "vacuum": "none",
+    "speed": 50,
+    "delay_ms": 0,
+    "timestamp": 1781352743.5990524,
+    "vacuum_delay_ms": 300
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-8",
+    "rail_preset": "P4",
+    "data": [
+      88.06,
+      -15.29,
+      22.06,
+      1.14,
+      86.66,
+      -45.7
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.6130497
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-8",
+    "rail_preset": "NONE",
+    "data": [
+      78.21,
+      -49.13,
+      -96.5,
+      3.42,
+      -81.85,
+      -41.3
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.6335385
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Wheel-8",
+    "rail_preset": "NONE",
+    "data": [
+      80.77,
+      -49.65,
+      -115.64,
+      4.21,
+      -63.79,
+      -41.3
+    ],
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.6470442
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 40,
+    "name": "Wheel-8",
+    "rail_preset": "NONE",
+    "data": [
+      80.47,
+      -25.1,
+      -112.5,
+      3.25,
+      -85.94,
+      -46.66
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.653406
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-8",
+    "rail_preset": "P1",
+    "data": [
+      -81.03,
+      17.66,
+      -133.65,
+      87.36,
+      86.74,
+      -0.08
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.661331
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-8",
+    "rail_preset": "NONE",
+    "data": [
+      -87.95,
+      -50.0,
+      -108.91,
+      112.82,
+      72.38,
+      0.0
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.6667402
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-8",
+    "rail_preset": "NONE",
+    "data": [
+      -98.98,
+      -50.0,
+      -108.91,
+      115.01,
+      66.97,
+      -0.08
+    ],
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.671995
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Tyre-8",
+    "rail_preset": "NONE",
+    "data": [
+      -100.98,
+      -50.0,
+      -102.91,
+      131.92,
+      75.23,
+      0.0
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.6878052
+  },
+  {
+    "type": "angles",
+    "moveMode": 0,
+    "speed": 100,
+    "name": "Car",
+    "rail_preset": "P3",
+    "data": [
+      -24.08,
+      -1.75,
+      -11.77,
+      0.35,
+      79.1,
+      -0.17
+    ],
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "timestamp": 1781352743.6956077
+  }
+]

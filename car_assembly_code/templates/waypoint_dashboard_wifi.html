@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MechArm 270 | Wi-Fi Waypoint Recorder</title>
+    <script src="/static/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617;
+            --panel: #0f172a;
+            --panel-light: #1e293b;
+            --accent: #06b6d4;
+            --accent-glow: rgba(14, 165, 233, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Header / HUD --- */
+        header {
+            height: 80px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .logo h1 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .hud-live {
+            display: flex;
+            gap: 20px;
+        }
+
+        .hud-group {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .hud-item {
+            display: flex;
+            flex-direction: column;
+            min-width: 45px;
+        }
+
+        .hud-item label {
+            font-size: 9px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .hud-item span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* --- Main Layout --- */
+        main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 380px;
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            overflow-y: auto;
+            background: radial-gradient(circle at top right, #0f172a, #020617);
+        }
+
+        /* --- Components --- */
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: '';
+            width: 3px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .input-box {
+            background: var(--panel-light);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-box label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .input-box input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+        }
+
+        button {
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            filter: grayscale(0.5) !important;
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        button.secondary {
+            background: var(--panel-light);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        button.danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        button.success {
+            background: var(--success);
+            color: white;
+        }
+
+        button.icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+        }
+
+        /* --- Dropdowns --- */
+        select {
+            background: transparent;
+            color: white;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        select option {
+            background: var(--panel-light);
+            color: white;
+        }
+
+        /* --- Waypoint Table --- */
+        .table-container {
+            flex: 1;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            background: var(--panel-light);
+            padding: 16px 24px;
+            display: grid;
+            grid-template-columns: 36px 120px 60px 80px 1fr 60px 60px 70px 210px;
+            gap: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .waypoint-rows {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .wp-row {
+            padding: 10px 24px;
+            display: grid;
+            grid-template-columns: 36px 120px 60px 80px 1fr 60px 60px 70px 210px;
+            gap: 12px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .wp-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .wp-row.active {
+            background: rgba(14, 165, 233, 0.1);
+            border-left: 4px solid var(--accent);
+        }
+
+        .wp-index {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .wp-name input {
+            background: transparent;
+            border: 1px solid transparent;
+            color: white;
+            padding: 4px;
+            width: 100%;
+            border-radius: 4px;
+        }
+
+        .wp-name input:focus {
+            border-color: var(--accent);
+            background: var(--panel-light);
+        }
+
+        .wp-type {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-align: center;
+            width: fit-content;
+        }
+
+        .wp-type.coords {
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .wp-type.angles {
+            background: rgba(244, 114, 182, 0.1);
+            color: #f472b6;
+            border: 1px solid rgba(244, 114, 182, 0.2);
+        }
+
+        .wp-type.both {
+            background: rgba(167, 139, 250, 0.1);
+            color: #a78bfa;
+            border: 1px solid rgba(167, 139, 250, 0.2);
+        }
+
+        .wp-values {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 3px;
+        }
+
+        .val-cell {
+            position: relative;
+            background: var(--panel-light);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 4px 2px 2px 2px;
+            border: 1px solid var(--border);
+            min-width: 65px;
+        }
+
+        .val-cell input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            width: 100%;
+            min-width: 48px;
+            text-align: center;
+            outline: none;
+            padding: 6px 0 2px 0;
+            /* Hide number input spinners */
+            -moz-appearance: textfield;
+        }
+
+        .val-cell input::-webkit-outer-spin-button,
+        .val-cell input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .val-cell .val-label {
+            font-size: 8px;
+            color: var(--text-secondary);
+            text-align: center;
+            position: absolute;
+            top: 1px;
+            left: 4px;
+            pointer-events: none;
+            font-weight: 700;
+        }
+
+        .val-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .val-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 9px;
+            cursor: pointer;
+            padding: 1px 3px;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .val-btn:hover {
+            color: var(--accent);
+        }
+
+        .val-btn:active {
+            color: var(--success);
+        }
+
+        .vac-pill {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            user-select: none;
+            transition: all 0.15s;
+        }
+
+        .vac-pill.none {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .vac-pill.on {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .vac-pill.off {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .vacuum-led {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+        }
+
+        .vacuum-led .vdot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .vacuum-led .vdot.active {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .vacuum-led .vdot.inactive {
+            background: #475569;
+        }
+
+        .step-toggle {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 2px;
+        }
+
+        .step-toggle button {
+            padding: 1px 6px;
+            font-size: 9px;
+            border-radius: 4px;
+            background: var(--panel-light);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .step-toggle button.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .copy-paste-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .copy-paste-row button {
+            flex: 1;
+            padding: 8px;
+            font-size: 11px;
+        }
+
+        .wp-row.selected {
+            background: rgba(14, 165, 233, 0.06);
+            border-left: 3px solid var(--warning);
+        }
+        .vision-check-row {
+            background: rgba(124, 58, 237, 0.10);
+            border-left: 3px solid #7c3aed;
+        }
+        .vision-check-row:hover {
+            background: rgba(124, 58, 237, 0.18);
+        }
+
+        .wp-speed input {
+            background: var(--panel-light);
+            border: 1px solid var(--border);
+            color: white;
+            width: 50px;
+            text-align: center;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .wp-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* --- Playback Control Bar --- */
+        .playback-bar {
+            margin-top: 24px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .pb-status {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 120px;
+        }
+
+        .pb-status .label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .pb-status .value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .pb-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pb-progress {
+            flex: 1;
+            height: 6px;
+            background: var(--panel-light);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pb-progress-bar {
+            position: absolute;
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .pb-settings {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* --- Notifications --- */
+        #notif {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: var(--glass);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot.online {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        .dot.offline {
+            background: var(--danger);
+            box-shadow: 0 0 8px var(--danger);
+        }
+
+        .dot.moving {
+            background: var(--warning);
+            box-shadow: 0 0 8px var(--warning);
+        }
+
+        .joint-lock-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            width: 28px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .joint-lock-btn:hover {
+            background: var(--panel-light);
+            border-color: var(--accent);
+        }
+
+        .joint-lock-btn.unlocked {
+            color: var(--warning);
+            border-color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .joint-lock-btn.locked {
+            color: var(--success);
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* --- Terminal Box --- */
+        .terminal-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            height: 100px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .term-line {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 2px;
+        }
+
+        .term-ts {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .term-msg {
+            color: var(--text-primary);
+        }
+
+        .term-err {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .term-warn {
+            color: var(--warning);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <h1>MECHARM <span>Wi-Fi</span></h1>
+        </div>
+        <div class="hud-live">
+            <div class="hud-group">
+                <div class="hud-item"><label>X</label><span id="hud-x">0.0</span></div>
+                <div class="hud-item"><label>Y</label><span id="hud-y">0.0</span></div>
+                <div class="hud-item"><label>Z</label><span id="hud-z">0.0</span></div>
+                <div class="hud-item"><label>Rx</label><span id="hud-rx">0.0</span></div>
+                <div class="hud-item"><label>Ry</label><span id="hud-ry">0.0</span></div>
+                <div class="hud-item"><label>Rz</label><span id="hud-rz">0.0</span></div>
+            </div>
+            <div class="hud-group">
+                <div class="hud-item"><label>J1</label><span id="hud-j1">0.0</span></div>
+                <div class="hud-item"><label>J2</label><span id="hud-j2">0.0</span></div>
+                <div class="hud-item"><label>J3</label><span id="hud-j3">0.0</span></div>
+                <div class="hud-item"><label>J4</label><span id="hud-j4">0.0</span></div>
+                <div class="hud-item"><label>J5</label><span id="hud-j5">0.0</span></div>
+                <div class="hud-item"><label>J6</label><span id="hud-j6">0.0</span></div>
+            </div>
+            <div class="hud-group" style="border-color: var(--warning);">
+                <div class="hud-item"><label>RAIL CM</label><span id="hud-rail-cm">0.0</span></div>
+                <div class="hud-item"><label>POINT</label><span id="hud-rail-point">HOME</span></div>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <a href="/camera_view" class="vacuum-led"
+                style="border-color: rgba(16,185,129,0.3); color: #10b981; text-decoration: none; cursor: pointer; font-weight: 700;">
+                🤖 Camera View
+            </a>
+            <div class="vacuum-led" style="border-color: rgba(6,182,212,0.3); color: #06b6d4;">
+                🔌 <span id="wifi-ip-badge">{% if arm_port %}{{ arm_ip }}:{{ arm_port }}{% else %}{{ arm_ip }}{% endif %}</span>
+            </div>
+            <div class="vacuum-led">
+                <div id="vac-dot" class="vdot inactive"></div>
+                <span id="vac-text">VAC OFF</span>
+            </div>
+            <div class="status-badge" style="gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <div id="conn-dot" class="dot offline"></div>
+                    <span id="conn-text">DISCONNECTED</span>
+                </div>
+                <div id="error-msg"
+                    style="color: var(--danger); font-size: 10px; font-weight: 700; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: none;">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="sidebar">
+            <div class="card">
+                <h2>Robot Serial Connection</h2>
+                <div class="input-box">
+                    <label>COM Port / Serial Device</label>
+                    <input type="text" id="robot-ip" value="{{ arm_ip }}" placeholder="e.g. COM3 or /dev/ttyUSB0">
+                </div>
+                <div class="input-box" style="display: none;">
+                    <label>Socket Port</label>
+                    <input type="number" id="robot-port" value="9000">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button onclick="reconnect()" class="secondary">🔌 Connect</button>
+                    <button id="btn-power" onclick="togglePower()" class="secondary">Lock Servos</button>
+                </div>
+                <button onclick="goHome()" class="secondary">🏠 Home Position</button>
+                <button onclick="releaseServos()" class="secondary"
+                    style="border-color: var(--warning); color: var(--warning);">🔓 Release Servos</button>
+                <button onclick="emergencyStop()" class="danger" style="font-weight: 800; letter-spacing: 1px;">🛑
+                    EMERGENCY STOP</button>
+            </div>
+
+            <div class="card" style="border-color: var(--accent);">
+                <h2>Reference Calibration</h2>
+                <p style="font-size: 10px; color: var(--text-secondary); margin: 0;">
+                    1. Select a waypoint as your <b>Reference</b>.<br>
+                    2. Physically align the robot with that point.<br>
+                    3. Click "Set as Reference" to apply global offsets.
+                </p>
+                <div id="cal-status"
+                    style="font-size: 11px; font-family: 'JetBrains Mono'; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 8px; display: none;">
+                    <div style="color: var(--accent); margin-bottom: 4px;">Active Offsets:</div>
+                    <div id="cal-offsets-val" style="color: var(--text-secondary);">[0,0,0,0,0,0]</div>
+                </div>
+                <button onclick="calibrateFromSelected()" class="primary"
+                    style="background: linear-gradient(135deg, #06b6d4, #3b82f6); box-shadow: 0 4px 15px var(--accent-glow);">
+                    🎯 Set Selected as Reference
+                </button>
+                <button onclick="resetCalibration()" class="secondary" style="font-size: 11px; padding: 6px;">Reset
+                    Offsets</button>
+            </div>
+
+
+            <div class="card">
+                <h2>Cartesian Control</h2>
+                <div class="control-grid">
+                    <div class="input-box"><label>X</label><input type="number" id="in-x" step="0.1"></div>
+                    <div class="input-box"><label>Y</label><input type="number" id="in-y" step="0.1"></div>
+                    <div class="input-box"><label>Z</label><input type="number" id="in-z" step="0.1"></div>
+                    <div class="input-box"><label>Rx</label><input type="number" id="in-rx" step="0.1"></div>
+                    <div class="input-box"><label>Ry</label><input type="number" id="in-ry" step="0.1"></div>
+                    <div class="input-box"><label>Rz</label><input type="number" id="in-rz" step="0.1"></div>
+                </div>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <div class="input-box" style="flex: 1;"><label>Speed</label><input type="number" id="play-speed"
+                            value="60"></div>
+                    <div class="input-box" style="flex: 1;"><label>Delay (ms)</label><input type="number"
+                            id="play-delay" value="50"></div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <button onclick="applyToAll()" class="secondary" style="font-size: 10px; padding: 4px 8px;"
+                            title="Apply speed/delay to all points">Apply to All</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; align-items: center; margin-top: 10px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 11px; cursor: pointer;">
+                        <input type="checkbox" id="async-rail" style="width: 16px; height: 16px;">
+                        🚀 Asynchronous Rail (Parallel Move)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 11px; cursor: pointer;">
+                        <input type="checkbox" id="play-loop" style="width: 16px; height: 16px;">
+                        🔄 Loop
+                    </label>
+                    <label
+                        style="display: flex; align-items: center; gap: 8px; font-size: 11px; cursor: pointer; color: #a78bfa; font-weight: 700;">
+                        <input type="checkbox" id="dynamic-mode" style="width: 16px; height: 16px;">
+                        ✨ Dynamic Motion (Look-ahead)
+                    </label>
+                </div>
+                <div class="input-box" style="flex: 1;">
+                    <label>Mode</label>
+                    <select id="move-mode">
+                        <option value="0" style="background:#0f172a;">Joint</option>
+                        <option value="1" style="background:#0f172a;">Linear</option>
+                    </select>
+                </div>
+                <button onclick="sendCoords()" class="primary">Move to Coordinates</button>
+                <div class="copy-paste-row">
+                    <button onclick="copyCoords()" class="secondary">📋 Copy Coords</button>
+                    <button onclick="pasteCoords()" class="secondary">📌 Paste Coords</button>
+                </div>
+            </div>
+
+            <div class="card" id="teaching-card">
+                <h2>Teaching & Recording</h2>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span
+                        style="font-size: 11px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase;">Joint
+                        Teaching Mode</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="lockServos()" class="joint-lock-btn locked"
+                            style="width: auto; padding: 0 10px;" title="Lock all joints">🔒 Lock All</button>
+                        <button onclick="releaseServos()" class="joint-lock-btn unlocked"
+                            style="width: auto; padding: 0 10px;" title="Unlock all joints">🔓 Release All</button>
+                    </div>
+                </div>
+
+                <div class="control-grid" style="margin-bottom: 20px;">
+                    <div class="input-box">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                            <label>J1</label>
+                            <button class="joint-lock-btn" id="lock-j1" onclick="toggleJoint(1)">🔒</button>
+                        </div>
+                        <input type="number" id="in-j1" step="0.2">
+                    </div>
+                    <div class="input-box">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                            <label>J2</label>
+                            <button class="joint-lock-btn" id="lock-j2" onclick="toggleJoint(2)">🔒</button>
+                        </div>
+                        <input type="number" id="in-j2" step="0.2">
+                    </div>
+                    <div class="input-box">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                            <label>J3</label>
+                            <button class="joint-lock-btn" id="lock-j3" onclick="toggleJoint(3)">🔒</button>
+                        </div>
+                        <input type="number" id="in-j3" step="0.2">
+                    </div>
+                    <div class="input-box">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                            <label>J4</label>
+                            <button class="joint-lock-btn" id="lock-j4" onclick="toggleJoint(4)">🔒</button>
+                        </div>
+                        <input type="number" id="in-j4" step="0.2">
+                    </div>
+                    <div class="input-box">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                            <label>J5</label>
+                            <button class="joint-lock-btn" id="lock-j5" onclick="toggleJoint(5)">🔒</button>
+                        </div>
+                        <input type="number" id="in-j5" step="0.2">
+                    </div>
+                    <div class="input-box">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+                            <label>J6</label>
+                            <button class="joint-lock-btn" id="lock-j6" onclick="toggleJoint(6)">🔒</button>
+                        </div>
+                        <input type="number" id="in-j6" step="0.2">
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="saveWaypoint('coords')" class="success" style="flex:1;">Record XYZ</button>
+                        <button onclick="saveWaypoint('angles')" class="success"
+                            style="flex:1; background:#ec4899;">Record ANG</button>
+                    </div>
+                    <button onclick="saveWaypoint('both')" class="primary" style="background:#8b5cf6;">Record BOTH (XYZ
+                        + ANG)</button>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                    <div class="input-box">
+                        <label>Associate Rail Point</label>
+                        <select id="record-rail-preset">
+                            <option value="NONE">-- No Rail Move --</option>
+                            <option value="HOME">HOME (0cm) - Home Point</option>
+                            <option value="P1">P1 (9cm) - Chassis Pick (Tags 0/1)</option>
+                            <option value="P2">P2 (23cm) - Wheelbase Pick (Tags 2-5)</option>
+                            <option value="P3">P3 (28cm) - Assembly Zone</option>
+                            <option value="P4">P4 (34cm) - Wheels Pick (Blue)</option>
+                            <option value="P5">P5 (47cm) - Upper Body Pick (Green)</option>
+                        </select>
+                    </div>
+                    <p style="font-size: 9px; color: var(--text-secondary); margin-top: 4px;">Rail will move to this
+                        point BEFORE the arm moves during playback.</p>
+                </div>
+            </div>
+
+            <div class="card" style="border-color: #a78bfa; background: rgba(167,139,250,0.02); padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h2
+                        style="margin: 0; font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                        📸 Inspection Scan Poses
+                    </h2>
+                    <span id="scan-mode-badge"
+                        style="font-size: 9px; font-family: 'JetBrains Mono'; font-weight: 800; padding: 3px 8px; border-radius: 20px; background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px;">
+                        <span
+                            style="width: 5px; height: 5px; background: #ef4444; border-radius: 50%; display: inline-block; animation: pulse 1.2s infinite;"></span>
+                        Record Mode
+                    </span>
+                </div>
+
+                <!-- Premium Segmented Toggle -->
+                <div
+                    style="display: flex; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 3px; border: 1px solid var(--border); margin-bottom: 10px; position: relative;">
+                    <button id="scan-mode-rec-btn" onclick="setScanMode(false)"
+                        style="flex: 1; padding: 6px; font-size: 10px; font-weight: 700; border-radius: 6px; border: none; background: #a78bfa; color: #000; cursor: pointer; transition: all 0.3s ease;">
+                        ⏺ Record Pose
+                    </button>
+                    <button id="scan-mode-play-btn" onclick="setScanMode(true)"
+                        style="flex: 1; padding: 6px; font-size: 10px; font-weight: 700; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.3s ease;">
+                        ▶ Play / Go-To
+                    </button>
+                </div>
+
+                <p id="scan-mode-hint"
+                    style="font-size:10px;color:var(--text-secondary);margin:0 0 10px 0; line-height: 1.4;">
+                    Move arm to desired scan position, then click a button to save it.
+                </p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <button id="scan-btn-P1" onclick="handleScanPoseBtn('P1')" class="primary"
+                        style="background:rgba(167,139,250,0.06);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);font-size:11px;padding:9px 6px; font-weight: 700; border-radius: 6px; transition: all 0.2s ease;">
+                        Set P1 (Chassis)
+                    </button>
+                    <button id="scan-btn-P2" onclick="handleScanPoseBtn('P2')" class="primary"
+                        style="background:rgba(167,139,250,0.06);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);font-size:11px;padding:9px 6px; font-weight: 700; border-radius: 6px; transition: all 0.2s ease;">
+                        Set P2 (Wheelbase)
+                    </button>
+                    <button id="scan-btn-P4" onclick="handleScanPoseBtn('P4')" class="primary"
+                        style="background:rgba(167,139,250,0.06);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);font-size:11px;padding:9px 6px; font-weight: 700; border-radius: 6px; transition: all 0.2s ease;">
+                        Set P4 (Blue Wheels)
+                    </button>
+                    <button id="scan-btn-P5" onclick="handleScanPoseBtn('P5')" class="primary"
+                        style="background:rgba(167,139,250,0.06);color:#a78bfa;border:1px solid rgba(167,139,250,0.2);font-size:11px;padding:9px 6px; font-weight: 700; border-radius: 6px; transition: all 0.2s ease;">
+                        Set P5 (Green Body)
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Linear Rail Control</h2>
+                <div class="input-box">
+                    <label>ESP32 IP</label>
+                    <input type="text" id="rail-ip" value="{{ rail_ip }}" onchange="updateRailConfig()">
+                </div>
+
+                <div class="input-box" style="margin-top: 8px;">
+                    <label>Rail Speed (RPM)</label>
+                    <input type="number" id="rail-rpm" value="{{ rail_rpm }}" step="10" onchange="updateRailSpeed()">
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px;">
+                    <button onclick="moveRailDirect('HOME')" class="secondary"
+                        style="font-size: 10px; padding: 8px;">HOME</button>
+                    <button onclick="moveRailDirect('P1')" class="primary"
+                        style="font-size: 10px; padding: 8px; background: #3b82f6;">P1 (Chassis)</button>
+                    <button onclick="moveRailDirect('P2')" class="primary"
+                        style="font-size: 10px; padding: 8px; background: #3b82f6;">P2 (Wheelbase)</button>
+                    <button onclick="moveRailDirect('P3')" class="primary"
+                        style="font-size: 10px; padding: 8px; background: #a78bfa;">P3 (Assemble)</button>
+                    <button onclick="moveRailDirect('P4')" class="primary"
+                        style="font-size: 10px; padding: 8px; background: #00d2ff;">P4 (Blue)</button>
+                    <button onclick="moveRailDirect('P5')" class="primary"
+                        style="font-size: 10px; padding: 8px; background: #10b981;">P5 (Green)</button>
+                </div>
+                <button onclick="stopRail()" class="danger" style="padding: 8px; margin-top: 8px; font-size: 11px;">🛑
+                    STOP RAIL</button>
+            </div>
+
+            <div class="card">
+                <h2>Vacuum Gripper</h2>
+                <div style="display:flex;gap:10px;">
+                    <button onclick="manualVacuum('on')" class="success" style="flex:1;">💨 Vacuum ON</button>
+                    <button onclick="manualVacuum('off')" class="danger" style="flex:1;">🛑 Vacuum OFF</button>
+                </div>
+                <div class="input-box"><label>Suction Delay (ms)</label><input type="number" id="vac-delay" value="300">
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2>Hardware Diagnostics</h2>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button onclick="clearTerminal()" class="secondary"
+                            style="padding:2px 8px; font-size:9px; height:auto;">Clear</button>
+                        <span id="term-status-pill"
+                            style="font-size:9px; padding:2px 8px; border-radius:10px; background:rgba(16,185,129,0.1); color:var(--success); font-weight:800; border:1px solid rgba(16,185,129,0.2);">SYSTEM
+                            OK</span>
+                    </div>
+                </div>
+                <div class="terminal-box" id="hw-terminal">
+                    <!-- Logs will appear here -->
+                </div>
+                <div
+                    style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-secondary); font-family:'JetBrains Mono';">
+                    <span>ERR CODE: <b id="term-err-code" style="color:var(--accent);">0</b></span>
+                    <span>NEXT: <b id="term-err-next" style="color:var(--text-secondary);">[0,0,0,0,0,0]</b></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="table-container">
+                <div class="table-header">
+                    <span>#</span>
+                    <span>Name</span>
+                    <span>Type</span>
+                    <span>Rail Point</span>
+                    <span>Values (V1 - V6)</span>
+                    <span>Spd</span>
+                    <span>Delay</span>
+                    <span>Vacuum</span>
+                    <span>Actions</span>
+                </div>
+                <div class="waypoint-rows" id="wp-list">
+                    <!-- Waypoints will be injected here -->
+                </div>
+            </div>
+
+            <div class="playback-bar">
+                <div class="pb-status">
+                    <span class="label">Playback Status</span>
+                    <span class="value" id="pb-state">IDLE</span>
+                </div>
+                <div class="pb-controls">
+                    <button onclick="stepBackward()" class="secondary" title="Step Back">⏮</button>
+                    <button onclick="startPlayback()" class="success" id="btn-play">▶ Play</button>
+                    <button onclick="pauseSequence()" class="secondary" id="btn-pause">⏸ Pause</button>
+                    <button onclick="stopSequence()" class="danger">⏹ Stop</button>
+                    <button onclick="stepForward()" class="secondary" title="Step Forward">⏭</button>
+                </div>
+                <div class="pb-progress">
+                    <div class="pb-progress-bar" id="pb-bar"></div>
+                </div>
+                <div class="pb-settings">
+                    <div class="input-box" style="width: 120px;">
+                        <label>Start From</label>
+                        <select id="play-start">
+                            <option value="0">Waypoint 1</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="exportWaypoints()" class="success" style="background: #0ea5e9; font-weight: 700;"
+                        title="Save to File">💾 SAVE / EXPORT</button>
+                    <button onclick="document.getElementById('import-file').click()" class="secondary"
+                        title="Import JSON">📤 Import</button>
+                    <input type="file" id="import-file" style="display:none" onchange="importWaypoints(this)">
+                    <button onclick="insertVisionCheck()" class="secondary"
+                        title="Insert vision check marker after selected waypoint"
+                        style="border-color:#7c3aed;color:#a78bfa;">👁 + Vision Check</button>
+                    <button onclick="clearWaypoints()" class="secondary"
+                        style="border-color: var(--danger); color: var(--danger);">🗑️</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="notif"></div>
+
+    <script>
+        const socket = io();
+        let robotState = { coords: [0, 0, 0, 0, 0, 0], angles: [0, 0, 0, 0, 0, 0], connected: false, is_moving: false, vacuum: false };
+        let waypoints = [];
+        let playbackActive = false;
+        let selectedWpIdx = -1;
+        let clipCoords = null;
+        let clipAngles = null;
+        let holdInterval = null;
+        let wpStepSizes = {};
+        let wpClipboard = null;  // {type, data}
+
+        // --- Connection & Status ---
+        socket.on('robot_status', (state) => {
+            robotState = state;
+            if (state.rail) {
+                document.getElementById('hud-rail-cm').innerText = state.rail.absCm.toFixed(1);
+                document.getElementById('hud-rail-point').innerText = state.rail.point;
+                document.getElementById('rail-ip').value = state.rail_ip || "{{ rail_ip }}";
+                if (document.activeElement.id !== 'rail-rpm') {
+                    document.getElementById('rail-rpm').value = state.rail.rpm || {{ rail_rpm }};
+                }
+            }
+            updateHUD();
+            updateConnBadge();
+            updateHardwareErrors();
+            updateVacuumLED();
+            syncInputs();
+            updateCalibrationHUD();
+        });
+
+        let lastHwCode = 0;
+        let lastHwNext = "";
+
+        function updateHardwareErrors() {
+            const code = robotState.hw_errors || 0;
+            const next = robotState.hw_next_err || [];
+            const nextStr = JSON.stringify(next);
+
+            document.getElementById('term-err-code').innerText = code;
+            document.getElementById('term-err-next').innerText = next.length > 0 ? `[${next.join(',')}]` : "[]";
+
+            // Note: Code -1 usually means timeout/disconnected
+            const hasError = (code !== 0 && code !== -1) || (next.length > 0 && next.some(v => v !== 0 && v !== null));
+            const pill = document.getElementById('term-status-pill');
+
+            if (hasError) {
+                pill.innerText = "HARDWARE ERROR";
+                pill.style.background = 'rgba(239,68,68,0.1)';
+                pill.style.color = 'var(--danger)';
+                pill.style.borderColor = 'rgba(239,68,68,0.2)';
+            } else if (code === -1) {
+                pill.innerText = "CONNECTING...";
+                pill.style.background = 'rgba(245,158,11,0.1)';
+                pill.style.color = 'var(--warning)';
+                pill.style.borderColor = 'rgba(245,158,11,0.2)';
+            } else {
+                pill.innerText = "SYSTEM OK";
+                pill.style.background = 'rgba(16,185,129,0.1)';
+                pill.style.color = 'var(--success)';
+                pill.style.borderColor = 'rgba(16,185,129,0.2)';
+            }
+
+            // Log to terminal on change
+            if (code !== lastHwCode || nextStr !== lastHwNext) {
+                if (code !== 0) {
+                    let msg = `Code ${code}: `;
+                    if (code === 32) msg += "IK Calculation Failure (Limit reached?)";
+                    else if (code === 33) msg += "Collision / Inertia limit";
+                    else if (code === 3) msg += "System Initializing / Booting";
+                    else if (code === -1) msg += "Communication Timeout / Reconnecting";
+                    else msg += `Hardware report: [${next.join(',')}]`;
+
+                    logToTerminal(msg, code === -1 ? "warn" : "err");
+                } else if (lastHwCode !== 0) {
+                    logToTerminal("Hardware link restored. System ready.", "msg");
+                }
+                lastHwCode = code;
+                lastHwNext = nextStr;
+            }
+        }
+
+        function clearTerminal() {
+            document.getElementById('hw-terminal').innerHTML = '';
+            logToTerminal("Logs cleared.");
+        }
+
+        function logToTerminal(message, type = "msg") {
+            const term = document.getElementById('hw-terminal');
+            if (!term) return;
+            const line = document.createElement('div');
+            line.className = 'term-line';
+
+            const ts = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const typeClass = type === "err" ? "term-err" : (type === "warn" ? "term-warn" : "term-msg");
+
+            const tsSpan = document.createElement('span');
+            tsSpan.className = 'term-ts';
+            tsSpan.textContent = ts;
+            const msgSpan = document.createElement('span');
+            msgSpan.className = typeClass;
+            msgSpan.textContent = message;
+            line.appendChild(tsSpan);
+            line.appendChild(msgSpan);
+            term.appendChild(line);
+            term.scrollTop = term.scrollHeight;
+
+            // Keep only last 50 lines
+            while (term.childNodes.length > 50) {
+                term.removeChild(term.firstChild);
+            }
+        }
+
+        function updateVacuumLED() {
+            const dot = document.getElementById('vac-dot');
+            const txt = document.getElementById('vac-text');
+            if (robotState.vacuum) {
+                dot.className = 'vdot active';
+                txt.innerText = 'VAC ON';
+            } else {
+                dot.className = 'vdot inactive';
+                txt.innerText = 'VAC OFF';
+            }
+        }
+
+        function updateHUD() {
+            if (!robotState.coords || !robotState.angles) return;
+            ['x', 'y', 'z', 'rx', 'ry', 'rz'].forEach((f, i) => {
+                const el = document.getElementById(`hud-${f}`);
+                if (el) el.innerText = stateValue(robotState.coords[i]);
+            });
+            for (let i = 1; i <= 6; i++) {
+                const el = document.getElementById(`hud-j${i}`);
+                if (el) el.innerText = stateValue(robotState.angles[i - 1]);
+            }
+        }
+
+        function stateValue(v) { return (v !== undefined) ? v.toFixed(1) : "0.0"; }
+
+        function updateConnBadge() {
+            const dot = document.getElementById('conn-dot');
+            const text = document.getElementById('conn-text');
+            const err = document.getElementById('error-msg');
+
+            if (robotState.connection_state === 'connected') {
+                dot.className = robotState.is_moving ? "dot moving" : "dot online";
+                text.innerText = robotState.is_moving ? "MOVING" : "CONNECTED";
+                err.style.display = 'none';
+            } else {
+                dot.className = "dot offline";
+                text.innerText = "DISCONNECTED";
+                if (robotState.error) {
+                    err.innerText = `[ ${robotState.error} ]`;
+                    err.style.display = 'block';
+                } else {
+                    err.style.display = 'none';
+                }
+            }
+
+            const pBtn = document.getElementById('btn-power');
+            pBtn.innerText = robotState.powered ? "Servos Locked" : "Lock Servos";
+            pBtn.className = robotState.powered ? "success" : "secondary";
+            pBtn.disabled = false;
+        }
+
+        function syncInputs() {
+            // Guard: coords/angles may be null or missing when arm disconnects
+            if (!robotState.coords || !robotState.angles) return;
+
+            // Only sync if no input is focused (don't clobber user edits)
+            const active = document.activeElement;
+            if (active.tagName === 'INPUT' || active.tagName === 'SELECT') return;
+
+            ['x', 'y', 'z', 'rx', 'ry', 'rz'].forEach((f, i) => {
+                document.getElementById(`in-${f}`).value = (robotState.coords[i] ?? 0).toFixed(1);
+            });
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`in-j${i}`).value = (robotState.angles[i - 1] ?? 0).toFixed(1);
+            }
+        }
+
+        // --- Actions ---
+        async function apiPost(url, data) {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error(`${url} → ${res.status}`);
+            return await res.json();
+        }
+
+        function reconnect() {
+            const ip = document.getElementById('robot-ip').value.trim();
+            apiPost('/api/reconnect', { ip });
+            document.getElementById('wifi-ip-badge').innerText = `${ip}`;
+            showNotif(`Connecting to ${ip}…`);
+        }
+
+        function togglePower() {
+            const btn = document.getElementById('btn-power');
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+            apiPost(robotState.powered ? '/api/power_off' : '/api/power_on');
+            // Update individual buttons too
+            const newState = !robotState.powered;
+            for (let i = 1; i <= 6; i++) {
+                updateJointBtn(i, newState ? 'on' : 'off');
+            }
+        }
+
+        async function toggleJoint(id) {
+            const btn = document.getElementById(`lock-j${id}`);
+            const isLocked = btn.innerText === '🔒';
+            const nextState = isLocked ? 'off' : 'on';
+
+            btn.disabled = true;
+            const res = await apiPost('/api/joint_power', { joint_id: id, state: nextState });
+            if (res.success) {
+                updateJointBtn(id, nextState);
+            }
+            btn.disabled = false;
+        }
+
+        function updateJointBtn(id, state) {
+            const btn = document.getElementById(`lock-j${id}`);
+            if (state === 'on') {
+                btn.innerText = '🔒';
+                btn.className = 'joint-lock-btn locked';
+            } else {
+                btn.innerText = '🔓';
+                btn.className = 'joint-lock-btn unlocked';
+            }
+        }
+
+        function lockServos() {
+            apiPost('/api/power_on');
+            for (let i = 1; i <= 6; i++) updateJointBtn(i, 'on');
+            showNotif("All servos locked.");
+        }
+
+        function releaseServos() {
+            if (confirm("Release all servos? The arm will fall!")) {
+                apiPost('/api/power_off');
+                for (let i = 1; i <= 6; i++) updateJointBtn(i, 'off');
+                showNotif("All servos released.");
+            }
+        }
+
+        function goHome() {
+            socket.emit('go_home');
+            showNotif("Homing...");
+        }
+
+        function emergencyStop() {
+            apiPost('/api/emergency_stop');
+            stopSequence(); // Also stop any running sequence
+            showNotif("!! EMERGENCY STOP !!");
+        }
+
+        async function calibrateFromSelected() {
+            if (selectedWpIdx < 0) {
+                showNotif("❌ Select a waypoint first!");
+                return;
+            }
+            if (!confirm(`Set Waypoint #${selectedWpIdx + 1} as your physical reference? This will calculate global offsets for all points.`)) return;
+
+            const res = await apiPost('/api/calibrate_from_point', { index: selectedWpIdx });
+            if (res.success) {
+                showNotif("✅ Calibration Updated!");
+                updateCalibrationHUD();
+            } else {
+                alert("Calibration failed: " + res.error);
+            }
+        }
+
+        async function resetCalibration() {
+            if (!confirm("Reset all calibration offsets to zero?")) return;
+            await apiPost('/api/set_calibration', { type: 'coords', offsets: [0, 0, 0, 0, 0, 0] });
+            await apiPost('/api/set_calibration', { type: 'angles', offsets: [0, 0, 0, 0, 0, 0] });
+            showNotif("Calibration Reset.");
+            updateCalibrationHUD();
+        }
+
+        function updateCalibrationHUD() {
+            if (!robotState.calibration) return;
+            const el = document.getElementById('cal-status');
+            const valEl = document.getElementById('cal-offsets-val');
+
+            const c = robotState.calibration.coords;
+            const a = robotState.calibration.angles;
+            const hasC = c && c.some(v => v !== 0);
+            const hasA = a && a.some(v => v !== 0);
+
+            if (hasC || hasA) {
+                el.style.display = 'block';
+                valEl.innerText = hasC ? `Coords: [${c.join(',')}]` : `Angles: [${a.join(',')}]`;
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function sendCoords() {
+            const btn = event.target;
+            btn.disabled = true;
+            setTimeout(() => { btn.disabled = false; }, 1000);
+
+            const data = {
+                x: parseFloat(document.getElementById('in-x').value),
+                y: parseFloat(document.getElementById('in-y').value),
+                z: parseFloat(document.getElementById('in-z').value),
+                rx: parseFloat(document.getElementById('in-rx').value),
+                ry: parseFloat(document.getElementById('in-ry').value),
+                rz: parseFloat(document.getElementById('in-rz').value),
+                speed: document.getElementById('play-speed').value,
+                mode: document.getElementById('move-mode').value
+            };
+            socket.emit('send_coords', data);
+        }
+
+        function sendAngles() {
+            const btn = event.target;
+            btn.disabled = true;
+            setTimeout(() => { btn.disabled = false; }, 1000);
+
+            const data = { speed: document.getElementById('play-speed').value };
+            for (let i = 1; i <= 6; i++) data[`j${i}`] = document.getElementById(`in-j${i}`).value;
+            socket.emit('send_angles', data);
+        }
+
+        function copyCoords() {
+            clipCoords = [...robotState.coords];
+            showNotif('📋 Copied coordinates');
+        }
+        function pasteCoords() {
+            if (!clipCoords) { showNotif('Nothing to paste'); return; }
+            if (selectedWpIdx < 0 || selectedWpIdx >= waypoints.length) { showNotif('Select a waypoint first'); return; }
+            apiPost('/api/waypoints/update', { index: selectedWpIdx, field: 'all_data', value: clipCoords });
+            showNotif(`📌 Pasted coords to WP-${selectedWpIdx + 1}`);
+        }
+        function copyAngles() {
+            clipAngles = [...robotState.angles];
+            showNotif('📋 Copied angles');
+        }
+        function pasteAngles() {
+            if (!clipAngles) { showNotif('Nothing to paste'); return; }
+            if (selectedWpIdx < 0 || selectedWpIdx >= waypoints.length) { showNotif('Select a waypoint first'); return; }
+            apiPost('/api/waypoints/update', { index: selectedWpIdx, field: 'all_data', value: clipAngles });
+            showNotif(`📌 Pasted angles to WP-${selectedWpIdx + 1}`);
+        }
+
+        async function manualVacuum(state) {
+            const delay = parseInt(document.getElementById('vac-delay').value) || 0;
+            await apiPost(state === 'on' ? '/api/vacuum/on' : '/api/vacuum/off', { delay });
+            showNotif(`Vacuum ${state.toUpperCase()}`);
+        }
+
+        // --- Waypoints ---
+        socket.on('waypoints_updated', (data) => {
+            waypoints = data.waypoints;
+            renderWaypoints();
+        });
+
+        async function saveWaypoint(type) {
+            const rail_p = document.getElementById('record-rail-preset').value;
+            await apiPost('/api/waypoints/add', { type: type, speed: 40, rail_preset: rail_p });
+            showNotif(`Waypoint recorded (${type} + ${rail_p})`);
+        }
+
+        function updateRailPreset(idx, val) {
+            apiPost('/api/waypoints/update', { index: idx, field: 'rail_preset', value: val });
+        }
+
+        function updateRailConfig() {
+            const ip = document.getElementById('rail-ip').value;
+            apiPost('/api/rail/config', { ip });
+        }
+
+        async function updateRailSpeed() {
+            const rpm = parseInt(document.getElementById('rail-rpm').value);
+            const res = await apiPost('/api/rail/speed', { rpm });
+            if (res.success) showNotif(`Rail Speed set to ${rpm} RPM`);
+        }
+
+        function moveRailDirect(preset) {
+            apiPost('/api/rail/move', { preset });
+            showNotif(`Moving Rail to ${preset}`);
+        }
+
+        function stopRail() {
+            apiPost('/api/rail/stop');
+            showNotif("Rail Stopped");
+        }
+
+        async function saveScanPose(position) {
+            try {
+                showNotif(`📸 Saving scan pose for ${position}…`);
+                const res = await apiPost('/api/set_scan_pose', { position });
+                if (res.success) {
+                    showNotif(`✅ Saved ${position} scan pose successfully!`);
+                    logToTerminal(`Saved scan pose for ${position}: [${res.angles.map(a => a.toFixed(1)).join(', ')}]`, "msg");
+                } else {
+                    showNotif(`❌ Failed saving ${position} pose: ${res.error}`);
+                    logToTerminal(`Failed saving scan pose: ${res.error}`, "err");
+                }
+            } catch (err) {
+                console.error("Save scan pose error:", err);
+                showNotif(`❌ Connection error: ${err}`);
+            }
+        }
+
+        // ── Scan Pose Record / Play Toggle ────────────────────────────────────
+        let _scanPlayMode = false;
+        const _scanBtnMeta = { P1: 'Chassis', P2: 'Wheelbase', P4: 'Blue Wheels', P5: 'Green Body' };
+
+        function updateScanPoseMode(isPlay) {
+            _scanPlayMode = isPlay;
+            const hint = document.getElementById('scan-mode-hint');
+            hint.textContent = isPlay
+                ? 'Click a button to move the arm to the recorded scan pose for that station.'
+                : 'Move arm to desired scan position, then click a button to save it.';
+            for (const [pos, label] of Object.entries(_scanBtnMeta)) {
+                const btn = document.getElementById(`scan-btn-${pos}`);
+                if (!btn) continue;
+                btn.textContent = isPlay ? `▶ Go to ${pos} (${label})` : `Set ${pos} (${label})`;
+                btn.style.background = isPlay ? 'rgba(0,255,136,0.12)' : 'rgba(167,139,250,0.12)';
+                btn.style.color = isPlay ? '#00ff88' : '#a78bfa';
+                btn.style.borderColor = isPlay ? 'rgba(0,255,136,0.25)' : 'rgba(167,139,250,0.25)';
+            }
+        }
+
+        function setScanMode(isPlay) {
+            const recBtn = document.getElementById('scan-mode-rec-btn');
+            const playBtn = document.getElementById('scan-mode-play-btn');
+            const badge = document.getElementById('scan-mode-badge');
+
+            if (isPlay) {
+                recBtn.style.background = 'transparent';
+                recBtn.style.color = 'var(--text-secondary)';
+                playBtn.style.background = '#00ff88';
+                playBtn.style.color = '#000000';
+
+                badge.style.background = 'rgba(0,255,136,0.1)';
+                badge.style.color = '#00ff88';
+                badge.style.borderColor = 'rgba(0,255,136,0.2)';
+                badge.innerHTML = '<span style="width: 5px; height: 5px; background: #00ff88; border-radius: 50%; display: inline-block; animation: pulse 1.2s infinite;"></span> Go-To Mode';
+            } else {
+                recBtn.style.background = '#a78bfa';
+                recBtn.style.color = '#000000';
+                playBtn.style.background = 'transparent';
+                playBtn.style.color = 'var(--text-secondary)';
+
+                badge.style.background = 'rgba(239,68,68,0.1)';
+                badge.style.color = '#ef4444';
+                badge.style.borderColor = 'rgba(239,68,68,0.2)';
+                badge.innerHTML = '<span style="width: 5px; height: 5px; background: #ef4444; border-radius: 50%; display: inline-block; animation: pulse 1.2s infinite;"></span> Record Mode';
+            }
+
+            updateScanPoseMode(isPlay);
+        }
+
+        function handleScanPoseBtn(position) {
+            _scanPlayMode ? goToScanPose(position) : saveScanPose(position);
+        }
+
+        async function goToScanPose(position) {
+            try {
+                showNotif(`▶ Moving arm to ${position} scan pose…`);
+                const res = await apiPost('/api/go_to_scan_pose', { position });
+                if (res.success) {
+                    showNotif(`✅ Arm moved to ${position} pose!`);
+                    logToTerminal(`Arm at scan pose ${position}: [${res.angles.map(a => a.toFixed(1)).join(', ')}]`, "msg");
+                } else {
+                    showNotif(`❌ ${res.error}`);
+                    logToTerminal(`Go-to scan pose error: ${res.error}`, "err");
+                }
+            } catch (err) {
+                showNotif(`❌ Connection error: ${err}`);
+            }
+        }
+
+        function renderWaypoints() {
+            const list = document.getElementById('wp-list');
+            const select = document.getElementById('play-start');
+            list.innerHTML = '';
+            select.innerHTML = '';
+            const coordLabels = ['X', 'Y', 'Z', 'Rx', 'Ry', 'Rz'];
+            const angleLabels = ['J1', 'J2', 'J3', 'J4', 'J5', 'J6'];
+
+            waypoints.forEach((wp, idx) => {
+                const row = document.createElement('div');
+                row.className = 'wp-row' + (idx === selectedWpIdx ? ' selected' : '');
+                row.id = `wp-row-${idx}`;
+                row.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') selectWp(idx);
+                });
+
+                // ── Vision check marker row ──────────────────────────────
+                if (wp.type === 'vision_check') {
+                    row.className = 'wp-row vision-check-row' + (idx === selectedWpIdx ? ' selected' : '');
+                    const allParts = [
+                        'Wheel Slot 1','Wheel Slot 2','Wheel Slot 3','Wheel Slot 4',
+                        'Wheel Slot 5','Wheel Slot 6','Wheel Slot 7','Wheel Slot 8',
+                        'Chassis 1','Chassis 2','WheelBase 1a','WheelBase 2a',
+                        'WheelBase 1b','WheelBase 2b','Body 1','Body 2'
+                    ];
+                    const partOptions = allParts.map(p =>
+                        `<option value="${p}" ${p === (wp.check_part || '') ? 'selected' : ''}>${p}</option>`
+                    ).join('');
+                    const vcRailOptions = ['NONE','P1','P2','P4','P5'].map(p =>
+                        `<option value="${p}" ${p === (wp.rail_preset || 'NONE') ? 'selected' : ''}>${p}</option>`
+                    ).join('');
+                    row.innerHTML = `
+                        <div class="wp-index">${idx + 1}</div>
+                        <div class="wp-name"><input type="text" data-wp-name="${idx}" onchange="updateWpName(${idx}, this.value)"></div>
+                        <div><span class="wp-type" style="background:#7c3aed;color:#fff;font-size:9px;padding:2px 5px;">👁 CV</span></div>
+                        <div class="wp-rail">
+                            <select onchange="updateRailPreset(${idx}, this.value)" style="font-size:10px; width:100%;">
+                                ${vcRailOptions}
+                            </select>
+                        </div>
+                        <div class="wp-values" style="display:flex;align-items:center;gap:8px;padding:0 12px;grid-column:span 1;">
+                            <span style="color:#a78bfa;font-size:11px;font-weight:600;white-space:nowrap;">👁 CHECK PART:</span>
+                            <select onchange="updateWpField(${idx},'check_part',this.value)"
+                                style="font-size:11px;background:var(--panel-light);color:#fff;border:1px solid #7c3aed;border-radius:4px;padding:2px 4px;">
+                                ${partOptions}
+                            </select>
+                        </div>
+                        <div></div><div></div><div></div>
+                        <div class="wp-actions">
+                            <button onclick="moveWp(${idx}, -1)" class="icon secondary" title="Move up">↑</button>
+                            <button onclick="moveWp(${idx}, 1)" class="icon secondary" title="Move down">↓</button>
+                            <button onclick="deleteWp(${idx})" class="icon danger" title="Delete">×</button>
+                        </div>
+                    `;
+                    list.appendChild(row);
+                    const vcNameInput = row.querySelector(`[data-wp-name="${idx}"]`);
+                    if (vcNameInput) vcNameInput.value = wp.name;
+                    const opt = document.createElement('option');
+                    opt.value = idx;
+                    opt.textContent = `WP ${idx + 1}: ${wp.name} [👁 CV]`;
+                    select.appendChild(opt);
+                    return; // skip normal render
+                }
+                // ── Normal waypoint row ──────────────────────────────────
+
+                const typeClass = wp.type;
+                const typeLabel = wp.type === 'coords' ? 'XYZ' : (wp.type === 'both' ? 'BOTH' : 'ANG');
+                const labels = wp.type === 'coords' ? coordLabels : angleLabels;
+                const isRef = wp.is_reference === true || wp.is_reference === 'true';
+
+                let valuesHtml = '';
+                wp.data.forEach((val, fIdx) => {
+                    valuesHtml += `
+                        <div class="val-cell">
+                            <span class="val-label">${labels[fIdx]}</span>
+                            <input type="number" value="${val.toFixed(2)}" step="0.1"
+                                onchange="updateWpVal(${idx}, ${fIdx}, this.value)"
+                                style="padding-top:8px;">
+                            <div class="val-controls">
+                                <button class="val-btn" onmousedown="startHold(${idx},${fIdx},1)" onmouseup="stopHold()" onmouseleave="stopHold()">▲</button>
+                                <button class="val-btn" onmousedown="startHold(${idx},${fIdx},-1)" onmouseup="stopHold()" onmouseleave="stopHold()">▼</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const vacState = wp.vacuum || 'none';
+                const vacClass = vacState;
+                const vacLabel = vacState === 'none' ? '—' : vacState.toUpperCase();
+
+                // Rail Preset Dropdown (NEW)
+                const railP = wp.rail_preset || 'NONE';
+                const railOptions = ['NONE', 'HOME', 'P1', 'P2', 'P3', 'P4', 'P5'].map(p =>
+                    `<option value="${p}" ${p === railP ? 'selected' : ''}>${p}</option>`
+                ).join('');
+
+                row.innerHTML = `
+                    <div class="wp-index">${idx + 1}</div>
+                    <div class="wp-name"><input type="text" data-wp-name="${idx}" onchange="updateWpName(${idx}, this.value)"></div>
+                    <div><span class="wp-type ${typeClass}">${typeLabel}</span></div>
+                    <div class="wp-rail">
+                        <select onchange="updateRailPreset(${idx}, this.value)" style="font-size:10px; width:100%;">
+                            ${railOptions}
+                        </select>
+                    </div>
+                    <div class="wp-values">${valuesHtml}</div>
+                    <div class="wp-speed"><input type="number" value="${wp.speed}" onchange="updateWpSpeed(${idx}, this.value)" style="width:45px;"></div>
+                    <div class="wp-speed"><input type="number" value="${(wp.delay_ms !== undefined && wp.delay_ms !== null) ? wp.delay_ms : 200}" onchange="updateWpField(${idx},'delay_ms',this.value)" style="width:45px;"></div>
+                    <div><span class="vac-pill ${vacClass}" onclick="cycleVacuum(${idx})">${vacLabel}</span></div>
+                    <div class="wp-actions">
+                        <button onclick="toggleReference(${idx})" class="icon secondary ${isRef ? 'success' : ''}" title="${isRef ? 'Unmark as Reference' : 'Mark as Reference'}" style="${isRef ? 'background: rgba(16,185,129,0.2); border-color: var(--success); color: var(--success);' : ''}">⭐</button>
+                        <button onclick="gotoWp(${idx})" class="icon secondary" title="Go to">🎯</button>
+                        <button onclick="copyWpData(${idx})" class="icon secondary" title="Copy values">📄</button>
+                        <button onclick="pasteWpData(${idx})" class="icon secondary" title="Paste values">📌</button>
+                        <button onclick="duplicateWp(${idx})" class="icon secondary" title="Duplicate">⧉</button>
+                        <button onclick="moveWp(${idx}, -1)" class="icon secondary" title="Move up">↑</button>
+                        <button onclick="moveWp(${idx}, 1)" class="icon secondary" title="Move down">↓</button>
+                        <button onclick="deleteWp(${idx})" class="icon danger" title="Delete">×</button>
+                    </div>
+                `;
+                list.appendChild(row);
+                // Set name safely via .value (not innerHTML) to prevent XSS
+                const nameInput = row.querySelector(`[data-wp-name="${idx}"]`);
+                if (nameInput) nameInput.value = wp.name;
+
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `WP ${idx + 1}: ${wp.name}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function selectWp(idx) {
+            selectedWpIdx = idx;
+            document.querySelectorAll('.wp-row').forEach(r => r.classList.remove('selected'));
+            const row = document.getElementById(`wp-row-${idx}`);
+            if (row) row.classList.add('selected');
+        }
+
+        function getStepSize(idx) {
+            return wpStepSizes[idx] || 1;
+        }
+
+        function startHold(idx, fIdx, dir) {
+            const step = getStepSize(idx);
+            trimWp(idx, fIdx, dir, step);
+            holdInterval = setInterval(() => trimWp(idx, fIdx, dir, step), 80);
+        }
+        function stopHold() {
+            if (holdInterval) { clearInterval(holdInterval); holdInterval = null; }
+        }
+
+        async function updateWpVal(idx, fIdx, val) {
+            await apiPost('/api/waypoints/update', { index: idx, field: 'data', field_index: fIdx, value: parseFloat(val) });
+        }
+
+        async function trimWp(idx, fIdx, dir, step) {
+            step = step || 1;
+            const wp = waypoints[idx];
+            const oldVal = wp.data[fIdx];
+            const newVal = oldVal + (dir * step);
+            wp.data[fIdx] = newVal;
+            const cell = document.querySelector(`#wp-row-${idx} .wp-values .val-cell:nth-child(${fIdx + 1}) input`);
+            if (cell) cell.value = newVal.toFixed(2);
+            try {
+                await apiPost('/api/waypoints/update', { index: idx, field: 'data', field_index: fIdx, value: newVal });
+            } catch (e) {
+                wp.data[fIdx] = oldVal;
+                if (cell) cell.value = oldVal.toFixed(2);
+                showNotif('Update failed — value reverted', 'error');
+            }
+        }
+
+        async function updateWpName(idx, name) {
+            await apiPost('/api/waypoints/update', { index: idx, field: 'name', value: name });
+        }
+
+        async function updateWpSpeed(idx, speed) {
+            await apiPost('/api/waypoints/update', { index: idx, field: 'speed', value: speed });
+        }
+
+        async function deleteWp(idx) {
+            if (confirm("Delete waypoint?")) {
+                await apiPost('/api/waypoints/delete', { index: idx });
+                if (selectedWpIdx >= idx) {
+                    selectedWpIdx = Math.max(-1, selectedWpIdx - 1);
+                }
+            }
+        }
+
+        async function clearWaypoints() {
+            if (confirm("Clear ALL waypoints?")) {
+                await apiPost('/api/waypoints/clear');
+            }
+        }
+
+        async function moveWp(idx, dir) {
+            const to = idx + dir;
+            if (to >= 0 && to < waypoints.length) {
+                await apiPost('/api/waypoints/reorder', { from: idx, to: to });
+            }
+        }
+
+        async function duplicateWp(idx) {
+            await apiPost('/api/waypoints/duplicate', { index: idx });
+            showNotif(`Duplicated WP-${idx + 1}`);
+        }
+
+        function copyWpData(idx) {
+            const wp = waypoints[idx];
+            wpClipboard = { type: wp.type, data: [...wp.data] };
+            showNotif(`📄 Copied WP-${idx + 1} values`);
+        }
+
+        async function pasteWpData(idx) {
+            if (!wpClipboard) { showNotif('Nothing copied yet'); return; }
+            if (wpClipboard.type !== waypoints[idx].type) {
+                if (!confirm(`Type mismatch: pasting ${wpClipboard.type.toUpperCase()} into ${waypoints[idx].type.toUpperCase()} waypoint. Continue?`)) return;
+            }
+            await apiPost('/api/waypoints/update', { index: idx, field: 'all_data', value: wpClipboard.data });
+            showNotif(`📌 Pasted into WP-${idx + 1}`);
+        }
+
+        async function updateWpField(idx, field, value) {
+            await apiPost('/api/waypoints/update', { index: idx, field: field, value: value });
+        }
+
+        async function toggleReference(idx) {
+            const current = waypoints[idx].is_reference === true || waypoints[idx].is_reference === 'true';
+            await apiPost('/api/waypoints/update', { index: idx, field: 'is_reference', value: !current });
+            showNotif(!current ? "⭐ Waypoint marked as Reference" : "Removed Reference mark");
+        }
+
+        async function cycleVacuum(idx) {
+            const states = ['none', 'on', 'off'];
+            const current = waypoints[idx].vacuum || 'none';
+            const next = states[(states.indexOf(current) + 1) % 3];
+            await apiPost('/api/waypoints/update', { index: idx, field: 'vacuum', value: next });
+        }
+
+        function stepForward() { apiPost('/api/playback/step_forward'); }
+        function stepBackward() { apiPost('/api/playback/step_backward'); }
+
+        function gotoWp(idx) {
+            const wp = waypoints[idx];
+            if (wp.type === 'coords') {
+                socket.emit('send_coords', {
+                    x: wp.data[0], y: wp.data[1], z: wp.data[2],
+                    rx: wp.data[3], ry: wp.data[4], rz: wp.data[5],
+                    speed: wp.speed, mode: wp.moveMode
+                });
+            } else if (wp.type === 'both') {
+                // Use angles for 'both' type by default
+                const data = { speed: wp.speed };
+                for (let i = 1; i <= 6; i++) data[`j${i}`] = wp.angles[i - 1];
+                socket.emit('send_angles', data);
+            } else {
+                const data = { speed: wp.speed };
+                for (let i = 1; i <= 6; i++) data[`j${i}`] = wp.data[i - 1];
+                socket.emit('send_angles', data);
+            }
+            showNotif(`Moving to ${wp.name}`);
+        }
+
+        // --- Playback ---
+        function startPlayback() {
+            const data = {
+                start_index: parseInt(document.getElementById('play-start').value),
+                speed: parseInt(document.getElementById('play-speed').value),
+                delay_ms: parseInt(document.getElementById('play-delay').value),
+                loop: document.getElementById('play-loop').checked,
+                async_rail: document.getElementById('async-rail').checked,
+                dynamic_mode: document.getElementById('dynamic-mode').checked,
+                skip_vision: true,
+            };
+            apiPost('/api/playback/play', data);
+            playbackActive = true;
+        }
+
+        async function applyToAll() {
+            const speed = document.getElementById('play-speed').value;
+            const delay = document.getElementById('play-delay').value;
+            if (!confirm(`Apply Speed=${speed} and Delay=${delay}ms to ALL waypoints?`)) return;
+
+            const res = await apiPost('/api/waypoints/batch_update', { speed: speed, delay_ms: delay });
+            if (res.success) showNotif("✅ All waypoints updated!");
+        }
+
+        function pauseSequence() {
+            const btn = document.getElementById('btn-pause');
+            if (btn.disabled) return;
+            if (playbackActive === 'paused') apiPost('/api/playback/resume');
+            else apiPost('/api/playback/pause');
+        }
+
+        async function insertVisionCheck() {
+            const insertAt = selectedWpIdx >= 0 ? selectedWpIdx + 1 : waypoints.length;
+            const vc = {
+                type: "vision_check",
+                name: "vision-check",
+                rail_preset: "P4",
+                check_part: "Wheel Slot 4",
+                data: [],
+                vacuum: "none",
+                speed: 50,
+                delay_ms: 0,
+                timestamp: Date.now() / 1000
+            };
+            const res = await apiPost('/api/waypoints/insert', { index: insertAt, waypoint: vc });
+            if (res && res.success) {
+                showNotif("👁 Vision check marker inserted");
+            }
+        }
+
+        function stopSequence() {
+            apiPost('/api/playback/stop');
+            // Immediately reset button — don't wait for the server event roundtrip
+            const playBtn = document.getElementById('btn-play');
+            const pauseBtn = document.getElementById('btn-pause');
+            playBtn.innerText = '▶ Play';
+            playBtn.disabled = false;
+            pauseBtn.innerText = '⏸ Pause';
+            playbackActive = false;
+            document.getElementById('pb-state').innerText = 'IDLE';
+            document.getElementById('pb-bar').style.width = '0%';
+            document.querySelectorAll('.wp-row').forEach(r => r.classList.remove('active'));
+        }
+
+        socket.on('playback_progress', (data) => {
+            const stateEl = document.getElementById('pb-state');
+            const bar = document.getElementById('pb-bar');
+
+            if (data.index === -1) {
+                stateEl.innerText = "IDLE";
+                bar.style.width = "0%";
+                playbackActive = false;
+                document.querySelectorAll('.wp-row').forEach(r => r.classList.remove('active'));
+                // Backstop: ensure button is always re-enabled on idle signal from server
+                document.getElementById('btn-play').innerText = '▶ Play';
+                document.getElementById('btn-play').disabled = false;
+                document.getElementById('btn-pause').innerText = '⏸ Pause';
+                return;
+            }
+
+            playbackActive = data.state;
+            stateEl.innerText = `${data.state.toUpperCase()}: ${data.name}`;
+            const pct = ((data.index + 1) / data.total) * 100;
+            bar.style.width = `${pct}%`;
+
+            document.querySelectorAll('.wp-row').forEach(r => r.classList.remove('active'));
+            const activeRow = document.getElementById(`wp-row-${data.index}`);
+            if (activeRow) {
+                activeRow.classList.add('active');
+                activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            const playBtn = document.getElementById('btn-play');
+            const pauseBtn = document.getElementById('btn-pause');
+
+            if (data.state === 'playing') {
+                playBtn.innerText = "Playing...";
+                playBtn.disabled = true;
+                pauseBtn.innerText = "⏸ Pause";
+            } else if (data.state === 'paused') {
+                pauseBtn.innerText = "▶ Resume";
+            }
+        });
+
+        socket.on('playback_complete', () => {
+            document.getElementById('btn-play').innerText = "▶ Play";
+            document.getElementById('btn-play').disabled = false;
+            showNotif("Sequence Complete");
+        });
+
+        // --- Utils ---
+        function showNotif(msg) {
+            const el = document.getElementById('notif');
+            el.innerText = msg;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+
+        function exportWaypoints() {
+            window.location.href = '/api/waypoints/export';
+        }
+
+        function importWaypoints(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            fetch('/api/waypoints/import', { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) showNotif(`Imported ${data.count} waypoints`);
+                    else alert("Import failed: " + data.error);
+                });
+        }
+
+        // Init
+        fetch('/api/waypoints').then(r => r.json()).then(data => {
+            waypoints = data.waypoints;
+            renderWaypoints();
+            updateCalibrationHUD();
+        });
+
+    </script>
+</body>
+
+</html>

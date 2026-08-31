@@ -1,0 +1,20 @@
+{
+  "safe_position": {
+    "key": "safe_position",
+    "data": [
+      -86.57,
+      4.3,
+      -43.68,
+      6.15,
+      86.22,
+      90.79
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "delay_ms": 0,
+    "move_type": "",
+    "cell_id": null,
+    "board_id": "B1",
+    "timestamp": 1787662229.079
+  }
+}

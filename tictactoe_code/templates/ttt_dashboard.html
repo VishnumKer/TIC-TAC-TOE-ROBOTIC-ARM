@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTT Robot — Game Dashboard</title>
+  <style>
+    /* ── Reset & Fonts ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:          #0b0d14;
+      --surface:     #131724;
+      --surface2:    #1a1f30;
+      --border:      #252a3a;
+      --accent-blue: #3b8df1;
+      --accent-red:  #e84c4c;
+      --accent-cyan: #00e5c8;
+      --accent-gold: #f5c842;
+      --text:        #e4e8f5;
+      --muted:       #6b7394;
+      --human-col:   #e84c4c;
+      --robot-col:   #3b8df1;
+      --win-glow:    #f5c842;
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg);
+           color: var(--text); height: 100vh; display: flex; flex-direction: column;
+           overflow: hidden; }
+
+    /* ── Nav ───────────────────────────────────────────────────────────── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px; background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo span { font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; }
+    .nav-logo .dot { width: 10px; height: 10px; border-radius: 50%;
+                     background: var(--accent-cyan);
+                     box-shadow: 0 0 10px var(--accent-cyan); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    .nav-links { display: flex; gap: 8px; }
+    .nav-links a {
+      padding: 6px 16px; border-radius: 6px; text-decoration: none;
+      font-size: .85rem; font-weight: 600; color: var(--muted);
+      border: 1px solid transparent; transition: all .2s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      background: var(--surface2); color: var(--text); border-color: var(--border);
+    }
+
+    .mode-switch { display: flex; gap: 6px; }
+    .mode-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--muted); cursor: pointer;
+      font-size: .82rem; font-weight: 600; transition: all .2s;
+    }
+    .mode-btn.active {
+      background: var(--accent-blue); color: #fff; border-color: var(--accent-blue);
+      box-shadow: 0 0 12px rgba(59,141,241,.4);
+    }
+
+    /* ── Main layout ───────────────────────────────────────────────────── */
+    .main { display: grid; grid-template-columns: 1fr 420px 280px;
+            gap: 12px; padding: 12px; flex: 1; overflow: hidden; }
+
+    /* ── Panel base ────────────────────────────────────────────────────── */
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-title {
+      font-size: .72rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+    }
+
+    /* ── Boards panel ──────────────────────────────────────────────────── */
+    #boards-panel { gap: 14px; }
+    .board-section { flex: 1; display: flex; flex-direction: column; }
+    .board-header { display: flex; align-items: center; justify-content: space-between;
+                    margin-bottom: 8px; }
+    .board-label { font-size: .9rem; font-weight: 700; }
+    .phase-badge {
+      font-size: .7rem; font-weight: 700; padding: 3px 10px; border-radius: 10px;
+      text-transform: uppercase; letter-spacing: .8px;
+    }
+    .phase-IDLE        { background: #252a3a; color: var(--muted); }
+    .phase-HUMAN_TURN  { background: rgba(232,76,76,.18); color: var(--human-col); }
+    .phase-ROBOT_TURN  { background: rgba(59,141,241,.18); color: var(--robot-col); }
+    .phase-GAME_OVER   { background: rgba(245,200,66,.18); color: var(--accent-gold); }
+
+    /* ── Grid ──────────────────────────────────────────────────────────── */
+    .ttt-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 6px; aspect-ratio: 1; max-width: 280px; margin: 0 auto;
+    }
+    .cell {
+      background: var(--surface2); border: 1.5px solid var(--border);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; cursor: default; transition: background .15s;
+      position: relative; overflow: hidden;
+    }
+    .cell.win-cell { border-color: var(--win-glow) !important;
+                     box-shadow: 0 0 18px rgba(245,200,66,.5); }
+    .cell .token {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 58%; height: 58%; border-radius: 50%; animation: tokenIn .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes tokenIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    .token-H { background: radial-gradient(circle at 35% 35%, #ff7070, #c83030);
+               box-shadow: 0 4px 14px rgba(200,50,50,.5); }
+    .token-R { background: radial-gradient(circle at 35% 35%, #6eb6ff, #2060cc);
+               box-shadow: 0 4px 14px rgba(40,100,220,.5); }
+
+    /* ── Score strip ───────────────────────────────────────────────────── */
+    .score-row { display: flex; gap: 10px; margin-top: 8px; }
+    .score-pill {
+      flex: 1; padding: 6px 10px; border-radius: 8px; text-align: center;
+      font-size: .78rem; font-weight: 700;
+    }
+    .score-human { background: rgba(232,76,76,.12); border: 1px solid rgba(232,76,76,.3);
+                   color: var(--human-col); }
+    .score-robot { background: rgba(59,141,241,.12); border: 1px solid rgba(59,141,241,.3);
+                   color: var(--robot-col); }
+    .score-draw  { background: rgba(107,115,148,.15); border: 1px solid rgba(107,115,148,.3);
+                   color: var(--muted); }
+
+    /* ── Phase progress bar ────────────────────────────────────────────── */
+    .phase-steps {
+      display: flex; gap: 3px; margin: 8px 0;
+    }
+    .phase-step {
+      flex: 1; height: 3px; border-radius: 2px; background: var(--surface2);
+      transition: background .3s;
+    }
+    .phase-step.active { background: var(--accent-cyan); box-shadow: 0 0 6px var(--accent-cyan); }
+    .phase-step.done   { background: var(--accent-blue); }
+
+    /* ── Camera panel ──────────────────────────────────────────────────── */
+    #camera-panel { position: relative; }
+    .cam-feed {
+      flex: 1; border-radius: 8px; overflow: hidden; background: #000;
+      display: flex; align-items: center; justify-content: center; min-height: 0;
+    }
+    .cam-feed img { width: 100%; height: 100%; object-fit: contain; }
+    .cam-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+    .cam-tab {
+      padding: 4px 14px; border-radius: 6px; font-size: .78rem; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border); background: var(--surface2);
+      color: var(--muted); transition: all .2s;
+    }
+    .cam-tab.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+    .cam-no-signal {
+      color: var(--muted); font-size: .85rem; text-align: center;
+    }
+    .detection-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 8px;
+    }
+    .det-cell {
+      padding: 3px; border-radius: 4px; text-align: center; font-size: .68rem;
+      font-weight: 700; background: var(--surface2); color: var(--muted);
+    }
+    .det-cell.H { background: rgba(232,76,76,.2); color: var(--human-col); }
+    .det-cell.R { background: rgba(59,141,241,.2); color: var(--robot-col); }
+
+    /* ── Right panel ───────────────────────────────────────────────────── */
+    #right-panel { gap: 10px; }
+
+    /* Buttons */
+    .btn {
+      padding: 9px 0; border-radius: 8px; border: none; cursor: pointer;
+      font-size: .82rem; font-weight: 700; letter-spacing: .5px;
+      transition: all .2s; width: 100%;
+    }
+    .btn-start  { background: linear-gradient(135deg,#1fa060,#0ec876);
+                  color: #fff; box-shadow: 0 4px 16px rgba(14,200,118,.25); }
+    .btn-reset  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+    .btn-estop  { background: linear-gradient(135deg,#b02020,#e84c4c);
+                  color: #fff; box-shadow: 0 4px 14px rgba(232,76,76,.3); }
+    .btn:hover  { filter: brightness(1.12); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    /* Status badges */
+    .status-row { display: flex; align-items: center; justify-content: space-between;
+                  padding: 7px 10px; background: var(--surface2); border-radius: 8px;
+                  border: 1px solid var(--border); font-size: .78rem; }
+    .status-key { color: var(--muted); font-weight: 600; }
+    .status-val { font-weight: 700; }
+    .badge-ok   { color: #00e07a; }
+    .badge-err  { color: var(--human-col); }
+    .badge-warn { color: var(--accent-gold); }
+
+    /* LED section */
+    .led-preview {
+      height: 8px; border-radius: 4px; margin: 6px 0;
+      background: linear-gradient(90deg, #ff4444, #4488ff, #00ffcc, #ffdd00, #ff4444);
+      background-size: 200% 100%; animation: ledScroll 3s linear infinite;
+    }
+    @keyframes ledScroll { to { background-position: 200% 0; } }
+    .led-effect-badge {
+      font-size: .72rem; padding: 3px 10px; border-radius: 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--accent-cyan); font-weight: 700;
+    }
+
+    /* Move log */
+    .move-log {
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+      gap: 4px; min-height: 0;
+    }
+    .log-entry {
+      padding: 4px 8px; border-radius: 5px; font-size: .73rem; font-weight: 600;
+      animation: logIn .3s ease;
+    }
+    @keyframes logIn { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:none} }
+    .log-H { background: rgba(232,76,76,.12); color: var(--human-col);
+              border-left: 2px solid var(--human-col); }
+    .log-R { background: rgba(59,141,241,.12); color: var(--robot-col);
+              border-left: 2px solid var(--robot-col); }
+    .log-info { background: rgba(107,115,148,.1); color: var(--muted);
+                border-left: 2px solid var(--border); }
+    .log-win  { background: rgba(245,200,66,.12); color: var(--accent-gold);
+                border-left: 2px solid var(--accent-gold); }
+
+    /* Game over overlay */
+    #game-over-overlay {
+      display: none; position: fixed; inset: 0; z-index: 100;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    #game-over-overlay.show { display: flex; }
+    .game-over-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px; text-align: center; min-width: 340px;
+      animation: cardPop .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes cardPop { from{transform:scale(.6);opacity:0} to{transform:scale(1);opacity:1} }
+    .game-over-emoji { font-size: 3.5rem; margin-bottom: 10px; }
+    .game-over-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
+    .game-over-sub { color: var(--muted); font-size: .9rem; margin-bottom: 20px; }
+    .game-over-btns { display: flex; gap: 10px; }
+
+    /* Dual board layout */
+    .board-divider { height: 1px; background: var(--border); margin: 6px 0; flex-shrink: 0; }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ────────────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">
+    <div class="dot"></div>
+    <span>🤖 TTT Robot</span>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="active">Game</a>
+    <a href="/waypoints">Waypoints</a>
+  </div>
+  <div class="mode-switch">
+    <button class="mode-btn active" id="mode1-btn" onclick="setMode(1)">1 Game</button>
+    <button class="mode-btn" id="mode2-btn" onclick="setMode(2)">2 Games</button>
+  </div>
+</nav>
+
+<!-- ── Main ───────────────────────────────────────────────────────────────── -->
+<div class="main">
+
+  <!-- Left: Game Boards -->
+  <div class="panel" id="boards-panel">
+    <div class="panel-title">Game Boards</div>
+
+    <!-- Board 1 -->
+    <div class="board-section" id="section-B1">
+      <div class="board-header">
+        <span class="board-label">🟥 Board 1</span>
+        <span class="phase-badge phase-IDLE" id="phase-B1">IDLE</span>
+      </div>
+      <div class="phase-steps" id="steps-B1">
+        <div class="phase-step" id="step-scan-B1"></div>
+        <div class="phase-step" id="step-human-B1"></div>
+        <div class="phase-step" id="step-think-B1"></div>
+        <div class="phase-step" id="step-move-B1"></div>
+      </div>
+      <div class="ttt-grid" id="grid-B1">
+        <!-- 9 cells generated by JS -->
+      </div>
+      <div class="score-row">
+        <div class="score-pill score-human" id="score-human-B1">Human 🔴 W:0 D:0</div>
+        <div class="score-pill score-robot" id="score-robot-B1">Robot 🔵 W:0 D:0</div>
+      </div>
+    </div>
+
+    <!-- Divider (shown only in 2-game mode) -->
+    <div class="board-divider" id="board-divider" style="display:none;"></div>
+
+    <!-- Board 2 (hidden in 1-game mode) -->
+    <div class="board-section" id="section-B2" style="display:none;">
+      <div class="board-header">
+        <span class="board-label">🟦 Board 2</span>
+        <span class="phase-badge phase-IDLE" id="phase-B2">IDLE</span>
+      </div>
+      <div class="phase-steps" id="steps-B2">
+        <div class="phase-step" id="step-scan-B2"></div>
+        <div class="phase-step" id="step-human-B2"></div>
+        <div class="phase-step" id="step-think-B2"></div>
+        <div class="phase-step" id="step-move-B2"></div>
+      </div>
+      <div class="ttt-grid" id="grid-B2"></div>
+      <div class="score-row">
+        <div class="score-pill score-human" id="score-human-B2">Human 🔴 W:0 D:0</div>
+        <div class="score-pill score-robot" id="score-robot-B2">Robot 🔵 W:0 D:0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: Camera -->
+  <div class="panel" id="camera-panel">
+    <div class="panel-title">Live Camera</div>
+    <div class="cam-tabs">
+      <div class="cam-tab active" id="cam-tab-B1" onclick="switchCamBoard('B1')">Board 1</div>
+      <div class="cam-tab" id="cam-tab-B2" onclick="switchCamBoard('B2')">Board 2</div>
+    </div>
+    <div class="cam-feed">
+      <img id="cam-img" src="/video_feed" alt="camera"
+           onerror="this.parentNode.innerHTML='<p class=cam-no-signal>📷 No camera signal</p>'">
+    </div>
+    <div class="detection-grid" id="det-grid-B1">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- Right: Controls -->
+  <div class="panel" id="right-panel">
+    <div class="panel-title">Controls</div>
+
+    <!-- Game buttons -->
+    <button class="btn btn-start" id="start-btn" onclick="startGame()">▶ Start Game</button>
+    <div style="height:6px;"></div>
+    <button class="btn btn-reset" onclick="resetGame()">↺ Reset</button>
+    <div style="height:6px;"></div>
+    <button class="btn btn-estop" onclick="eStop()">🛑 Emergency Stop</button>
+    <div style="height:12px;"></div>
+
+    <!-- Hardware status -->
+    <div class="panel-title">Hardware</div>
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <div class="status-row">
+        <span class="status-key">ARM</span>
+        <span class="status-val badge-err" id="arm-status">—</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key">RAIL</span>
+        <span class="status-val badge-err" id="rail-status">—</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key">VACUUM</span>
+        <span class="status-val" id="vac-status">OFF</span>
+      </div>
+      <div class="status-row">
+        <span class="status-key">J1–J6</span>
+        <span class="status-val" id="angles-status" style="font-size:.68rem;">—</span>
+      </div>
+    </div>
+
+    <div style="height:10px;"></div>
+
+    <!-- LED Section -->
+    <div class="panel-title">LED Strip (45px)</div>
+    <div class="led-preview" id="led-preview"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span class="led-effect-badge" id="led-badge">idle</span>
+      <select id="led-select" style="background:var(--surface2);border:1px solid var(--border);
+              color:var(--text);border-radius:6px;padding:4px 8px;font-size:.75rem;"
+              onchange="sendLedEffect(this.value)">
+      </select>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <label style="font-size:.72rem;color:var(--muted);">Brightness</label>
+      <input type="range" id="led-bright" min="0" max="255" value="128" style="flex:1;"
+             oninput="sendBrightness(this.value)">
+      <span id="led-bright-val" style="font-size:.72rem;color:var(--muted);width:24px;">128</span>
+    </div>
+
+    <div style="height:10px;"></div>
+
+    <!-- Move log -->
+    <div class="panel-title">Move Log</div>
+    <div class="move-log" id="move-log"></div>
+  </div>
+</div>
+
+<!-- Game Over Overlay -->
+<div id="game-over-overlay">
+  <div class="game-over-card">
+    <div class="game-over-emoji" id="go-emoji">🏆</div>
+    <div class="game-over-title" id="go-title">Game Over</div>
+    <div class="game-over-sub" id="go-sub">Result</div>
+    <div class="game-over-btns">
+      <button class="btn btn-start" style="flex:1" onclick="closeOverlay();startGame()">▶ Play Again</button>
+      <button class="btn btn-reset" style="flex:1" onclick="closeOverlay()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/socket.io.min.js"></script>
+<script>
+const socket = io();
+let currentMode = 1;
+let activeBoard = "B1";
+let gameState = {};
+
+/* ── Grid initialisation ─────────────────────────────────────────────────── */
+function buildGrid(boardId) {
+  const g = document.getElementById(`grid-${boardId}`);
+  g.innerHTML = "";
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.id = `cell-${boardId}-${i}`;
+    g.appendChild(cell);
+  }
+}
+buildGrid("B1");
+buildGrid("B2");
+
+/* Build detection grid */
+function buildDetGrid(boardId) {
+  const g = document.getElementById(`det-grid-${boardId}`);
+  if (!g) return;
+  g.innerHTML = "";
+  for (let i = 0; i < 9; i++) {
+    const d = document.createElement("div");
+    d.className = "det-cell";
+    d.id = `det-${boardId}-${i}`;
+    d.textContent = i;
+    g.appendChild(d);
+  }
+}
+buildDetGrid("B1");
+
+/* ── Render board state ─────────────────────────────────────────────────── */
+function renderBoard(boardId, board) {
+  const grid   = board.grid   || Array(9).fill("");
+  const phase  = board.phase  || "IDLE";
+  const winner = board.winner || null;
+  const winLine= board.win_line || [];
+  const scores = board.scores || {};
+
+  // Cells
+  grid.forEach((val, i) => {
+    const el = document.getElementById(`cell-${boardId}-${i}`);
+    if (!el) return;
+    el.className = "cell" + (winLine.includes(i) ? " win-cell" : "");
+    if (val === "H") {
+      el.innerHTML = `<div class="token token-H"></div>`;
+    } else if (val === "R") {
+      el.innerHTML = `<div class="token token-R"></div>`;
+    } else {
+      el.innerHTML = "";
+    }
+  });
+
+  // Phase badge
+  const pEl = document.getElementById(`phase-${boardId}`);
+  if (pEl) {
+    pEl.className = `phase-badge phase-${phase}`;
+    pEl.textContent = phase.replace("_", " ");
+  }
+
+  // Phase steps
+  const phases = ["IDLE","HUMAN_TURN","ROBOT_TURN","GAME_OVER"];
+  const stepIds = [`step-scan-${boardId}`,`step-human-${boardId}`,
+                   `step-think-${boardId}`,`step-move-${boardId}`];
+  const phaseIdx = phases.indexOf(phase);
+  stepIds.forEach((id, idx) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = "phase-step" + (idx < phaseIdx ? " done" : idx === phaseIdx ? " active" : "");
+  });
+
+  // Scores
+  const hw = scores.human_wins || 0;
+  const rw = scores.robot_wins || 0;
+  const dr = scores.draws      || 0;
+  const hEl = document.getElementById(`score-human-${boardId}`);
+  const rEl = document.getElementById(`score-robot-${boardId}`);
+  if (hEl) hEl.textContent = `Human 🔴  W:${hw}  D:${dr}`;
+  if (rEl) rEl.textContent = `Robot 🔵  W:${rw}  D:${dr}`;
+
+  // Detection cells
+  grid.forEach((val, i) => {
+    const d = document.getElementById(`det-${boardId}-${i}`);
+    if (!d) return;
+    d.className = "det-cell" + (val ? ` ${val}` : "");
+    d.textContent = val || i;
+  });
+}
+
+/* ── Log ─────────────────────────────────────────────────────────────────── */
+function log(msg, type = "info") {
+  const log = document.getElementById("move-log");
+  const el  = document.createElement("div");
+  el.className = `log-entry log-${type}`;
+  el.textContent = `${new Date().toLocaleTimeString()}  ${msg}`;
+  log.prepend(el);
+  while (log.children.length > 80) log.removeChild(log.lastChild);
+}
+
+/* ── Socket events ──────────────────────────────────────────────────────── */
+socket.on("game_state_update", data => {
+  gameState = data;
+  const boards = data.boards || {};
+  if (boards.B1) renderBoard("B1", boards.B1);
+  if (boards.B2) renderBoard("B2", boards.B2);
+});
+
+socket.on("human_move_detected", data => {
+  log(`[${data.board_id}] Human placed on cell ${data.cell}`, "H");
+});
+
+socket.on("robot_thinking", data => {
+  log(`[${data.board_id}] 🤖 Robot thinking → cell ${data.cell}`, "R");
+});
+
+socket.on("robot_move_start", data => {
+  log(`[${data.board_id}] ⚙️ ${data.phase}`, "R");
+});
+
+socket.on("robot_move_done", data => {
+  log(`[${data.board_id}] ✅ Robot placed on cell ${data.cell}`, "R");
+});
+
+socket.on("game_over", data => {
+  const w = data.winner;
+  const emoji = w === "R" ? "🏆" : w === "H" ? "🎉" : "🤝";
+  const title = w === "R" ? "Robot Wins!" : w === "H" ? "Human Wins!" : "It's a Draw!";
+  const s = data.scores || {};
+  const sub = `Human: ${s.human_wins||0} wins · Robot: ${s.robot_wins||0} wins · Draws: ${s.draws||0}`;
+  document.getElementById("go-emoji").textContent = emoji;
+  document.getElementById("go-title").textContent = title;
+  document.getElementById("go-sub").textContent   = sub;
+  document.getElementById("game-over-overlay").classList.add("show");
+  log(`[${data.board_id}] Game Over — ${title}`, "win");
+});
+
+socket.on("arm_status", data => {
+  const armEl = document.getElementById("arm-status");
+  if (data.connected) {
+    armEl.textContent = `✅ ${data.serial_port || "Serial"}`;
+    armEl.className = "status-val badge-ok";
+  } else {
+    armEl.textContent = "✗ Disconnected";
+    armEl.className = "status-val badge-err";
+  }
+  const vacEl = document.getElementById("vac-status");
+  vacEl.textContent = data.vacuum ? "ON" : "OFF";
+  vacEl.className = data.vacuum ? "status-val badge-warn" : "status-val";
+
+  const aEl = document.getElementById("angles-status");
+  if (data.angles) aEl.textContent = data.angles.map(a => a.toFixed(1)).join(", ");
+});
+
+socket.on("rail_status", data => {
+  const el = document.getElementById("rail-status");
+  if (data.connected) {
+    el.textContent = `✅ ${data.point || "—"}`;
+    el.className = "status-val badge-ok";
+  } else {
+    el.textContent = "✗ Disconnected";
+    el.className = "status-val badge-err";
+  }
+});
+
+socket.on("led_status", data => {
+  const eff = (data.effect || "").replace("LEDRGB:", "").replace("LEDSOLID:", "solid ");
+  document.getElementById("led-badge").textContent = eff || "—";
+});
+
+socket.on("scan_started", data => {
+  log(`[${data.board_id}] 📷 Scanning board...`, "info");
+});
+
+socket.on("vision_log", data => {
+  log(data.message, "info");
+});
+
+/* ── Controls ────────────────────────────────────────────────────────────── */
+function startGame() {
+  fetch("/api/start_game", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({board_id: activeBoard, mode: currentMode})
+  }).then(r => r.json()).then(d => {
+    if (!d.success) log("❌ " + (d.error || "Could not start"), "info");
+    else log(`▶ Game started on ${d.board_id} (mode ${d.mode})`, "info");
+  });
+}
+
+function resetGame() {
+  fetch("/api/reset_game", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({board_id: null})
+  }).then(() => log("↺ Game reset", "info"));
+}
+
+function eStop() {
+  fetch("/api/emergency_stop", {method: "POST"}).then(() => {
+    log("🛑 Emergency stop!", "info");
+  });
+}
+
+function setMode(m) {
+  currentMode = m;
+  document.getElementById("mode1-btn").className = "mode-btn" + (m===1?" active":"");
+  document.getElementById("mode2-btn").className = "mode-btn" + (m===2?" active":"");
+  document.getElementById("section-B2").style.display   = m===2 ? "flex" : "none";
+  document.getElementById("board-divider").style.display = m===2 ? "block" : "none";
+  fetch("/api/set_mode", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({mode: m})
+  });
+}
+
+function switchCamBoard(id) {
+  document.querySelectorAll(".cam-tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(`cam-tab-${id}`).classList.add("active");
+  // Future: switch camera feed URL per board if multiple cameras
+}
+
+function closeOverlay() {
+  document.getElementById("game-over-overlay").classList.remove("show");
+}
+
+/* ── LED ──────────────────────────────────────────────────────────────────── */
+function populateLedSelect() {
+  fetch("/api/led/effects").then(r => r.json()).then(d => {
+    const sel = document.getElementById("led-select");
+    sel.innerHTML = "";
+    (d.effects || []).forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e; opt.textContent = e;
+      sel.appendChild(opt);
+    });
+  });
+}
+populateLedSelect();
+
+function sendLedEffect(effect) {
+  fetch(`/api/led/${effect}`, {method: "POST"});
+}
+
+function sendBrightness(val) {
+  document.getElementById("led-bright-val").textContent = val;
+  fetch("/api/led/brightness", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({value: parseInt(val)})
+  });
+}
+</script>
+</body>
+</html>
