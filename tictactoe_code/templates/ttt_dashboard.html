@@ -515,6 +515,8 @@ function log(msg, type = "info") {
 }
 
 /* ── Socket events ──────────────────────────────────────────────────────── */
+let _lastSeenSeq = -1;  // dedup: ignore duplicate robot_move_start events
+
 socket.on("game_state_update", data => {
   gameState = data;
   const boards = data.boards || {};
@@ -531,6 +533,9 @@ socket.on("robot_thinking", data => {
 });
 
 socket.on("robot_move_start", data => {
+  // Deduplicate: skip if this seq has already been rendered by this tab
+  if (data.seq !== undefined && data.seq <= _lastSeenSeq) return;
+  if (data.seq !== undefined) _lastSeenSeq = data.seq;
   log(`[${data.board_id}] ⚙️ ${data.phase}`, "R");
 });
 

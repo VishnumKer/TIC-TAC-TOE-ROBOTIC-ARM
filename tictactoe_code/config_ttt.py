@@ -37,9 +37,10 @@ LED_EFFECTS = [
 LED_DEFAULT_BRIGHTNESS = 128   # 0–255
 
 # ── Arm Hardware (serial-only, offline) ───────────────────────────────────────
-ARM_SERIAL_PORT = "COM3"       # Windows default; auto-detected if None
-ARM_SERIAL_BAUD = 115200
-ARM_SPEED       = 50           # default move speed (1–100)
+ARM_SERIAL_PORT     = "COM3"   # Windows default; auto-detected if None
+ARM_SERIAL_BAUD     = 115200
+ARM_SPEED           = 50       # default move speed (1–100)
+ARM_SPEED_OVERRIDE  = None     # if set (1-100), overrides all per-waypoint speeds
 
 # ── Rail Hardware ─────────────────────────────────────────────────────────────
 RAIL_SPEED_RPM  = 300
@@ -110,7 +111,7 @@ def _load_settings():
         try:
             with open(SETTINGS_PATH) as f:
                 d = json.load(f)
-            global ARM_SPEED, RAIL_SPEED_RPM, DEFAULT_GAME_MODE
+            global ARM_SPEED, ARM_SPEED_OVERRIDE, RAIL_SPEED_RPM, DEFAULT_GAME_MODE
             global SCAN_SETTLE_TIME, VACUUM_ON_DELAY_MS, VACUUM_OFF_DELAY_MS
             global LED_DEFAULT_BRIGHTNESS
             global CAMERA_INDEX, TOKEN_PIXEL_RATIO
@@ -118,6 +119,9 @@ def _load_settings():
             global BLUE_HSV_LOWER, BLUE_HSV_UPPER, BOARD_CELL_ROIS
 
             ARM_SPEED              = d.get("arm_speed",            ARM_SPEED)
+            # arm_speed_override: stored as int or null in settings
+            raw_ov = d.get("arm_speed_override", None)
+            ARM_SPEED_OVERRIDE     = int(raw_ov) if raw_ov is not None else None
             RAIL_SPEED_RPM         = d.get("rail_speed_rpm",       RAIL_SPEED_RPM)
             DEFAULT_GAME_MODE      = d.get("game_mode",            DEFAULT_GAME_MODE)
             SCAN_SETTLE_TIME       = d.get("scan_settle_time",     SCAN_SETTLE_TIME)

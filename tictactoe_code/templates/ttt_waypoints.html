@@ -533,6 +533,23 @@
       <input type="number" id="vac-delay" value="300" class="form-input" style="flex:1; text-align:center; height:24px; padding:2px 4px">
     </div>
 
+    <!-- Global Speed Override -->
+    <div class="panel-title" style="margin-top:4px; display:flex; justify-content:space-between; align-items:center">
+      <span>Global Speed Override</span>
+      <span id="speed-override-badge" class="saved-chip" style="margin:0;padding:2px 8px;background:var(--surface3);border-color:var(--border);font-size:.68rem">OFF</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <span style="font-size:.68rem;color:var(--muted)">Speed</span>
+      <input type="range" id="speed-slider" min="1" max="100" value="50"
+             style="flex:1;accent-color:var(--gold)"
+             oninput="onSpeedSliderInput(this.value)">
+      <span id="speed-slider-val" style="font-size:.68rem;color:var(--gold);width:28px">50</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <button class="btn btn-warn btn-sm" id="speed-enable-btn" onclick="enableSpeedOverride()">✅ Apply Override</button>
+      <button class="btn btn-muted btn-sm" onclick="disableSpeedOverride()">✕ Disable</button>
+    </div>
+
     <!-- Operation Log -->
     <div class="panel-title">Operation Log</div>
     <div class="op-log" id="op-log"></div>
@@ -1246,8 +1263,60 @@ socket.on("led_status", data => {
   document.getElementById("led-bright-val").textContent = data.brightness || 128;
 });
 
+let _lastSeenSeq = -1;  // dedup: ignore duplicate robot_move_start events
 socket.on("robot_move_start", data => {
+  // Skip if we've already rendered this seq (e.g. second browser tab)
+  if (data.seq !== undefined && data.seq <= _lastSeenSeq) return;
+  if (data.seq !== undefined) _lastSeenSeq = data.seq;
   opLog(`⚙️ [${data.board_id}] Slot ${data.slot ?? "–"} → Cell ${data.cell}: ${data.phase} ${data.detail||""}`, "info");
+});
+
+/* ── Global Speed Override ──────────────────────────────────────────── */
+function onSpeedSliderInput(v) {
+  document.getElementById("speed-slider-val").textContent = v;
+}
+
+function enableSpeedOverride() {
+  const v = parseInt(document.getElementById("speed-slider").value);
+  fetch("/api/speed", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({speed: v})
+  }).then(r => r.json()).then(d => {
+    if (d.success) {
+      document.getElementById("speed-override-badge").textContent = `ON: ${v}`;
+      document.getElementById("speed-override-badge").style.color = "var(--gold)";
+      opLog(`⚡ Global speed override set to ${v}`, "ok");
+    }
+  });
+}
+
+function disableSpeedOverride() {
+  fetch("/api/speed", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({speed: null})
+  }).then(r => r.json()).then(d => {
+    if (d.success) {
+      document.getElementById("speed-override-badge").textContent = "OFF";
+      document.getElementById("speed-override-badge").style.color = "";
+      opLog("❌ Global speed override disabled — using per-waypoint speeds", "info");
+    }
+  });
+}
+
+// Initialize speed slider from saved setting
+fetch("/api/speed").then(r => r.json()).then(d => {
+  const ov = d.arm_speed_override;
+  if (ov !== null && ov !== undefined) {
+    document.getElementById("speed-slider").value = ov;
+    document.getElementById("speed-slider-val").textContent = ov;
+    document.getElementById("speed-override-badge").textContent = `ON: ${ov}`;
+    document.getElementById("speed-override-badge").style.color = "var(--gold)";
+  } else {
+    document.getElementById("speed-slider").value = d.arm_speed || 50;
+    document.getElementById("speed-slider-val").textContent = d.arm_speed || 50;
+  }
 });
 
 /* ── Operation Logger ────────────────────────────────────────────────────── */

@@ -47,13 +47,22 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 app.config["SECRET_KEY"] = "ttt_robot_secret"
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
+# ── Global emit sequence counter (for frontend dedup) ───────────────────────
+_emit_seq = 0
+
+def _next_seq() -> int:
+    global _emit_seq
+    _emit_seq += 1
+    return _emit_seq
+
+
 import serial
 import serial.tools.list_ports
-
 
 # ═════════════════════════════════════════════════════════════════════════════
 # RobotManager  (serial-only — identical architecture to car assembly)
 # ═════════════════════════════════════════════════════════════════════════════
+
 class RobotManager:
     JOINT_LIMITS = [
         (-170, 170), (-180, 180), (-180, 180),
@@ -126,7 +135,7 @@ class RobotManager:
 
                 if active_cmd:
                     elapsed = time.time() - move_start_time
-                    if elapsed > 0.8:
+                    if elapsed > 0.3:  # reduced from 0.8s — arm starts moving within ~100ms
                         try:
                             moving = self.mc.is_moving()
                             if moving == 0:
@@ -142,7 +151,7 @@ class RobotManager:
                             logging.warning("[ARM] is_moving() error: %s", e)
                             self._move_active = False
                             active_cmd = None
-                        time.sleep(0.3)
+                        time.sleep(0.1)  # reduced from 0.3s
 
                 if not active_cmd:
                     try:
@@ -166,7 +175,7 @@ class RobotManager:
 
                 if not self._move_active:
                     now2 = time.time()
-                    if now2 - last_poll > 1.0:
+                    if now2 - last_poll > 0.5:  # reduced from 1.0s
                         self._poll_status()
                         last_poll = now2
 
@@ -287,21 +296,18 @@ class RobotManager:
 
             elif action == "vacuum":
                 state    = params.get("state", "off")
-                delay_ms = int(params.get("delay", 0))
                 if self.mc:
                     if state == "on":
                         self.mc.set_basic_output(5, 0)
                         self.mc.set_basic_output(2, 0)
-                        time.sleep(1.5)
+                        time.sleep(cfg.VACUUM_ON_DELAY_MS / 1000.0)
                         self.mc.set_basic_output(5, 1)
                     else:
                         self.mc.set_basic_output(5, 1)
                         self.mc.set_basic_output(2, 1)
-                        time.sleep(0.3)
+                        time.sleep(cfg.VACUUM_OFF_DELAY_MS / 1000.0)
                 with self.lock:
                     self._vacuum = (state == "on")
-                if delay_ms > 0:
-                    time.sleep(delay_ms / 1000.0)
 
             elif action == "reconnect":
                 self._attempt_connect()
@@ -831,17 +837,31 @@ def api_start_game():
         return jsonify({"success": False,
                         "error": f"Missing waypoints: {missing[:5]}..."})
 
+    # ── Kill any existing game loop thread before starting a new one ──────────
+    # This prevents ghost threads from previous games/resets emitting duplicate
+    # socket events. We signal stop, drain the executor, then join with timeout.
+    if _game_thread is not None and _game_thread.is_alive():
+        logging.info("[StartGame] Stopping existing game loop thread...")
+        _game_stop_event.set()
+        executor.stop()
+        _game_thread.join(timeout=3.0)
+        if _game_thread.is_alive():
+            logging.warning("[StartGame] Old game thread did not exit in 3s — proceeding anyway.")
+
     if not game_mgr.start_game(board_id):
         return jsonify({"success": False, "error": "Game already active"})
 
-    # Start game loop thread
+    # Start fresh game loop thread
     _game_stop_event.clear()
-    _game_thread = threading.Thread(target=_game_loop, args=(board_id,), daemon=True)
+    _game_thread = threading.Thread(target=_game_loop, args=(board_id,), daemon=True,
+                                    name=f"GameLoop-{board_id}")
     _game_thread.start()
+    logging.info("[StartGame] Game loop thread started: %s", _game_thread.name)
 
     led.idle()
     socketio.emit("game_state_update", game_mgr.get_snapshot())
     return jsonify({"success": True, "board_id": board_id, "mode": mode})
+
 
 @app.route("/api/reset_game", methods=["POST"])
 def api_reset_game():
@@ -851,10 +871,16 @@ def api_reset_game():
 
     _game_stop_event.set()
     executor.stop()
+    # Wait for the game loop thread to actually finish before resetting state
+    if _game_thread is not None and _game_thread.is_alive():
+        _game_thread.join(timeout=3.0)
+    _game_thread = None
+
     game_mgr.reset_game(board_id)
     led.idle()
     socketio.emit("game_state_update", game_mgr.get_snapshot())
     return jsonify({"success": True})
+
 
 @app.route("/api/set_mode", methods=["POST"])
 def api_set_mode():
@@ -873,10 +899,14 @@ def api_game_state():
 # ── Hardware Control ──────────────────────────────────────────────────────────
 @app.route("/api/emergency_stop", methods=["POST"])
 def api_emergency_stop():
+    global _game_thread
     _game_stop_event.set()
     executor.stop()
+    # Don't join here (would block the HTTP response), just null the ref so
+    # start_game's thread check handles the join when needed.
     led.alert()
     return jsonify({"success": True})
+
 
 @app.route("/api/robot_state")
 def api_robot_state():
@@ -1141,6 +1171,7 @@ def api_get_settings():
         # Build complete dictionary of active settings
         defaults = {
             "arm_speed": cfg.ARM_SPEED,
+            "arm_speed_override": cfg.ARM_SPEED_OVERRIDE,
             "rail_speed_rpm": cfg.RAIL_SPEED_RPM,
             "game_mode": cfg.DEFAULT_GAME_MODE,
             "scan_settle_time": cfg.SCAN_SETTLE_TIME,
@@ -1175,8 +1206,24 @@ def api_save_settings():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
+# ── Quick Speed Override ──────────────────────────────────────────────────────
+@app.route("/api/speed", methods=["POST"])
+def api_set_speed():
+    """Set/clear the global arm speed override. Pass null to disable override."""
+    data  = request.get_json(silent=True) or {}
+    value = data.get("speed", None)
+    if value is not None:
+        value = max(1, min(100, int(value)))
+    cfg.ARM_SPEED_OVERRIDE = value
+    _update_setting("arm_speed_override", value)  # persist
+    logging.info("[Speed] ARM_SPEED_OVERRIDE set to %s", value)
+    return jsonify({"success": True, "arm_speed_override": value})
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+@app.route("/api/speed")
+def api_get_speed():
+    return jsonify({"arm_speed": cfg.ARM_SPEED, "arm_speed_override": cfg.ARM_SPEED_OVERRIDE})
+
+
 def _update_setting(key: str, value) -> None:
     try:
         existing = {}

@@ -194,9 +194,11 @@ class TTTMoveExecutor:
 
         def emit(phase: str, detail: str = ""):
             if self._sio:
+                import server_ttt as _srv
                 self._sio.emit("robot_move_start",
                                {"board_id": board_id, "cell": cell_idx, "slot": slot,
-                                "phase": phase, "detail": detail})
+                                "phase": phase, "detail": detail,
+                                "seq": _srv._next_seq()})
             if progress_cb:
                 progress_cb(phase, detail)
             logging.info("[Executor %s] Phase: %s %s", board_id, phase, detail)
@@ -351,7 +353,7 @@ class TTTMoveExecutor:
             logging.error("[Executor] Waypoint '%s' not found for board %s.", key, board_id)
             return False
 
-        speed  = wp.get("speed", cfg.ARM_SPEED)
+        speed  = cfg.ARM_SPEED_OVERRIDE if cfg.ARM_SPEED_OVERRIDE else wp.get("speed", cfg.ARM_SPEED)
         cmd_id = f"ttt_{key}_{time.time():.3f}"
         self._cmd_done_event.clear()
         self._pending_cmd_id = cmd_id
@@ -383,10 +385,12 @@ class TTTMoveExecutor:
         return True
 
     def _set_vacuum(self, state: str) -> None:
-        """Activate or deactivate vacuum with configured delay."""
+        """Activate or deactivate vacuum. The delay is enforced by the worker
+        queue action itself — no extra sleep needed here."""
         delay_ms = (cfg.VACUUM_ON_DELAY_MS if state == "on"
                     else cfg.VACUUM_OFF_DELAY_MS)
         self.robot.set_vacuum(state, delay=delay_ms)
+        # Wait for the vacuum to settle (the worker handles this inline)
         time.sleep(delay_ms / 1000.0)
         logging.info("[Executor] Vacuum %s.", state.upper())
 
