@@ -306,6 +306,7 @@ class TTTMoveExecutor:
 
     def go_to_scan_pose(self, board_id: str) -> bool:
         """Move arm to scan pose (used before triggering vision)."""
+        self._stop_evt.clear()
         if self._current_board != board_id:
             if self._current_board is not None:
                 self._move_to("place_safe", self._current_board)
@@ -314,6 +315,7 @@ class TTTMoveExecutor:
 
     def go_to_safe(self, board_id: str, safe_type: str = "place") -> bool:
         """Retract arm to safe position (before rail travel or standby)."""
+        self._stop_evt.clear()
         key = "pick_safe" if safe_type == "pick" else "place_safe"
         return self._move_to(key, board_id)
 

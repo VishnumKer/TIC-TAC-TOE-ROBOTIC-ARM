@@ -83,7 +83,7 @@ void handleSerialCommands();
 #define RGB_LED_PIN    42   // Data pin for WS2812B strip
 #define RGB_LED_COUNT  45
 #define RGB_LED_TYPE   WS2812B
-#define RGB_COLOR_ORDER GRB
+#define RGB_COLOR_ORDER BRG
 
 // ─── NTC Thermistor Config ─────────────────────────────────────────────────
 #define NTC_BETA       3950.0f

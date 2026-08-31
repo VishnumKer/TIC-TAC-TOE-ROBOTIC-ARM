@@ -698,8 +698,6 @@ def _game_loop(board_id: str):
             if _game_stop_event.is_set():
                 break
 
-            # Capture current board state as baseline
-            old_state = vision.start_scan(board_id, timeout=8.0) or [""] * 9
             led.human_turn()
             socketio.emit("vision_log",
                           {"level": "info",
@@ -711,10 +709,15 @@ def _game_loop(board_id: str):
                 if _game_stop_event.is_set():
                     break
 
-                new_state = vision.start_scan(board_id, timeout=8.0) or old_state
-                cell = vision.diff_board(old_state, new_state)
+                robot_cells = [idx for idx, val in enumerate(session.grid) if val == "R"]
+                new_state = vision.start_scan(board_id, robot_cells=robot_cells, timeout=8.0)
+                if not new_state:
+                    continue
 
-                if cell is not None and new_state[cell] == "H":
+                # Detect if any logically empty cell is now occupied by a white human token
+                cell = next((i for i in range(9) if session.grid[i] == "" and new_state[i] == "H"), None)
+
+                if cell is not None:
                     logging.info("[GameLoop %s] Human placed on cell %d.", board_id, cell)
                     socketio.emit("human_move_detected",
                                   {"board_id": board_id, "cell": cell})
@@ -724,8 +727,6 @@ def _game_loop(board_id: str):
                     if result.get("winner"):
                         _handle_game_over(board_id, result)
                     break
-                else:
-                    old_state = new_state  # update baseline
 
         # ── ROBOT_TURN: compute Minimax, execute move ─────────────────────
         elif snapshot["phase"] == GamePhase.ROBOT_TURN:
@@ -796,6 +797,10 @@ def index():
 @app.route("/waypoints")
 def waypoints_page():
     return render_template("ttt_waypoints.html")
+
+@app.route("/calibration")
+def calibration_page():
+    return render_template("ttt_calibration.html")
 
 # ── Camera Stream ─────────────────────────────────────────────────────────────
 def _gen_camera_stream():
@@ -1128,10 +1133,31 @@ def api_power_off():
 @app.route("/api/settings")
 def api_get_settings():
     try:
-        with open(cfg.SETTINGS_PATH) as f:
-            return jsonify(json.load(f))
-    except Exception:
-        return jsonify({})
+        existing = {}
+        if os.path.exists(cfg.SETTINGS_PATH):
+            with open(cfg.SETTINGS_PATH) as f:
+                existing = json.load(f)
+        
+        # Build complete dictionary of active settings
+        defaults = {
+            "arm_speed": cfg.ARM_SPEED,
+            "rail_speed_rpm": cfg.RAIL_SPEED_RPM,
+            "game_mode": cfg.DEFAULT_GAME_MODE,
+            "scan_settle_time": cfg.SCAN_SETTLE_TIME,
+            "vacuum_on_delay_ms": cfg.VACUUM_ON_DELAY_MS,
+            "vacuum_off_delay_ms": cfg.VACUUM_OFF_DELAY_MS,
+            "led_brightness": cfg.LED_DEFAULT_BRIGHTNESS,
+            "camera_index": cfg.CAMERA_INDEX,
+            "token_pixel_ratio": cfg.TOKEN_PIXEL_RATIO,
+            "white_hsv_lower": list(cfg.WHITE_HSV_LOWER),
+            "white_hsv_upper": list(cfg.WHITE_HSV_UPPER),
+            "blue_hsv_lower": list(cfg.BLUE_HSV_LOWER),
+            "blue_hsv_upper": list(cfg.BLUE_HSV_UPPER),
+        }
+        defaults.update(existing)
+        return jsonify(defaults)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/settings", methods=["POST"])
 def api_save_settings():
@@ -1175,8 +1201,19 @@ def _update_roi_config(board_id: str, cell_idx: int, roi: list) -> None:
         rois.setdefault(board_id, {})[f"cell_{cell_idx}"] = roi
         with open(cfg.SETTINGS_PATH, "w") as f:
             json.dump(existing, f, indent=2)
+        cfg._load_settings()
     except Exception as e:
         logging.warning("[ROI] Persist failed: %s", e)
+
+
+@app.after_request
+def add_header(response):
+    """Prevent caching of API responses."""
+    if response.headers.get("Content-Type") == "application/json":
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
 
 
 # ═════════════════════════════════════════════════════════════════════════════

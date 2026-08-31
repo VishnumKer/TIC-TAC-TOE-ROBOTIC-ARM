@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTT Robot — Camera & ROI Calibration</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0b0d14; --surface:#131724; --surface2:#1a1f30; --surface3:#222840;
+      --border:#252a3a; --accent:#3b8df1; --cyan:#00e5c8; --red:#e84c4c;
+      --gold:#f5c842; --green:#00e07a; --purple:#b066ff; --text:#e4e8f5; --muted:#6b7394;
+    }
+    body{font-family:'Outfit',sans-serif;background:var(--bg);
+         color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+    /* Nav */
+    nav{display:flex;align-items:center;justify-content:space-between;
+        padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+    .nav-logo{display:flex;align-items:center;gap:10px}
+    .nav-logo span{font-size:1rem;font-weight:700;letter-spacing:1px}
+    .nav-links a{padding:6px 14px;border-radius:6px;text-decoration:none;font-size:.82rem;
+                 font-weight:600;color:var(--muted);border:1px solid transparent;
+                 transition:all .2s;margin-left:4px}
+    .nav-links a.active,.nav-links a:hover{background:var(--surface2);
+                 color:var(--text);border-color:var(--border)}
+
+    /* Layout */
+    .main{display:grid;grid-template-columns:300px 1fr 340px;gap:10px;
+          padding:10px;flex:1;overflow:hidden}
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+           padding:12px;display:flex;flex-direction:column;overflow:hidden}
+    .panel-title{font-size:.68rem;font-weight:700;letter-spacing:1.5px;
+                 text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+
+    /* Board selector */
+    .board-tabs{display:flex;gap:6px;margin-bottom:8px}
+    .board-tab{flex:1;padding:6px;border-radius:8px;text-align:center;font-size:.82rem;
+               font-weight:700;cursor:pointer;border:1.5px solid var(--border);
+               background:var(--surface2);color:var(--muted);transition:all .2s}
+    .board-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);
+                      box-shadow:0 0 12px rgba(59,141,241,.35)}
+
+    /* Buttons */
+    .btn{padding:7px 0;border-radius:8px;border:none;cursor:pointer;font-size:.78rem;
+         font-weight:700;transition:all .2s;width:100%;letter-spacing:.3px; text-align:center}
+    .btn-primary{background:linear-gradient(135deg,#1a5fd4,var(--accent));color:#fff;
+                 box-shadow:0 4px 14px rgba(59,141,241,.3)}
+    .btn-success{background:linear-gradient(135deg,#0d7a40,var(--green));color:#fff;
+                 box-shadow:0 4px 14px rgba(0,224,122,.25)}
+    .btn-danger{background:linear-gradient(135deg,#8c1010,var(--red));color:#fff}
+    .btn-muted{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+    .btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn-sm{padding:5px 10px;width:auto;font-size:.74rem;border-radius:6px}
+
+    /* 3x3 Grid Selector */
+    .grid-3x3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px}
+    .grid-cell{
+      aspect-ratio:1.2;border-radius:6px;display:flex;align-items:center;
+      justify-content:center;font-size:.85rem;font-weight:800;
+      border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .15s;
+    }
+    .grid-cell:hover{border-color:var(--accent);color:#fff}
+    .grid-cell.selected{background:rgba(59,141,241,.2);border-color:var(--accent);color:var(--accent)}
+
+    /* Forms */
+    .form-row{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}
+    .form-label{font-size:.66rem;color:var(--muted);font-weight:600;display:flex;justify-content:space-between}
+    .form-input{background:var(--surface2);border:1px solid var(--border);
+                border-radius:6px;padding:4px 8px;color:var(--text);font-size:.76rem;
+                outline:none;transition:border-color .2s}
+    .form-input:focus{border-color:var(--accent)}
+
+    /* Double Input Row */
+    .double-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+
+    .form-divider{height:1px;background:var(--border);margin:8px 0}
+
+    /* Video stream elements */
+    .video-viewport{
+      flex:1;background:#000;border:1px solid var(--border);border-radius:12px;
+      position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    }
+    .video-viewport img{width:640px;height:480px;display:block;object-fit:contain}
+    .video-viewport canvas{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      width:640px;height:480px;cursor:crosshair;z-index:2;
+    }
+
+    /* Operation log */
+    .op-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;min-height:0;margin-top:6px}
+    .op-entry{padding:2px 6px;border-radius:4px;font-size:.68rem}
+    .op-ok{background:rgba(0,224,122,.1);color:var(--green);border-left:2px solid var(--green)}
+    .op-err{background:rgba(232,76,76,.1);color:var(--red);border-left:2px solid var(--red)}
+    .op-info{background:rgba(107,115,148,.08);color:var(--muted);border-left:2px solid var(--border)}
+
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+    ::-webkit-scrollbar-track{background:transparent}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <span>📷 Camera & ROI Calibration</span>
+  </div>
+  <div class="nav-links">
+    <a href="/">Game Dashboard</a>
+    <a href="/waypoints">Waypoints & Hardware</a>
+    <a href="/calibration" class="active">Camera & ROI Calibration</a>
+  </div>
+</nav>
+
+<div class="main">
+
+  <!-- Left Panel: Cell Selection & Calibration Bounds -->
+  <div class="panel">
+    <div class="panel-title">Station Selection</div>
+    <div class="board-tabs">
+      <div class="board-tab active" id="tab-B1" onclick="switchBoard('B1')">Board 1</div>
+      <div class="board-tab" id="tab-B2" onclick="switchBoard('B2')">Board 2</div>
+    </div>
+
+    <div class="panel-title" style="margin-top:4px">Target Cell Grid (0–8)</div>
+    <div class="grid-3x3" id="cell-grid">
+      <!-- 3x3 Grid Buttons created dynamically -->
+    </div>
+
+    <div class="panel-title" style="margin-top:6px">Active ROI coordinates (Pixels)</div>
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:8px; margin-bottom:8px; font-family:'JetBrains Mono',monospace; font-size:0.75rem">
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+        <span>X0: <b id="roi-x0" style="color:var(--cyan)">—</b></span>
+        <span>Y0: <b id="roi-y0" style="color:var(--cyan)">—</b></span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+        <span>X1: <b id="roi-x1" style="color:var(--cyan)">—</b></span>
+        <span>Y1: <b id="roi-y1" style="color:var(--cyan)">—</b></span>
+      </div>
+      <div style="font-size:0.65rem; color:var(--muted); margin-top:6px">
+        * Select Board/Cell, then drag a circle on the video feed.
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveCellRoi()" style="margin-bottom:6px">💾 Save Cell ROI</button>
+    <button class="btn btn-muted btn-sm" onclick="resetCellRoi()">🗑️ Reset to Default</button>
+  </div>
+
+  <!-- Center Panel: Live Camera Feed with Draggable Canvas Overlay -->
+  <div class="panel">
+    <div class="panel-title">Live Video Feed (Overlay Drag-To-Draw)</div>
+    <div class="video-viewport">
+      <img src="/video_feed" id="video-feed" alt="Video stream offline">
+      <canvas id="roi-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Right Panel: Camera / HSV Settings & Log -->
+  <div class="panel">
+    <div class="panel-title">Webcam & HSV Settings</div>
+    
+    <!-- Scrollable container for settings form -->
+    <div style="flex:1; overflow-y:auto; padding-right:4px; display:flex; flex-direction:column; gap:4px">
+      
+      <!-- Camera Index & Pixel Ratio -->
+      <div class="double-row">
+        <div class="form-row">
+          <label class="form-label">Camera Index</label>
+          <input class="form-input" id="cfg-cam-idx" type="number" value="1">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Min Pixel %</label>
+          <input class="form-input" id="cfg-pixel-ratio" type="number" step="0.01" value="0.10">
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- Human (WHITE) HSV Limits -->
+      <div class="panel-title" style="color:#fff">White Token Bounds (Human)</div>
+      
+      <div class="form-row">
+        <label class="form-label">Lower (H, S, V) <span id="val-white-lo">[0, 0, 180]</span></label>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px">
+          <input class="form-input" id="white-lo-h" type="number" min="0" max="180">
+          <input class="form-input" id="white-lo-s" type="number" min="0" max="255">
+          <input class="form-input" id="white-lo-v" type="number" min="0" max="255">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Upper (H, S, V) <span id="val-white-up">[180, 45, 255]</span></label>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px">
+          <input class="form-input" id="white-up-h" type="number" min="0" max="180">
+          <input class="form-input" id="white-up-s" type="number" min="0" max="255">
+          <input class="form-input" id="white-up-v" type="number" min="0" max="255">
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <!-- Robot (BLUE) HSV Limits -->
+      <div class="panel-title" style="color:var(--accent)">Blue Token Bounds (Robot)</div>
+      
+      <div class="form-row">
+        <label class="form-label">Lower (H, S, V) <span id="val-blue-lo">[100, 100, 80]</span></label>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px">
+          <input class="form-input" id="blue-lo-h" type="number" min="0" max="180">
+          <input class="form-input" id="blue-lo-s" type="number" min="0" max="255">
+          <input class="form-input" id="blue-lo-v" type="number" min="0" max="255">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Upper (H, S, V) <span id="val-blue-up">[130, 255, 255]</span></label>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:3px">
+          <input class="form-input" id="blue-up-h" type="number" min="0" max="180">
+          <input class="form-input" id="blue-up-s" type="number" min="0" max="255">
+          <input class="form-input" id="blue-up-v" type="number" min="0" max="255">
+        </div>
+      </div>
+
+      <button class="btn btn-success btn-sm" onclick="saveSettings()" style="margin-top:6px; margin-bottom:12px">💾 Save Camera Settings</button>
+    </div>
+
+    <div class="form-divider"></div>
+
+    <div class="panel-title">Operation Log</div>
+    <div class="op-log" id="op-log"></div>
+  </div>
+
+</div>
+
+<script>
+let currentBoard = "B1";
+let selectedCell = 0;
+let rois = {};       // { cell_i: [x0, y0, x1, y1] } in 640x480 resolution
+let drag = null;     // { x0, y0, x1, y1 }
+
+const canvas = document.getElementById('roi-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 640;
+canvas.height = 480;
+
+/* ── Build 3x3 Grid Buttons ──────────────────────────────────────────────── */
+function buildCellGrid() {
+  const g = document.getElementById("cell-grid");
+  g.innerHTML = "";
+  for (let i = 0; i < 9; i++) {
+    const el = document.createElement("div");
+    el.className = "grid-cell" + (i === selectedCell ? " selected" : "");
+    el.id = `grid-cell-${i}`;
+    el.textContent = i;
+    el.onclick = () => selectCellIndex(i);
+    g.appendChild(el);
+  }
+}
+buildCellGrid();
+
+function selectCellIndex(idx) {
+  selectedCell = idx;
+  document.querySelectorAll(".grid-cell").forEach(el => el.classList.remove("selected"));
+  document.getElementById(`grid-cell-${idx}`).classList.add("selected");
+  
+  // Update ROI inputs readout
+  const roi = rois[`cell_${idx}`];
+  if (roi) {
+    document.getElementById("roi-x0").textContent = roi[0];
+    document.getElementById("roi-y0").textContent = roi[1];
+    document.getElementById("roi-x1").textContent = roi[2];
+    document.getElementById("roi-y1").textContent = roi[3];
+  } else {
+    document.getElementById("roi-x0").textContent = "—";
+    document.getElementById("roi-y0").textContent = "—";
+    document.getElementById("roi-x1").textContent = "—";
+    document.getElementById("roi-y1").textContent = "—";
+  }
+  redraw();
+}
+
+/* ── Canvas Draw Logic ───────────────────────────────────────────────────── */
+function redraw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw all existing ROIs as circles
+  for (const [key, roi] of Object.entries(rois)) {
+    const cellIdx = parseInt(key.replace("cell_", ""));
+    const isSelected = cellIdx === selectedCell;
+
+    const cx = (roi[0] + roi[2]) / 2;
+    const cy = (roi[1] + roi[3]) / 2;
+    const r = (roi[2] - roi[0]) / 2;
+    if (r <= 0) continue;
+
+    ctx.strokeStyle = isSelected ? '#00e5c8' : 'rgba(59,141,241,0.5)';
+    ctx.lineWidth = isSelected ? 3 : 1.5;
+    
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    ctx.fillStyle = isSelected ? 'rgba(0,229,200,0.12)' : 'rgba(59,141,241,0.04)';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.fillStyle = isSelected ? '#00e5c8' : 'rgba(59,141,241,0.8)';
+    ctx.font = isSelected ? 'bold 11px monospace' : '10px monospace';
+    ctx.fillText(key, cx - 18, cy + 4);
+  }
+
+  // Draw currently dragging circle
+  if (drag && drag.x1 !== undefined) {
+    const dx = drag.x1 - drag.x0;
+    const dy = drag.y1 - drag.y0;
+    const r = Math.sqrt(dx * dx + dy * dy);
+    
+    ctx.strokeStyle = '#e84c4c';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 3]);
+    ctx.beginPath();
+    ctx.arc(drag.x0, drag.y0, r, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function getCanvasCoords(e) {
+  const r = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / r.width;
+  const scaleY = canvas.height / r.height;
+  return {
+    x: Math.round((e.clientX - r.left) * scaleX),
+    y: Math.round((e.clientY - r.top) * scaleY)
+  };
+}
+
+canvas.addEventListener('mousedown', e => {
+  const c = getCanvasCoords(e);
+  drag = { x0: c.x, y0: c.y }; // start point is circle center
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!drag) return;
+  const c = getCanvasCoords(e);
+  drag.x1 = c.x; drag.y1 = c.y;
+  redraw();
+});
+
+canvas.addEventListener('mouseup', e => {
+  if (!drag || drag.x1 === undefined) { drag = null; return; }
+  const c = getCanvasCoords(e);
+  drag.x1 = c.x; drag.y1 = c.y;
+
+  const dx = drag.x1 - drag.x0;
+  const dy = drag.y1 - drag.y0;
+  const r = Math.round(Math.sqrt(dx * dx + dy * dy));
+  
+  const cx = drag.x0;
+  const cy = drag.y0;
+  drag = null;
+
+  if (r > 4) {
+    const x0 = cx - r;
+    const y0 = cy - r;
+    const x1 = cx + r;
+    const y1 = cy + r;
+    rois[`cell_${selectedCell}`] = [x0, y0, x1, y1];
+    document.getElementById("roi-x0").textContent = x0;
+    document.getElementById("roi-y0").textContent = y0;
+    document.getElementById("roi-x1").textContent = x1;
+    document.getElementById("roi-y1").textContent = y1;
+  }
+  redraw();
+});
+
+canvas.addEventListener('mouseleave', () => { drag = null; redraw(); });
+
+/* ── Switch Board / Load ROIs ────────────────────────────────────────────── */
+function switchBoard(id) {
+  currentBoard = id;
+  ["B1","B2"].forEach(b => {
+    document.getElementById(`tab-${b}`).className = "board-tab" + (b === id ? " active" : "");
+  });
+  loadRois();
+}
+
+function loadRois() {
+  fetch(`/api/cell_rois/${currentBoard}?t=${Date.now()}`)
+    .then(r => r.json())
+    .then(d => {
+      rois = d.rois || {};
+      selectCellIndex(selectedCell);
+      opLog(`Loaded ROIs for ${currentBoard}`, "info");
+    });
+}
+loadRois();
+
+function saveCellRoi() {
+  const roi = rois[`cell_${selectedCell}`];
+  if (!roi) {
+    opLog("❌ Draw an ROI rectangle first", "err");
+    return;
+  }
+  fetch(`/api/cell_rois/${currentBoard}`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ cell_idx: selectedCell, roi: roi })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      opLog(`✅ Saved ROI for Board ${currentBoard} Cell ${selectedCell}`, "ok");
+    } else {
+      opLog("❌ Save ROI failed", "err");
+    }
+  });
+}
+
+function resetCellRoi() {
+  fetch(`/api/cell_rois/${currentBoard}`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ cell_idx: selectedCell, roi: [0, 0, 100, 100] })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      rois[`cell_${selectedCell}`] = [0, 0, 100, 100];
+      selectCellIndex(selectedCell);
+      opLog(`🗑️ Reset ROI for Board ${currentBoard} Cell ${selectedCell}`, "info");
+    } else {
+      opLog("❌ Reset ROI failed", "err");
+    }
+  });
+}
+
+function loadSettings() {
+  fetch(`/api/settings?t=${Date.now()}`)
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById("cfg-cam-idx").value = d.camera_index !== undefined ? d.camera_index : 1;
+      document.getElementById("cfg-pixel-ratio").value = d.token_pixel_ratio !== undefined ? d.token_pixel_ratio : 0.10;
+
+      // Populate WHITE Lower
+      if (d.white_hsv_lower) {
+        document.getElementById("white-lo-h").value = d.white_hsv_lower[0];
+        document.getElementById("white-lo-s").value = d.white_hsv_lower[1];
+        document.getElementById("white-lo-v").value = d.white_hsv_lower[2];
+        document.getElementById("val-white-lo").textContent = JSON.stringify(d.white_hsv_lower);
+      }
+      // Populate WHITE Upper
+      if (d.white_hsv_upper) {
+        document.getElementById("white-up-h").value = d.white_hsv_upper[0];
+        document.getElementById("white-up-s").value = d.white_hsv_upper[1];
+        document.getElementById("white-up-v").value = d.white_hsv_upper[2];
+        document.getElementById("val-white-up").textContent = JSON.stringify(d.white_hsv_upper);
+      }
+      // Populate BLUE Lower
+      if (d.blue_hsv_lower) {
+        document.getElementById("blue-lo-h").value = d.blue_hsv_lower[0];
+        document.getElementById("blue-lo-s").value = d.blue_hsv_lower[1];
+        document.getElementById("blue-lo-v").value = d.blue_hsv_lower[2];
+        document.getElementById("val-blue-lo").textContent = JSON.stringify(d.blue_hsv_lower);
+      }
+      // Populate BLUE Upper
+      if (d.blue_hsv_upper) {
+        document.getElementById("blue-up-h").value = d.blue_hsv_upper[0];
+        document.getElementById("blue-up-s").value = d.blue_hsv_upper[1];
+        document.getElementById("blue-up-v").value = d.blue_hsv_upper[2];
+        document.getElementById("val-blue-up").textContent = JSON.stringify(d.blue_hsv_upper);
+      }
+      opLog("Loaded camera and HSV limits settings", "info");
+    });
+}
+loadSettings();
+
+function saveSettings() {
+  const camIdx = parseInt(document.getElementById("cfg-cam-idx").value);
+  const ratio = parseFloat(document.getElementById("cfg-pixel-ratio").value);
+
+  const w_lo = [
+    parseInt(document.getElementById("white-lo-h").value) || 0,
+    parseInt(document.getElementById("white-lo-s").value) || 0,
+    parseInt(document.getElementById("white-lo-v").value) || 0
+  ];
+  const w_up = [
+    parseInt(document.getElementById("white-up-h").value) || 0,
+    parseInt(document.getElementById("white-up-s").value) || 0,
+    parseInt(document.getElementById("white-up-v").value) || 0
+  ];
+  const b_lo = [
+    parseInt(document.getElementById("blue-lo-h").value) || 0,
+    parseInt(document.getElementById("blue-lo-s").value) || 0,
+    parseInt(document.getElementById("blue-lo-v").value) || 0
+  ];
+  const b_up = [
+    parseInt(document.getElementById("blue-up-h").value) || 0,
+    parseInt(document.getElementById("blue-up-s").value) || 0,
+    parseInt(document.getElementById("blue-up-v").value) || 0
+  ];
+
+  fetch("/api/settings", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      camera_index: camIdx,
+      token_pixel_ratio: ratio,
+      white_hsv_lower: w_lo,
+      white_hsv_upper: w_up,
+      blue_hsv_lower: b_lo,
+      blue_hsv_upper: b_up
+    })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      opLog("💾 Saved Camera and HSV limits settings", "ok");
+      loadSettings(); // refresh display values
+    } else {
+      opLog("❌ Save settings failed: " + (d.error || "unknown"), "err");
+    }
+  });
+}
+
+/* ── Operation Logger ────────────────────────────────────────────────────── */
+function opLog(msg, type="info") {
+  const log = document.getElementById("op-log");
+  const el = document.createElement("div");
+  el.className = `op-entry op-${type}`;
+  el.textContent = `${new Date().toLocaleTimeString()}  ${msg}`;
+  log.prepend(el);
+  while (log.children.length > 50) log.removeChild(log.lastChild);
+}
+</script>
+</body>
+</html>

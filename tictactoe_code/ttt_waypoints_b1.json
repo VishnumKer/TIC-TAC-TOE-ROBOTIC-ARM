@@ -16,5 +16,1265 @@
     "cell_id": null,
     "board_id": "B1",
     "timestamp": 1787662229.079
+  },
+  "scan_pose": {
+    "key": "scan_pose",
+    "name": "scan_pose",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      131.22,
+      10.89,
+      -7.99,
+      -5.36,
+      99.4,
+      13.18
+    ],
+    "coords": [
+      -69.5,
+      88.5,
+      175.5,
+      -171.85,
+      -10.69,
+      -63.03
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788160030.0697343
+  },
+  "pick_safe": {
+    "key": "pick_safe",
+    "name": "pick_safe",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.95,
+      12.48,
+      -8.34,
+      -2.63,
+      93.95,
+      15.99
+    ],
+    "coords": [
+      5.8,
+      -119.7,
+      171.6,
+      -175.55,
+      -7.13,
+      77.77
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788160017.7108166
+  },
+  "place_safe": {
+    "key": "place_safe",
+    "name": "place_safe",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      91.66,
+      23.73,
+      -24.34,
+      -2.98,
+      99.84,
+      15.11
+    ],
+    "coords": [
+      -0.6,
+      136.7,
+      174.6,
+      -174.66,
+      -8.1,
+      -104.09
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788160726.4908905
+  },
+  "tray_slot_0_approach": {
+    "key": "tray_slot_0_approach",
+    "name": "tray_slot_0_approach",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162611.847111
+  },
+  "tray_slot_0_pick": {
+    "key": "tray_slot_0_pick",
+    "name": "tray_slot_0_pick",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 90,
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162666.0283637
+  },
+  "tray_slot_0_lift": {
+    "key": "tray_slot_0_lift",
+    "name": "tray_slot_0_lift",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162695.8680832
+  },
+  "tray_slot_1_approach": {
+    "key": "tray_slot_1_approach",
+    "name": "tray_slot_1_approach",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162623.3256555
+  },
+  "tray_slot_1_pick": {
+    "key": "tray_slot_1_pick",
+    "name": "tray_slot_1_pick",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 90,
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162673.6057358
+  },
+  "tray_slot_1_lift": {
+    "key": "tray_slot_1_lift",
+    "name": "tray_slot_1_lift",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162703.170925
+  },
+  "tray_slot_2_approach": {
+    "key": "tray_slot_2_approach",
+    "name": "tray_slot_2_approach",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162632.8966618
+  },
+  "tray_slot_2_pick": {
+    "key": "tray_slot_2_pick",
+    "name": "tray_slot_2_pick",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 90,
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162681.2183893
+  },
+  "tray_slot_2_lift": {
+    "key": "tray_slot_2_lift",
+    "name": "tray_slot_2_lift",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162708.13824
+  },
+  "tray_slot_3_approach": {
+    "key": "tray_slot_3_approach",
+    "name": "tray_slot_3_approach",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162643.076014
+  },
+  "tray_slot_3_pick": {
+    "key": "tray_slot_3_pick",
+    "name": "tray_slot_3_pick",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 90,
+    "vacuum": "on",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162690.666929
+  },
+  "tray_slot_3_lift": {
+    "key": "tray_slot_3_lift",
+    "name": "tray_slot_3_lift",
+    "board_id": "B1",
+    "cell_id": null,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      -85.25,
+      13.62,
+      -7.55,
+      -1.75,
+      94.83,
+      15.55
+    ],
+    "coords": [
+      7.8,
+      -118.4,
+      168.0,
+      -175.33,
+      -10.01,
+      78.79
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162713.869023
+  },
+  "cell_0_approach": {
+    "key": "cell_0_approach",
+    "name": "cell_0_approach",
+    "board_id": "B1",
+    "cell_id": 0,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      71.8,
+      19.07,
+      5.18,
+      -3.07,
+      95.88,
+      1.31
+    ],
+    "coords": [
+      35.4,
+      95.4,
+      139.5,
+      -175.62,
+      -30.04,
+      -110.11
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788169569.6898696
+  },
+  "cell_0_place": {
+    "key": "cell_0_place",
+    "name": "cell_0_place",
+    "board_id": "B1",
+    "cell_id": 0,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      91.75,
+      8.96,
+      -19.59,
+      -0.52,
+      96.32,
+      1.31
+    ],
+    "coords": [
+      -2.6,
+      123.7,
+      199.5,
+      -179.06,
+      4.33,
+      -89.68
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162857.4625947
+  },
+  "cell_1_approach": {
+    "key": "cell_1_approach",
+    "name": "cell_1_approach",
+    "board_id": "B1",
+    "cell_id": 1,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      91.58,
+      17.05,
+      8.52,
+      -1.14,
+      92.9,
+      14.15
+    ],
+    "coords": [
+      -1.2,
+      99.1,
+      137.3,
+      -171.15,
+      -27.2,
+      -104.44
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163346.5136483
+  },
+  "cell_1_place": {
+    "key": "cell_1_place",
+    "name": "cell_1_place",
+    "board_id": "B1",
+    "cell_id": 1,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      90.96,
+      14.76,
+      24.08,
+      -0.61,
+      84.28,
+      14.15
+    ],
+    "coords": [
+      -0.6,
+      79.5,
+      118.9,
+      -170.39,
+      -31.86,
+      -105.68
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162929.1431541
+  },
+  "cell_2_approach": {
+    "key": "cell_2_approach",
+    "name": "cell_2_approach",
+    "board_id": "B1",
+    "cell_id": 2,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      116.27,
+      12.39,
+      12.65,
+      -0.96,
+      86.74,
+      31.28
+    ],
+    "coords": [
+      -42.6,
+      88.8,
+      137.0,
+      -167.49,
+      -18.02,
+      -96.75
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163341.9239936
+  },
+  "cell_2_place": {
+    "key": "cell_2_place",
+    "name": "cell_2_place",
+    "board_id": "B1",
+    "cell_id": 2,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      116.45,
+      19.07,
+      12.65,
+      -0.79,
+      84.63,
+      31.28
+    ],
+    "coords": [
+      -43.6,
+      90.0,
+      124.5,
+      -164.89,
+      -21.88,
+      -97.48
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162965.6855412
+  },
+  "cell_3_approach": {
+    "key": "cell_3_approach",
+    "name": "cell_3_approach",
+    "board_id": "B1",
+    "cell_id": 3,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      77.43,
+      34.71,
+      -13.0,
+      -2.63,
+      87.27,
+      31.28
+    ],
+    "coords": [
+      33.4,
+      134.8,
+      126.5,
+      -167.46,
+      -14.76,
+      -134.86
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162974.8892858
+  },
+  "cell_3_place": {
+    "key": "cell_3_place",
+    "name": "cell_3_place",
+    "board_id": "B1",
+    "cell_id": 3,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      77.51,
+      26.1,
+      6.67,
+      -3.69,
+      76.46,
+      31.28
+    ],
+    "coords": [
+      29.5,
+      114.3,
+      115.0,
+      -166.92,
+      -14.67,
+      -133.95
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788162984.7363663
+  },
+  "cell_4_approach": {
+    "key": "cell_4_approach",
+    "name": "cell_4_approach",
+    "board_id": "B1",
+    "cell_id": 4,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      93.77,
+      25.04,
+      0.17,
+      -3.16,
+      82.0,
+      31.28
+    ],
+    "coords": [
+      -4.6,
+      124.1,
+      128.0,
+      -168.35,
+      -13.13,
+      -117.94
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163350.2761083
+  },
+  "cell_4_place": {
+    "key": "cell_4_place",
+    "name": "cell_4_place",
+    "board_id": "B1",
+    "cell_id": 4,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      93.51,
+      29.44,
+      0.08,
+      -2.81,
+      79.62,
+      31.28
+    ],
+    "coords": [
+      -4.4,
+      125.8,
+      117.7,
+      -167.69,
+      -15.01,
+      -118.54
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163002.4855478
+  },
+  "cell_5_approach": {
+    "key": "cell_5_approach",
+    "name": "cell_5_approach",
+    "board_id": "B1",
+    "cell_id": 5,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      112.23,
+      30.23,
+      -0.52,
+      -3.6,
+      84.11,
+      31.28
+    ],
+    "coords": [
+      -42.7,
+      114.7,
+      119.1,
+      -164.49,
+      -18.48,
+      -100.53
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163354.3218193
+  },
+  "cell_6_approach": {
+    "key": "cell_6_approach",
+    "name": "cell_6_approach",
+    "board_id": "B1",
+    "cell_id": 6,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      78.04,
+      50.36,
+      -26.01,
+      -1.4,
+      80.5,
+      31.28
+    ],
+    "coords": [
+      35.0,
+      158.1,
+      101.9,
+      -171.04,
+      -11.97,
+      -133.77
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163328.9398355
+  },
+  "cell_5_place": {
+    "key": "cell_5_place",
+    "name": "cell_5_place",
+    "board_id": "B1",
+    "cell_id": 5,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      112.23,
+      38.49,
+      -0.43,
+      -3.95,
+      78.57,
+      31.28
+    ],
+    "coords": [
+      -42.7,
+      116.0,
+      98.1,
+      -162.6,
+      -20.8,
+      -100.56
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163026.5198183
+  },
+  "cell_7_approach": {
+    "key": "cell_7_approach",
+    "name": "cell_7_approach",
+    "board_id": "B1",
+    "cell_id": 7,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      90.87,
+      48.16,
+      -25.83,
+      -1.49,
+      80.68,
+      31.28
+    ],
+    "coords": [
+      -0.8,
+      162.6,
+      107.9,
+      -171.96,
+      -10.36,
+      -120.73
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163325.012267
+  },
+  "cell_8_approach": {
+    "key": "cell_8_approach",
+    "name": "cell_8_approach",
+    "board_id": "B1",
+    "cell_id": 8,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      103.35,
+      48.25,
+      -25.83,
+      -1.23,
+      80.41,
+      31.28
+    ],
+    "coords": [
+      -36.3,
+      158.8,
+      107.6,
+      -172.26,
+      -10.34,
+      -108.28
+    ],
+    "speed": 90,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163332.151793
+  },
+  "cell_7_place": {
+    "key": "cell_7_place",
+    "name": "cell_7_place",
+    "board_id": "B1",
+    "cell_id": 7,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      90.87,
+      48.16,
+      -25.83,
+      -1.84,
+      80.5,
+      31.28
+    ],
+    "coords": [
+      -0.4,
+      162.8,
+      107.9,
+      -171.77,
+      -10.04,
+      -120.62
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163067.1085525
+  },
+  "cell_8_place": {
+    "key": "cell_8_place",
+    "name": "cell_8_place",
+    "board_id": "B1",
+    "cell_id": 8,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      105.46,
+      48.25,
+      -25.83,
+      -1.49,
+      80.33,
+      31.28
+    ],
+    "coords": [
+      -41.8,
+      157.5,
+      107.6,
+      -172.1,
+      -10.13,
+      -106.1
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163073.9470572
+  },
+  "cell_6_place": {
+    "key": "cell_6_place",
+    "name": "cell_6_place",
+    "board_id": "B1",
+    "cell_id": 6,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      79.8,
+      48.42,
+      -25.92,
+      -0.96,
+      79.54,
+      31.28
+    ],
+    "coords": [
+      30.0,
+      161.1,
+      107.0,
+      -172.9,
+      -9.79,
+      -131.81
+    ],
+    "speed": 90,
+    "vacuum": "off",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163079.396304
+  },
+  "cell_0_lift": {
+    "key": "cell_0_lift",
+    "name": "cell_0_lift",
+    "board_id": "B1",
+    "cell_id": 0,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      92.19,
+      24.25,
+      -22.76,
+      -2.54,
+      99.84,
+      14.15
+    ],
+    "coords": [
+      -2.3,
+      135.5,
+      170.7,
+      -174.68,
+      -10.34,
+      -102.62
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163280.65137
+  },
+  "cell_1_lift": {
+    "key": "cell_1_lift",
+    "name": "cell_1_lift",
+    "board_id": "B1",
+    "cell_id": 1,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      92.19,
+      24.25,
+      -22.76,
+      -2.54,
+      99.84,
+      14.15
+    ],
+    "coords": [
+      -2.3,
+      135.5,
+      170.7,
+      -174.68,
+      -10.34,
+      -102.62
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163284.3660898
+  },
+  "cell_2_lift": {
+    "key": "cell_2_lift",
+    "name": "cell_2_lift",
+    "board_id": "B1",
+    "cell_id": 2,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      92.19,
+      24.25,
+      -22.76,
+      -2.54,
+      99.84,
+      14.15
+    ],
+    "coords": [
+      -2.3,
+      135.5,
+      170.7,
+      -174.68,
+      -10.34,
+      -102.62
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163287.7964013
+  },
+  "cell_3_lift": {
+    "key": "cell_3_lift",
+    "name": "cell_3_lift",
+    "board_id": "B1",
+    "cell_id": 3,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      92.19,
+      24.25,
+      -22.76,
+      -2.54,
+      99.84,
+      14.15
+    ],
+    "coords": [
+      -2.3,
+      135.5,
+      170.7,
+      -174.68,
+      -10.34,
+      -102.62
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163290.6478145
+  },
+  "cell_4_lift": {
+    "key": "cell_4_lift",
+    "name": "cell_4_lift",
+    "board_id": "B1",
+    "cell_id": 4,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      92.19,
+      24.25,
+      -22.76,
+      -2.54,
+      99.84,
+      14.15
+    ],
+    "coords": [
+      -2.3,
+      135.5,
+      170.7,
+      -174.68,
+      -10.34,
+      -102.62
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163293.878865
+  },
+  "cell_5_lift": {
+    "key": "cell_5_lift",
+    "name": "cell_5_lift",
+    "board_id": "B1",
+    "cell_id": 5,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      92.19,
+      24.25,
+      -22.76,
+      -2.54,
+      99.84,
+      14.15
+    ],
+    "coords": [
+      -2.3,
+      135.5,
+      170.7,
+      -174.68,
+      -10.34,
+      -102.62
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163296.774053
+  },
+  "cell_6_lift": {
+    "key": "cell_6_lift",
+    "name": "cell_6_lift",
+    "board_id": "B1",
+    "cell_id": 6,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      92.19,
+      24.25,
+      -22.76,
+      -2.54,
+      99.84,
+      14.15
+    ],
+    "coords": [
+      -2.3,
+      135.5,
+      170.7,
+      -174.68,
+      -10.34,
+      -102.62
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163299.2566395
+  },
+  "cell_7_lift": {
+    "key": "cell_7_lift",
+    "name": "cell_7_lift",
+    "board_id": "B1",
+    "cell_id": 7,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      92.19,
+      24.25,
+      -22.76,
+      -2.54,
+      99.84,
+      14.15
+    ],
+    "coords": [
+      -2.3,
+      135.5,
+      170.7,
+      -174.68,
+      -10.34,
+      -102.62
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163302.0382652
+  },
+  "cell_8_lift": {
+    "key": "cell_8_lift",
+    "name": "cell_8_lift",
+    "board_id": "B1",
+    "cell_id": 8,
+    "move_type": "",
+    "type": "angles",
+    "data": [
+      92.19,
+      24.25,
+      -22.76,
+      -2.54,
+      99.84,
+      14.15
+    ],
+    "coords": [
+      -2.3,
+      135.5,
+      170.7,
+      -174.68,
+      -10.34,
+      -102.62
+    ],
+    "speed": 50,
+    "vacuum": "none",
+    "vacuum_delay_ms": 300,
+    "delay_ms": 0,
+    "rail_preset": "BOARD1",
+    "timestamp": 1788163305.114581
   }
 }

@@ -107,6 +107,17 @@
     .key-dot.ok{background:var(--green);box-shadow:0 0 6px rgba(0,224,122,.6)}
     .key-dot.miss{background:var(--red)}
 
+    .mini-jog-btn{
+      background:rgba(0,224,122,.15);border:1px solid rgba(0,224,122,.4);
+      color:var(--green);border-radius:4px;width:16px;height:16px;
+      display:flex;align-items:center;justify-content:center;font-size:.58rem;
+      cursor:pointer;margin-right:6px;transition:all .15s;z-index:5;
+    }
+    .mini-jog-btn:hover{
+      background:var(--green);color:#1a1f30;border-color:var(--green);
+      transform:scale(1.15);box-shadow:0 0 8px rgba(0,224,122,.6);
+    }
+
     /* Waypoint editor form */
     .form-row{display:flex;flex-direction:column;gap:2px;margin-bottom:4px}
     .form-label{font-size:.66rem;color:var(--muted);font-weight:600}
@@ -202,6 +213,7 @@
   <div class="nav-links">
     <a href="/">Game Dashboard</a>
     <a href="/waypoints" class="active">Waypoints & Hardware</a>
+    <a href="/calibration">Calibration</a>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
     <span id="arm-conn-badge" style="font-size:.75rem;color:var(--muted)">ARM —</span>
@@ -770,7 +782,7 @@ function switchBoard(id) {
 }
 
 function loadWaypoints() {
-  fetch(`/api/waypoints/${currentBoard}`)
+  fetch(`/api/waypoints/${currentBoard}?t=${Date.now()}`)
     .then(r => r.json())
     .then(d => {
       waypointData = d.waypoints || {};
@@ -813,15 +825,17 @@ function updateCalDisplay() {
   // Update key list dots
   ["scan_pose","pick_safe","place_safe"].forEach(k => {
     const ok  = calStatus[k] || waypointData.hasOwnProperty(k);
-    const dot = document.getElementById(`kdot-${k}`);
-    if (dot) dot.className = "key-dot " + (ok ? "ok" : "miss");
+    setDotStatus(k, ok);
   });
 
   ALL_KEYS_ORDERED.forEach(k => {
-    const dot = document.getElementById(`kdot-${k}`);
-    if (!dot) return;
-    const ok  = waypointData.hasOwnProperty(k) || (k.includes("safe") && waypointData.hasOwnProperty("safe_position"));
-    dot.className = "key-dot " + (ok ? "ok" : "miss");
+    if (["scan_pose","pick_safe","place_safe"].includes(k)) {
+      const btn = document.getElementById(`kbtn-${k}`);
+      if (btn) btn.classList.toggle("selected", k === selectedKey);
+      return;
+    }
+    const ok  = waypointData.hasOwnProperty(k);
+    setDotStatus(k, ok);
     const btn = document.getElementById(`kbtn-${k}`);
     if (btn) {
       btn.classList.toggle("selected", k === selectedKey);
@@ -842,6 +856,49 @@ function updateCalDisplay() {
   }
 }
 
+function setDotStatus(k, ok) {
+  const dot = document.getElementById(`kdot-${k}`);
+  if (!dot) return;
+  dot.className = "key-dot " + (ok ? "ok" : "miss");
+  
+  // Add or remove quick jog button
+  let jogBtn = dot.parentNode.querySelector(".mini-jog-btn");
+  if (ok) {
+    if (!jogBtn) {
+      jogBtn = document.createElement("button");
+      jogBtn.className = "mini-jog-btn";
+      jogBtn.innerHTML = "▶";
+      jogBtn.title = `Quick Jog to ${k}`;
+      jogBtn.onclick = (e) => {
+        e.stopPropagation();
+        quickJog(k);
+      };
+      dot.parentNode.insertBefore(jogBtn, dot);
+    }
+  } else {
+    if (jogBtn) jogBtn.remove();
+  }
+}
+
+function quickJog(key) {
+  opLog(`▶ Quick Jogging arm to ${key} (Angles)...`, "info");
+  fetch("/api/jog_waypoint", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      board_id: currentBoard,
+      key: key,
+      mode: "angles"
+    })
+  }).then(r => r.json()).then(d => {
+    if (d.success) {
+      opLog(`▶ Quick Jog to ${key} succeeded`, "ok");
+    } else {
+      opLog("❌ " + (d.error || "Quick Jog failed"), "err");
+    }
+  });
+}
+
 /* ── Key Selection & Form Population ─────────────────────────────────────── */
 function selectKey(key) {
   selectedKey = key;
@@ -855,7 +912,7 @@ function selectKey(key) {
 
 function populateEditor(key) {
   document.getElementById("editor-key-label").textContent = key;
-  const wp = waypointData[key] || (key.includes("safe") ? waypointData["safe_position"] : null);
+  const wp = waypointData[key];
 
   if (wp) {
     const a = wp.data || [0,0,0,0,0,0];

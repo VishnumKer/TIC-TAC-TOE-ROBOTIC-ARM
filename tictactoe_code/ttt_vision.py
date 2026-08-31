@@ -49,6 +49,9 @@ class BoardVision:
             bid: [{"H": 0, "R": 0} for _ in range(9)]
             for bid in cfg.BOARD_IDS
         }
+        self._robot_cells: dict[str, set[int]] = {
+            bid: set() for bid in cfg.BOARD_IDS
+        }
 
         # Background capture thread
         self._thread = threading.Thread(target=self._capture_loop, daemon=True)
@@ -101,7 +104,7 @@ class BoardVision:
                         self._latest_annotated_jpg = buf.tobytes()
 
     # ── Public API ────────────────────────────────────────────────────────
-    def start_scan(self, board_id: str, timeout: float = 10.0) -> list[str] | None:
+    def start_scan(self, board_id: str, robot_cells: list[int] | None = None, timeout: float = 10.0) -> list[str] | None:
         """
         Trigger a scan of the given board. Blocks until CONFIRM_FRAMES
         of stable data are collected or timeout is reached.
@@ -113,6 +116,10 @@ class BoardVision:
 
         # Reset counters for fresh scan
         self._cell_counts[board_id] = [{"H": 0, "R": 0} for _ in range(9)]
+        self._robot_cells[board_id] = set(robot_cells or [])
+        for idx in self._robot_cells[board_id]:
+            self._cell_counts[board_id][idx]["R"] = cfg.CONFIRM_FRAMES
+            
         self._scan_result = None
         self._scan_event.clear()
         self._scan_board_id = board_id
@@ -161,6 +168,11 @@ class BoardVision:
         counts = self._cell_counts[board_id]
 
         for i in range(9):
+            if i in self._robot_cells.get(board_id, set()):
+                counts[i]["R"] = cfg.CONFIRM_FRAMES
+                counts[i]["H"] = 0
+                continue
+
             key = f"cell_{i}"
             roi = rois.get(key)
             if not roi:
@@ -194,31 +206,31 @@ class BoardVision:
 
     def _classify_cell(self, hsv: np.ndarray, x0: int, y0: int,
                         x1: int, y1: int) -> str:
-        """Return 'H', 'R', or '' for the region."""
+        """Return 'H', 'R', or '' for the circular region."""
         region = hsv[y0:y1, x0:x1]
-        area   = (x1 - x0) * (y1 - y0)
+        h, w = region.shape[:2]
+        if h == 0 or w == 0:
+            return ""
+
+        # Create a circular mask for the region
+        mask_circle = np.zeros((h, w), dtype=np.uint8)
+        cx_rel, cy_rel = w // 2, h // 2
+        r = min(w, h) // 2
+        cv2.circle(mask_circle, (cx_rel, cy_rel), r, 255, -1)
+
+        area = int(np.pi * r * r)
         if area == 0:
             return ""
 
-        # Red mask (two hue ranges)
-        mask_r1 = cv2.inRange(region,
-                              np.array(cfg.RED_HSV_LOWER1, dtype=np.uint8),
-                              np.array(cfg.RED_HSV_UPPER1, dtype=np.uint8))
-        mask_r2 = cv2.inRange(region,
-                              np.array(cfg.RED_HSV_LOWER2, dtype=np.uint8),
-                              np.array(cfg.RED_HSV_UPPER2, dtype=np.uint8))
-        red_ratio = cv2.countNonZero(cv2.bitwise_or(mask_r1, mask_r2)) / area
+        # White mask (Human)
+        mask_w = cv2.inRange(region,
+                             np.array(cfg.WHITE_HSV_LOWER, dtype=np.uint8),
+                             np.array(cfg.WHITE_HSV_UPPER, dtype=np.uint8))
+        mask_w = cv2.bitwise_and(mask_w, mask_circle)
+        white_ratio = cv2.countNonZero(mask_w) / area
 
-        # Blue mask
-        mask_b = cv2.inRange(region,
-                             np.array(cfg.BLUE_HSV_LOWER, dtype=np.uint8),
-                             np.array(cfg.BLUE_HSV_UPPER, dtype=np.uint8))
-        blue_ratio = cv2.countNonZero(mask_b) / area
-
-        if red_ratio >= cfg.TOKEN_PIXEL_RATIO and red_ratio >= blue_ratio:
+        if white_ratio >= cfg.TOKEN_PIXEL_RATIO:
             return "H"
-        if blue_ratio >= cfg.TOKEN_PIXEL_RATIO:
-            return "R"
         return ""
 
     def _build_state_from_counts(self, board_id: str) -> list[str]:
@@ -248,28 +260,38 @@ class BoardVision:
             if not roi:
                 continue
             x0, y0, x1, y1 = roi
+            
+            # Calculate circle center and radius
+            cx = (x0 + x1) // 2
+            cy = (y0 + y1) // 2
+            r = (x1 - x0) // 2
+            if r <= 0:
+                continue
+
             h = counts[i]["H"] if i < len(counts) else 0
-            r = counts[i]["R"] if i < len(counts) else 0
+            r_count = counts[i]["R"] if i < len(counts) else 0
 
             if h >= cfg.CONFIRM_FRAMES:
-                color = (0, 0, 220)    # red → Human
+                color = (240, 240, 240)    # White color -> Human
                 label = "H"
-            elif r >= cfg.CONFIRM_FRAMES:
-                color = (220, 80, 0)   # blue → Robot
+            elif r_count >= cfg.CONFIRM_FRAMES:
+                color = (220, 80, 0)   # Blue color -> Robot
                 label = "R"
             else:
                 color = (180, 180, 180)
                 label = str(i)
 
-            cv2.rectangle(out, (x0, y0), (x1, y1), color, 2)
-            cv2.putText(out, label, (x0 + 4, y0 + 20),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+            # Draw circle instead of rectangle!
+            cv2.circle(out, (cx, cy), r, color, 2)
+            cv2.putText(out, label, (cx - 5, cy + 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
             if scanning:
-                # Progress bar at bottom of cell
-                prog = min(max(h, r) / cfg.CONFIRM_FRAMES, 1.0)
-                bar_x = int(x0 + prog * (x1 - x0))
-                cv2.rectangle(out, (x0, y1 - 4), (bar_x, y1), (0, 220, 60), -1)
+                # Progress indicator as an inner green circle
+                prog = min(max(h, r_count) / cfg.CONFIRM_FRAMES, 1.0)
+                if prog > 0:
+                    inner_r = max(int(r * prog), 1)
+                    cv2.circle(out, (cx, cy), inner_r, (0, 220, 60), 1)
 
         # Board label
         label_text = f"Board {board_id}  {'[SCANNING]' if scanning else ''}"

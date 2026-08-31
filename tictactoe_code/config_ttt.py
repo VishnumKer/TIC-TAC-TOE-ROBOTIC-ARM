@@ -59,11 +59,9 @@ CONFIRM_FRAMES   = 5          # consecutive frames to confirm token present
 DISAPPEAR_FRAMES = 8          # consecutive frames to confirm token removed
 TOKEN_PIXEL_RATIO = 0.10      # fraction of cell ROI that must match color
 
-# Human token color: RED (HSV — two ranges for hue wrap-around)
-RED_HSV_LOWER1 = (0,   100, 80)
-RED_HSV_UPPER1 = (10,  255, 255)
-RED_HSV_LOWER2 = (160, 100, 80)
-RED_HSV_UPPER2 = (180, 255, 255)
+# Human token color: WHITE (HSV)
+WHITE_HSV_LOWER = (0,   0,   200)
+WHITE_HSV_UPPER = (180, 50,  255)
 
 # Robot token color: BLUE (HSV)
 BLUE_HSV_LOWER = (100, 100, 80)
@@ -115,6 +113,10 @@ def _load_settings():
             global ARM_SPEED, RAIL_SPEED_RPM, DEFAULT_GAME_MODE
             global SCAN_SETTLE_TIME, VACUUM_ON_DELAY_MS, VACUUM_OFF_DELAY_MS
             global LED_DEFAULT_BRIGHTNESS
+            global CAMERA_INDEX, TOKEN_PIXEL_RATIO
+            global WHITE_HSV_LOWER, WHITE_HSV_UPPER
+            global BLUE_HSV_LOWER, BLUE_HSV_UPPER, BOARD_CELL_ROIS
+
             ARM_SPEED              = d.get("arm_speed",            ARM_SPEED)
             RAIL_SPEED_RPM         = d.get("rail_speed_rpm",       RAIL_SPEED_RPM)
             DEFAULT_GAME_MODE      = d.get("game_mode",            DEFAULT_GAME_MODE)
@@ -122,6 +124,17 @@ def _load_settings():
             VACUUM_ON_DELAY_MS     = d.get("vacuum_on_delay_ms",   VACUUM_ON_DELAY_MS)
             VACUUM_OFF_DELAY_MS    = d.get("vacuum_off_delay_ms",  VACUUM_OFF_DELAY_MS)
             LED_DEFAULT_BRIGHTNESS = d.get("led_brightness",       LED_DEFAULT_BRIGHTNESS)
+            CAMERA_INDEX           = d.get("camera_index",         CAMERA_INDEX)
+            TOKEN_PIXEL_RATIO      = d.get("token_pixel_ratio",    TOKEN_PIXEL_RATIO)
+
+            if "white_hsv_lower" in d: WHITE_HSV_LOWER = tuple(d["white_hsv_lower"])
+            if "white_hsv_upper" in d: WHITE_HSV_UPPER = tuple(d["white_hsv_upper"])
+            if "blue_hsv_lower" in d: BLUE_HSV_LOWER = tuple(d["blue_hsv_lower"])
+            if "blue_hsv_upper" in d: BLUE_HSV_UPPER = tuple(d["blue_hsv_upper"])
+            if "board_cell_rois" in d:
+                for b_id, cells in d["board_cell_rois"].items():
+                    if b_id in BOARD_CELL_ROIS:
+                        BOARD_CELL_ROIS[b_id].update(cells)
         except Exception as e:
             print(f"[config_ttt] Warning: could not load settings: {e}")
 
