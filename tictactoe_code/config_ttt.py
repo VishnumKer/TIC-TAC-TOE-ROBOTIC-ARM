@@ -104,6 +104,7 @@ WAYPOINT_FILES = {
 }
 SETTINGS_PATH  = os.path.join(_BASE, "ttt_settings.json")
 ARM_CONFIG_PATH = os.path.join(_BASE, "arm_config.json")
+DANCE_CONFIG_PATH = os.path.join(_BASE, "ttt_dance.json")
 
 # ── Load Overrides from ttt_settings.json ─────────────────────────────────────
 def _load_settings():

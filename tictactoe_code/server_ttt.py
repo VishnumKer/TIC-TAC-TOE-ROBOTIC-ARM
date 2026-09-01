@@ -18,6 +18,7 @@ import os
 import time
 import threading
 import logging
+import copy
 import traceback
 import queue
 import json
@@ -628,13 +629,156 @@ class RGBLEDManager:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
+# DanceManager — Victory Dance Recorder & Playback
+# ═════════════════════════════════════════════════════════════════════════════
+class DanceManager:
+    """
+    Manages recording and playback of Victory Dance motion sequences.
+    Plays a loop of recorded poses at high speed (default 100) for a configured duration (default 5.0s).
+    """
+    def __init__(self, filepath=cfg.DANCE_CONFIG_PATH):
+        self.filepath = filepath
+        self._lock = threading.Lock()
+        self._stop_event = threading.Event()
+        self._is_playing = False
+        self._cmd_done_event = threading.Event()
+        self._pending_cmd_id: str | None = None
+        self._data = {"speed": 100, "duration_sec": 5.0, "poses": []}
+        self.load()
+
+    def load(self):
+        with self._lock:
+            if os.path.exists(self.filepath):
+                try:
+                    with open(self.filepath) as f:
+                        d = json.load(f)
+                    if isinstance(d, dict):
+                        self._data["speed"] = d.get("speed", 100)
+                        self._data["duration_sec"] = float(d.get("duration_sec", 5.0))
+                        self._data["poses"] = d.get("poses", [])
+                    elif isinstance(d, list):
+                        self._data["poses"] = d
+                    logging.info("[Dance] Loaded %d victory dance poses.", len(self._data["poses"]))
+                except Exception as e:
+                    logging.error("[Dance] Load error: %s", e)
+            else:
+                self._data = {"speed": 100, "duration_sec": 5.0, "poses": []}
+
+    def save(self):
+        with self._lock:
+            try:
+                with open(self.filepath, "w") as f:
+                    json.dump(self._data, f, indent=2)
+                logging.info("[Dance] Saved %d poses to %s", len(self._data["poses"]), self.filepath)
+            except Exception as e:
+                logging.error("[Dance] Save error: %s", e)
+
+    def get_data(self) -> dict:
+        with self._lock:
+            return copy.deepcopy(self._data)
+
+    def set_data(self, data: dict) -> dict:
+        with self._lock:
+            if isinstance(data, dict):
+                if "speed" in data:
+                    self._data["speed"] = max(1, min(100, int(data["speed"])))
+                if "duration_sec" in data:
+                    self._data["duration_sec"] = max(0.5, float(data["duration_sec"]))
+                if "poses" in data and isinstance(data["poses"], list):
+                    self._data["poses"] = data["poses"]
+        self.save()
+        return self.get_data()
+
+    def on_command_complete(self, cmd_id: str | None) -> None:
+        if cmd_id and cmd_id == self._pending_cmd_id:
+            self._cmd_done_event.set()
+
+    def stop(self):
+        self._stop_event.set()
+        self._cmd_done_event.set()
+
+    @property
+    def is_playing(self) -> bool:
+        with self._lock:
+            return self._is_playing
+
+    def play(self, robot_mgr, override_speed=None, override_duration=None):
+        with self._lock:
+            if self._is_playing:
+                logging.info("[Dance] Already playing, stopping previous...")
+                self._stop_event.set()
+                self._cmd_done_event.set()
+                time.sleep(0.2)
+            self._is_playing = True
+            self._stop_event.clear()
+
+        try:
+            data = self.get_data()
+            poses = data.get("poses", [])
+            if not poses:
+                logging.warning("[Dance] No victory dance poses recorded.")
+                socketio.emit("dance_status", {"playing": False, "error": "No poses recorded"})
+                return False
+
+            spd = override_speed if override_speed is not None else data.get("speed", 100)
+            dur = override_duration if override_duration is not None else data.get("duration_sec", 5.0)
+            spd = max(1, min(100, int(spd)))
+            dur = max(0.5, float(dur))
+
+            logging.info("[Dance] Starting victory dance: %d poses, speed=%d, duration=%.1fs", len(poses), spd, dur)
+            socketio.emit("dance_status", {"playing": True, "speed": spd, "duration": dur, "count": len(poses)})
+
+            start_time = time.time()
+            idx = 0
+
+            while (time.time() - start_time < dur) and not self._stop_event.is_set():
+                pose = poses[idx % len(poses)]
+                angles = pose.get("angles") if isinstance(pose, dict) else pose
+                if not angles or len(angles) != 6:
+                    idx += 1
+                    continue
+
+                pose_spd = pose.get("speed", spd) if isinstance(pose, dict) else spd
+                delay_ms = pose.get("delay_ms", 50) if isinstance(pose, dict) else 50
+                cmd_id = f"dance_{idx}_{time.time():.3f}"
+
+                self._cmd_done_event.clear()
+                self._pending_cmd_id = cmd_id
+
+                robot_mgr.send_angles(angles, speed=pose_spd, cmd_id=cmd_id)
+                done = self._cmd_done_event.wait(timeout=5.0)
+                self._pending_cmd_id = None
+
+                if not done or self._stop_event.is_set():
+                    logging.info("[Dance] Dance move timed out or stopped.")
+                    break
+
+                if delay_ms > 0:
+                    time.sleep(delay_ms / 1000.0)
+
+                idx += 1
+
+            logging.info("[Dance] Victory dance complete (%d poses executed).", idx)
+            return True
+
+        except Exception as e:
+            logging.error("[Dance] Error during victory dance playback: %s", e)
+            return False
+        finally:
+            with self._lock:
+                self._is_playing = False
+            socketio.emit("dance_status", {"playing": False})
+
+
+# ═════════════════════════════════════════════════════════════════════════════
 # Global instances
 # ═════════════════════════════════════════════════════════════════════════════
-robot    = RobotManager()
-rail     = RailManager()
-led      = RGBLEDManager(rail)
-vision   = BoardVision()
-game_mgr = GameManager()
+robot     = RobotManager()
+rail      = RailManager()
+led       = RGBLEDManager(rail)
+vision    = BoardVision()
+game_mgr  = GameManager()
+dance_mgr = DanceManager()
 
 wp_stores = {
     "B1": TTTWaypointStore("B1"),
@@ -643,8 +787,9 @@ wp_stores = {
 
 executor = TTTMoveExecutor(robot, rail, wp_stores, socketio_ref=socketio)
 
-# Register executor's completion callback with RobotManager
+# Register completion callbacks with RobotManager
 robot.completion_callbacks.append(executor.on_command_complete)
+robot.completion_callbacks.append(dance_mgr.on_command_complete)
 
 # ── Game loop thread control ──────────────────────────────────────────────────
 _game_thread: threading.Thread | None = None
@@ -783,6 +928,7 @@ def _handle_game_over(board_id: str, result: dict):
 
     if winner == ROBOT:
         led.win_robot()
+        threading.Thread(target=dance_mgr.play, args=(robot,), daemon=True, name="VictoryDanceThread").start()
     elif winner == HUMAN:
         led.win_human()
     else:
@@ -1083,6 +1229,102 @@ def api_import_waypoints(board_id: str):
         "calibration_status": store.calibration_status(),
         "missing_keys": store.missing_keys(),
     })
+
+
+# ── Victory Dance Management ──────────────────────────────────────────────────
+@app.route("/api/dance")
+def api_get_dance():
+    return jsonify({"success": True, "dance": dance_mgr.get_data()})
+
+@app.route("/api/dance", methods=["POST"])
+def api_set_dance():
+    data = request.get_json(silent=True) or {}
+    updated = dance_mgr.set_data(data)
+    return jsonify({"success": True, "dance": updated})
+
+@app.route("/api/dance/capture", methods=["POST"])
+def api_capture_dance_pose():
+    data = request.get_json(silent=True) or {}
+    name = data.get("name", "")
+    delay_ms = int(data.get("delay_ms", 100))
+    speed = int(data.get("speed", 100))
+
+    with robot.lock:
+        angles = list(robot._angles)
+
+    if "angles" in data and isinstance(data["angles"], list) and len(data["angles"]) == 6:
+        angles = [round(float(v), 2) for v in data["angles"]]
+
+    current_data = dance_mgr.get_data()
+    poses = current_data.get("poses", [])
+    pose_idx = len(poses) + 1
+    pose_name = name or f"Pose {pose_idx}"
+
+    new_pose = {
+        "id": pose_idx,
+        "name": pose_name,
+        "angles": angles,
+        "speed": speed,
+        "delay_ms": delay_ms,
+    }
+    poses.append(new_pose)
+    current_data["poses"] = poses
+    updated = dance_mgr.set_data(current_data)
+    return jsonify({"success": True, "pose": new_pose, "dance": updated})
+
+@app.route("/api/dance/play", methods=["POST"])
+def api_play_dance():
+    data = request.get_json(silent=True) or {}
+    override_speed = data.get("speed")
+    override_duration = data.get("duration")
+    if override_speed is not None:
+        override_speed = int(override_speed)
+    if override_duration is not None:
+        override_duration = float(override_duration)
+
+    threading.Thread(target=dance_mgr.play, args=(robot, override_speed, override_duration),
+                     daemon=True, name="ManualDanceThread").start()
+    return jsonify({"success": True, "message": "Dance started"})
+
+@app.route("/api/dance/stop", methods=["POST"])
+def api_stop_dance():
+    dance_mgr.stop()
+    robot.emergency_stop()
+    return jsonify({"success": True, "message": "Dance stopped"})
+
+@app.route("/api/dance/export")
+def api_export_dance():
+    payload = json.dumps(dance_mgr.get_data(), indent=2)
+    buf = io.BytesIO(payload.encode("utf-8"))
+    return send_file(
+        buf,
+        mimetype="application/json",
+        as_attachment=True,
+        download_name="ttt_dance.json",
+    )
+
+@app.route("/api/dance/import", methods=["POST"])
+def api_import_dance():
+    uploaded = request.files.get("file")
+    if not uploaded:
+        try:
+            data = request.get_json(force=True, silent=True) or {}
+        except Exception:
+            return jsonify({"success": False, "error": "No file or JSON body provided"}), 400
+    else:
+        try:
+            data = json.loads(uploaded.read().decode("utf-8"))
+        except Exception as e:
+            return jsonify({"success": False, "error": f"Invalid JSON: {e}"}), 400
+
+    if not isinstance(data, (dict, list)):
+        return jsonify({"success": False, "error": "Invalid format"}), 400
+
+    if isinstance(data, list):
+        data = {"speed": 100, "duration_sec": 5.0, "poses": data}
+
+    updated = dance_mgr.set_data(data)
+    return jsonify({"success": True, "count": len(updated.get("poses", [])), "dance": updated})
 
 @app.route("/api/record_waypoint", methods=["POST"])
 def api_record_waypoint():
