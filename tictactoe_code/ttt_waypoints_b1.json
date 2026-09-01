@@ -115,27 +115,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -88.89,
+      39.46,
+      -21.35,
+      -0.61,
+      89.62,
+      14.06
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      4.5,
+      -142.1,
+      129.9,
+      -173.29,
+      -22.82,
+      76.75
     ],
     "speed": 50,
     "vacuum": "none",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162611.847111
+    "timestamp": 1788259403.091111
   },
   "tray_slot_0_pick": {
     "key": "tray_slot_0_pick",
@@ -143,29 +143,29 @@
     "board_id": "B1",
     "cell_id": null,
     "move_type": "",
-    "type": "angles",
+    "type": "coords",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -88.47,
+      39.37,
+      3.0,
+      0.17,
+      85.44,
+      14.85
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      1.1,
+      -120.8,
+      120.6,
+      -171.5,
+      -14.12,
+      73.46
     ],
     "speed": 90,
     "vacuum": "on",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162666.0283637
+    "timestamp": 1788259657.1096041
   },
   "tray_slot_0_lift": {
     "key": "tray_slot_0_lift",
@@ -173,29 +173,29 @@
     "board_id": "B1",
     "cell_id": null,
     "move_type": "",
-    "type": "angles",
+    "type": "coords",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -89.38,
+      39.28,
+      -18.8,
+      0.87,
+      94.57,
+      14.85
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      2.2,
+      -145.4,
+      126.4,
+      -174.0,
+      -14.47,
+      74.24
     ],
     "speed": 90,
     "vacuum": "none",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162695.8680832
+    "timestamp": 1788259552.6291804
   },
   "tray_slot_1_approach": {
     "key": "tray_slot_1_approach",
@@ -205,27 +205,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -104.23,
+      40.34,
+      -24.24,
+      -2.1,
+      91.37,
+      17.13
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      -37.2,
+      -137.8,
+      123.4,
+      -171.05,
+      -21.39,
+      57.34
     ],
     "speed": 50,
     "vacuum": "none",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162623.3256555
+    "timestamp": 1788263610.044806
   },
   "tray_slot_1_pick": {
     "key": "tray_slot_1_pick",
@@ -235,27 +235,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -104.23,
+      45.26,
+      -18.36,
+      -1.58,
+      90.97,
+      16.78
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      -36.5,
+      -139.2,
+      140.6,
+      -171.39,
+      -23.08,
+      57.71
     ],
     "speed": 90,
     "vacuum": "on",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162673.6057358
+    "timestamp": 1788260064.042991
   },
   "tray_slot_1_lift": {
     "key": "tray_slot_1_lift",
@@ -265,27 +265,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -104.15,
+      39.46,
+      -19.33,
+      -1.4,
+      90.71,
+      16.43
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      -35.5,
+      -134.4,
+      127.3,
+      -170.78,
+      -24.38,
+      57.59
     ],
     "speed": 90,
     "vacuum": "none",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162703.170925
+    "timestamp": 1788260085.1993623
   },
   "tray_slot_2_approach": {
     "key": "tray_slot_2_approach",
@@ -295,27 +295,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -87.89,
+      55.16,
+      -50.67,
+      -2.63,
+      95.91,
+      17.57
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      -10.8,
+      -150.8,
+      90.5,
+      -171.82,
+      -16.33,
+      73.69
     ],
     "speed": 50,
     "vacuum": "none",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162632.8966618
+    "timestamp": 1788260393.245318
   },
   "tray_slot_2_pick": {
     "key": "tray_slot_2_pick",
@@ -325,27 +325,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -87.89,
+      61.96,
+      -45.32,
+      -2.54,
+      95.47,
+      17.75
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      3.7,
+      -165.9,
+      95.7,
+      -171.6,
+      -19.77,
+      72.94
     ],
     "speed": 90,
     "vacuum": "on",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162681.2183893
+    "timestamp": 1788260403.5881636
   },
   "tray_slot_2_lift": {
     "key": "tray_slot_2_lift",
@@ -355,27 +355,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -87.8,
+      56.51,
+      -50.28,
+      -3.25,
+      99.53,
+      17.66
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      2.5,
+      -163.4,
+      109.1,
+      -169.59,
+      -20.61,
+      72.97
     ],
     "speed": 90,
     "vacuum": "none",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162708.13824
+    "timestamp": 1788260444.2123957
   },
   "tray_slot_3_approach": {
     "key": "tray_slot_3_approach",
@@ -385,27 +385,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -100.89,
+      58.18,
+      -55.37,
+      -4.74,
+      99.46,
+      16.61
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      -36.4,
+      -162.0,
+      103.3,
+      -169.1,
+      -18.97,
+      61.43
     ],
     "speed": 50,
     "vacuum": "none",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162643.076014
+    "timestamp": 1788260536.7219906
   },
   "tray_slot_3_pick": {
     "key": "tray_slot_3_pick",
@@ -415,27 +415,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -100.37,
+      65.12,
+      -39.28,
+      -3.95,
+      92.28,
+      16.61
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      -33.3,
+      -157.3,
+      83.2,
+      -167.55,
+      -25.71,
+      60.99
     ],
     "speed": 90,
     "vacuum": "on",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162690.666929
+    "timestamp": 1788258577.0780733
   },
   "tray_slot_3_lift": {
     "key": "tray_slot_3_lift",
@@ -445,27 +445,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      -85.25,
-      13.62,
-      -7.55,
-      -1.75,
-      94.83,
-      15.55
+      -100.19,
+      56.51,
+      -50.37,
+      -2.98,
+      99.55,
+      16.61
     ],
     "coords": [
-      7.8,
-      -118.4,
-      168.0,
-      -175.33,
-      -10.01,
-      78.79
+      -32.9,
+      -157.8,
+      110.1,
+      -168.36,
+      -22.69,
+      61.1
     ],
     "speed": 90,
     "vacuum": "none",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162713.869023
+    "timestamp": 1788262032.9210382
   },
   "cell_0_approach": {
     "key": "cell_0_approach",
@@ -477,9 +477,9 @@
     "data": [
       71.8,
       19.07,
-      5.18,
+      -5.18,
       -3.07,
-      95.88,
+      99.88,
       1.31
     ],
     "coords": [
@@ -495,7 +495,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788169569.6898696
+    "timestamp": 1788262100.2187169
   },
   "cell_0_place": {
     "key": "cell_0_place",
@@ -505,27 +505,27 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      91.75,
-      8.96,
-      -19.59,
-      -0.52,
-      96.32,
-      1.31
+      72.33,
+      20.47,
+      4.8,
+      -2.98,
+      88.31,
+      2.28
     ],
     "coords": [
-      -2.6,
-      123.7,
-      199.5,
-      -179.06,
-      4.33,
-      -89.68
+      35.1,
+      99.2,
+      133.7,
+      -175.78,
+      -27.45,
+      -110.31
     ],
     "speed": 90,
     "vacuum": "off",
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162857.4625947
+    "timestamp": 1788262150.683121
   },
   "cell_1_approach": {
     "key": "cell_1_approach",
@@ -537,9 +537,9 @@
     "data": [
       91.58,
       17.05,
-      8.52,
+      -10.52,
       -1.14,
-      92.9,
+      92.91,
       14.15
     ],
     "coords": [
@@ -555,7 +555,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163346.5136483
+    "timestamp": 1788262458.4769926
   },
   "cell_1_place": {
     "key": "cell_1_place",
@@ -567,9 +567,9 @@
     "data": [
       90.96,
       14.76,
-      24.08,
+      5.08,
       -0.61,
-      84.28,
+      110.28,
       14.15
     ],
     "coords": [
@@ -585,7 +585,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162929.1431541
+    "timestamp": 1788262535.3545718
   },
   "cell_2_approach": {
     "key": "cell_2_approach",
@@ -595,11 +595,11 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      116.27,
+      120.27,
       12.39,
-      12.65,
+      5.65,
       -0.96,
-      86.74,
+      82.74,
       31.28
     ],
     "coords": [
@@ -615,7 +615,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163341.9239936
+    "timestamp": 1788262703.2827141
   },
   "cell_2_place": {
     "key": "cell_2_place",
@@ -625,7 +625,7 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      116.45,
+      120.45,
       19.07,
       12.65,
       -0.79,
@@ -645,7 +645,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162965.6855412
+    "timestamp": 1788262688.5991335
   },
   "cell_3_approach": {
     "key": "cell_3_approach",
@@ -657,7 +657,7 @@
     "data": [
       77.43,
       34.71,
-      -13.0,
+      -20.0,
       -2.63,
       87.27,
       31.28
@@ -675,7 +675,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162974.8892858
+    "timestamp": 1788262801.696982
   },
   "cell_3_place": {
     "key": "cell_3_place",
@@ -705,7 +705,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788162984.7363663
+    "timestamp": 1788262832.5784051
   },
   "cell_4_approach": {
     "key": "cell_4_approach",
@@ -717,7 +717,7 @@
     "data": [
       93.77,
       25.04,
-      0.17,
+      -10.17,
       -3.16,
       82.0,
       31.28
@@ -735,7 +735,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163350.2761083
+    "timestamp": 1788262914.2302847
   },
   "cell_4_place": {
     "key": "cell_4_place",
@@ -777,7 +777,7 @@
     "data": [
       112.23,
       30.23,
-      -0.52,
+      -15.52,
       -3.6,
       84.11,
       31.28
@@ -795,7 +795,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163354.3218193
+    "timestamp": 1788263005.5683806
   },
   "cell_6_approach": {
     "key": "cell_6_approach",
@@ -806,10 +806,10 @@
     "type": "angles",
     "data": [
       78.04,
-      50.36,
-      -26.01,
+      40.36,
+      -33.01,
       -1.4,
-      80.5,
+      85.5,
       31.28
     ],
     "coords": [
@@ -825,7 +825,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163328.9398355
+    "timestamp": 1788263124.0965831
   },
   "cell_5_place": {
     "key": "cell_5_place",
@@ -866,8 +866,8 @@
     "type": "angles",
     "data": [
       90.87,
-      48.16,
-      -25.83,
+      40.16,
+      -33.83,
       -1.49,
       80.68,
       31.28
@@ -885,7 +885,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163325.012267
+    "timestamp": 1788263200.4203286
   },
   "cell_8_approach": {
     "key": "cell_8_approach",
@@ -896,7 +896,7 @@
     "type": "angles",
     "data": [
       103.35,
-      48.25,
+      35.25,
       -25.83,
       -1.23,
       80.41,
@@ -915,7 +915,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163332.151793
+    "timestamp": 1788263278.191657
   },
   "cell_7_place": {
     "key": "cell_7_place",
@@ -956,7 +956,7 @@
     "type": "angles",
     "data": [
       105.46,
-      48.25,
+      45.25,
       -25.83,
       -1.49,
       80.33,
@@ -975,7 +975,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163073.9470572
+    "timestamp": 1788263523.6444614
   },
   "cell_6_place": {
     "key": "cell_6_place",
@@ -985,7 +985,7 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      79.8,
+      76.8,
       48.42,
       -25.92,
       -0.96,
@@ -1005,7 +1005,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163079.396304
+    "timestamp": 1788263145.225294
   },
   "cell_0_lift": {
     "key": "cell_0_lift",
@@ -1075,7 +1075,7 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      92.19,
+      110.19,
       24.25,
       -22.76,
       -2.54,
@@ -1095,7 +1095,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163287.7964013
+    "timestamp": 1788262721.5112994
   },
   "cell_3_lift": {
     "key": "cell_3_lift",
@@ -1105,7 +1105,7 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      92.19,
+      77.19,
       24.25,
       -22.76,
       -2.54,
@@ -1125,7 +1125,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163290.6478145
+    "timestamp": 1788262862.3551726
   },
   "cell_4_lift": {
     "key": "cell_4_lift",
@@ -1165,7 +1165,7 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      92.19,
+      122.19,
       24.25,
       -22.76,
       -2.54,
@@ -1185,7 +1185,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163296.774053
+    "timestamp": 1788263020.890249
   },
   "cell_6_lift": {
     "key": "cell_6_lift",
@@ -1195,7 +1195,7 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      92.19,
+      78.19,
       24.25,
       -22.76,
       -2.54,
@@ -1215,7 +1215,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163299.2566395
+    "timestamp": 1788263158.748018
   },
   "cell_7_lift": {
     "key": "cell_7_lift",
@@ -1229,7 +1229,7 @@
       24.25,
       -22.76,
       -2.54,
-      99.84,
+      85.84,
       14.15
     ],
     "coords": [
@@ -1245,7 +1245,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163302.0382652
+    "timestamp": 1788263234.447787
   },
   "cell_8_lift": {
     "key": "cell_8_lift",
@@ -1255,7 +1255,7 @@
     "move_type": "",
     "type": "angles",
     "data": [
-      92.19,
+      105.19,
       24.25,
       -22.76,
       -2.54,
@@ -1275,6 +1275,6 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788163305.114581
+    "timestamp": 1788263539.602369
   }
 }

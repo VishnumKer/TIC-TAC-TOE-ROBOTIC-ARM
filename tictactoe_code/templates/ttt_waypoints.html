@@ -12,7 +12,7 @@
       --gold:#f5c842; --green:#00e07a; --purple:#b066ff; --text:#e4e8f5; --muted:#6b7394;
     }
     body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);
-         color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+         color:var(--text);min-height:100vh;height:100vh;display:flex;flex-direction:column;overflow:auto}
 
     /* Nav */
     nav{display:flex;align-items:center;justify-content:space-between;
@@ -27,9 +27,10 @@
 
     /* Layout */
     .main{display:grid;grid-template-columns:290px 1fr 320px;gap:10px;
-          padding:10px;flex:1;overflow:hidden}
+          padding:10px;flex:1;overflow:auto;min-width:900px}
     .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;
            padding:12px;display:flex;flex-direction:column;overflow:hidden}
+    .panel-scroll{overflow-y:auto;overflow-x:hidden}
     .panel-title{font-size:.68rem;font-weight:700;letter-spacing:1.5px;
                  text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 
@@ -91,6 +92,7 @@
 
     /* Key selector */
     .key-grid{display:flex;flex-direction:column;gap:3px;overflow-y:auto;flex:1;min-height:0;padding-right:2px}
+    .panel-scroll .key-grid{flex:none;min-height:200px;overflow-y:visible}
     .key-group{margin-bottom:6px}
     .key-group-label{font-size:.62rem;color:var(--muted);font-weight:700;
                      text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;
@@ -192,7 +194,8 @@
     .led-strip-preview.solid{animation:none}
 
     /* Operation log */
-    .op-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;min-height:0}
+    .op-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;min-height:80px}
+    .panel-scroll .op-log{flex:none;min-height:120px;max-height:200px}
     .op-entry{padding:2px 6px;border-radius:4px;font-size:.68rem;animation:fadeIn .25s}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     .op-ok{background:rgba(0,224,122,.1);color:var(--green);border-left:2px solid var(--green)}
@@ -224,7 +227,7 @@
 <div class="main">
 
   <!-- ── Left Panel: Calibration Overview & Live Arm Monitor ─────────────── -->
-  <div class="panel">
+  <div class="panel panel-scroll">
     <div class="panel-title">Station Selection</div>
     <div class="board-tabs">
       <div class="board-tab active" id="tab-B1" onclick="switchBoard('B1')">Board 1</div>
@@ -442,7 +445,7 @@
   </div>
 
   <!-- ── Right Panel: LED Strip & Color Palette & Test Pick+Place ────────── -->
-  <div class="panel">
+  <div class="panel panel-scroll">
     <!-- LED Strip Editor -->
     <div class="panel-title">RGB LED Strip Controller (45 LEDs)</div>
     <div class="led-strip-preview animate" id="led-strip-preview"></div>
