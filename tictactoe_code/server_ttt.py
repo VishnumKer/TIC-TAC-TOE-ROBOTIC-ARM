@@ -892,6 +892,17 @@ def api_set_mode():
     except ValueError as e:
         return jsonify({"success": False, "error": str(e)})
 
+
+@app.route("/api/set_robot_first", methods=["POST"])
+def api_set_robot_first():
+    """Enable or disable robot-plays-first mode."""
+    data    = request.get_json(silent=True) or {}
+    enabled = bool(data.get("enabled", False))
+    game_mgr.set_robot_first(enabled)
+    socketio.emit("game_state_update", game_mgr.get_snapshot())
+    return jsonify({"success": True, "robot_first": enabled})
+
+
 @app.route("/api/game_state")
 def api_game_state():
     return jsonify(game_mgr.get_snapshot())
@@ -1018,6 +1029,60 @@ def api_delete_waypoint(board_id: str, key: str):
     if not store:
         return jsonify({"success": False, "error": "Unknown board"}), 404
     return jsonify({"success": store.delete(key)})
+
+
+@app.route("/api/waypoints/<board_id>/export")
+def api_export_waypoints(board_id: str):
+    """Download the full waypoints JSON for a board as a file."""
+    store = wp_stores.get(board_id)
+    if not store:
+        return jsonify({"success": False, "error": "Unknown board"}), 404
+    payload  = json.dumps(store.as_dict(), indent=2)
+    buf      = io.BytesIO(payload.encode("utf-8"))
+    filename = f"ttt_waypoints_{board_id}.json"
+    return send_file(
+        buf,
+        mimetype="application/json",
+        as_attachment=True,
+        download_name=filename,
+    )
+
+
+@app.route("/api/waypoints/<board_id>/import", methods=["POST"])
+def api_import_waypoints(board_id: str):
+    """Upload a JSON file and replace the board's waypoints."""
+    store = wp_stores.get(board_id)
+    if not store:
+        return jsonify({"success": False, "error": "Unknown board"}), 404
+
+    uploaded = request.files.get("file")
+    if not uploaded:
+        # Also accept raw JSON body as fallback
+        try:
+            data = request.get_json(force=True, silent=True) or {}
+        except Exception:
+            return jsonify({"success": False, "error": "No file or JSON body provided"}), 400
+    else:
+        try:
+            data = json.loads(uploaded.read().decode("utf-8"))
+        except Exception as e:
+            return jsonify({"success": False, "error": f"Invalid JSON: {e}"}), 400
+
+    if not isinstance(data, dict):
+        return jsonify({"success": False, "error": "JSON root must be an object (dict)"}), 400
+
+    with store._lock:
+        store._data = data
+    store.save()
+    logging.info("[WP %s] Imported %d waypoints via HTTP.", board_id, len(data))
+    socketio.emit("waypoints_updated", {"board_id": board_id, "count": len(data)})
+    return jsonify({
+        "success": True,
+        "board_id": board_id,
+        "count": len(data),
+        "calibration_status": store.calibration_status(),
+        "missing_keys": store.missing_keys(),
+    })
 
 @app.route("/api/record_waypoint", methods=["POST"])
 def api_record_waypoint():

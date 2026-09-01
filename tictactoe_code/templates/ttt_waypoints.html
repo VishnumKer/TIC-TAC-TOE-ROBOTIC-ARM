@@ -90,6 +90,23 @@
     .slot-cal-box.partial{background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.4);color:var(--gold)}
     .slot-cal-box.missing{background:rgba(232,76,76,.10);border-color:rgba(232,76,76,.4);color:var(--red)}
 
+    /* Import / Export */
+    .import-export-box{
+      background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+      padding:8px 10px;margin-bottom:8px
+    }
+    .import-export-box .iex-row{
+      display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px
+    }
+    .import-export-box .iex-board{
+      display:flex;gap:4px;margin-bottom:6px
+    }
+    .iex-tab{flex:1;padding:4px 0;border-radius:6px;text-align:center;
+              font-size:.72rem;font-weight:700;cursor:pointer;
+              border:1px solid var(--border);background:var(--surface3);
+              color:var(--muted);transition:all .2s}
+    .iex-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
     /* Key selector */
     .key-grid{display:flex;flex-direction:column;gap:3px;overflow-y:auto;flex:1;min-height:0;padding-right:2px}
     .panel-scroll .key-grid{flex:none;min-height:200px;overflow-y:visible}
@@ -232,6 +249,24 @@
     <div class="board-tabs">
       <div class="board-tab active" id="tab-B1" onclick="switchBoard('B1')">Board 1</div>
       <div class="board-tab" id="tab-B2" onclick="switchBoard('B2')">Board 2</div>
+    </div>
+
+    <!-- Waypoint Import / Export -->
+    <div class="import-export-box">
+      <div class="panel-title" style="margin-bottom:6px">Waypoint File &mdash; Import / Export</div>
+      <div class="iex-board">
+        <div class="iex-tab active" id="iex-tab-B1" onclick="setIexBoard('B1')">Board 1</div>
+        <div class="iex-tab" id="iex-tab-B2" onclick="setIexBoard('B2')">Board 2</div>
+      </div>
+      <div class="iex-row">
+        <button class="btn btn-primary btn-sm" onclick="exportWaypoints()"
+                title="Download waypoints as JSON">&#x1F4E4; Export</button>
+        <button class="btn btn-muted btn-sm" onclick="document.getElementById('iex-file-input').click()"
+                title="Import waypoints from JSON file">&#x1F4E5; Import</button>
+      </div>
+      <input type="file" id="iex-file-input" accept=".json,application/json"
+             style="display:none" onchange="importWaypoints(this)">
+      <div id="iex-status" style="font-size:.65rem;color:var(--muted);margin-top:5px"></div>
     </div>
 
     <!-- Rail Station Settings -->
@@ -1330,6 +1365,63 @@ function opLog(msg, type="info") {
   el.textContent = `${new Date().toLocaleTimeString()}  ${msg}`;
   log.prepend(el);
   while (log.children.length > 70) log.removeChild(log.lastChild);
+}
+
+/* ── Waypoint Import / Export ────────────────────────────────────────────── */
+let iexBoard = "B1";
+
+function setIexBoard(id) {
+  iexBoard = id;
+  ["B1","B2"].forEach(b => {
+    const t = document.getElementById(`iex-tab-${b}`);
+    if (t) t.className = "iex-tab" + (b === id ? " active" : "");
+  });
+  document.getElementById("iex-status").textContent = "";
+}
+
+function exportWaypoints() {
+  const statusEl = document.getElementById("iex-status");
+  statusEl.textContent = `Downloading ${iexBoard}…`;
+  statusEl.style.color = "var(--cyan)";
+  // Trigger browser download directly from the export route
+  const a = document.createElement("a");
+  a.href = `/api/waypoints/${iexBoard}/export`;
+  a.download = `ttt_waypoints_${iexBoard}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => { statusEl.textContent = `✅ ${iexBoard} exported`; statusEl.style.color = "var(--green)"; }, 800);
+  opLog(`📤 Exported waypoints for ${iexBoard}`, "ok");
+}
+
+function importWaypoints(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById("iex-status");
+  statusEl.textContent = "Uploading…";
+  statusEl.style.color = "var(--gold)";
+  const formData = new FormData();
+  formData.append("file", file);
+  fetch(`/api/waypoints/${iexBoard}/import`, { method: "POST", body: formData })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        statusEl.textContent = `✅ Imported ${d.count} waypoints into ${iexBoard}`;
+        statusEl.style.color = "var(--green)";
+        opLog(`📥 Imported ${d.count} waypoints for ${iexBoard}`, "ok");
+        loadWaypoints();  // Refresh the waypoint list in the center panel
+      } else {
+        statusEl.textContent = `❌ ${d.error || "Import failed"}`;
+        statusEl.style.color = "var(--red)";
+        opLog(`❌ Import failed for ${iexBoard}: ${d.error}`, "err");
+      }
+    })
+    .catch(e => {
+      statusEl.textContent = `❌ Network error`;
+      statusEl.style.color = "var(--red)";
+    });
+  // Reset the file input so the same file can be re-imported if needed
+  input.value = "";
 }
 </script>
 </body>

@@ -567,9 +567,9 @@
     "data": [
       90.96,
       14.76,
-      5.08,
+      11.08,
       -0.61,
-      110.28,
+      87.28,
       14.15
     ],
     "coords": [
@@ -585,7 +585,7 @@
     "vacuum_delay_ms": 300,
     "delay_ms": 0,
     "rail_preset": "BOARD1",
-    "timestamp": 1788262535.3545718
+    "timestamp": 1788264288.6552043
   },
   "cell_2_approach": {
     "key": "cell_2_approach",

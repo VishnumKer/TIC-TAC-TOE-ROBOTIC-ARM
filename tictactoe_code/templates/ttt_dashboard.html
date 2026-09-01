@@ -60,6 +60,16 @@
       background: var(--accent-blue); color: #fff; border-color: var(--accent-blue);
       box-shadow: 0 0 12px rgba(59,141,241,.4);
     }
+    /* Robot-first toggle */
+    .robot-first-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+      background: var(--surface2); color: var(--muted); cursor: pointer;
+      font-size: .82rem; font-weight: 600; transition: all .2s; white-space: nowrap;
+    }
+    .robot-first-btn.active {
+      background: linear-gradient(135deg,#6b2bb5,#b066ff); color: #fff;
+      border-color: #b066ff; box-shadow: 0 0 14px rgba(176,102,255,.4);
+    }
 
     /* ── Main layout ───────────────────────────────────────────────────── */
     .main { display: grid; grid-template-columns: 1fr 420px 280px;
@@ -267,6 +277,8 @@
   <div class="mode-switch">
     <button class="mode-btn active" id="mode1-btn" onclick="setMode(1)">1 Game</button>
     <button class="mode-btn" id="mode2-btn" onclick="setMode(2)">2 Games</button>
+    <button class="robot-first-btn" id="robot-first-btn" onclick="toggleRobotFirst()"
+            title="Toggle who makes the first move">👤 Human First</button>
   </div>
 </nav>
 
@@ -416,6 +428,7 @@ const socket = io();
 let currentMode = 1;
 let activeBoard = "B1";
 let gameState = {};
+let robotFirst = false;  // whether robot makes the first move
 
 /* ── Grid initialisation ─────────────────────────────────────────────────── */
 function buildGrid(boardId) {
@@ -522,6 +535,11 @@ socket.on("game_state_update", data => {
   const boards = data.boards || {};
   if (boards.B1) renderBoard("B1", boards.B1);
   if (boards.B2) renderBoard("B2", boards.B2);
+  // Sync robot-first toggle from server
+  if (typeof data.robot_first === "boolean" && data.robot_first !== robotFirst) {
+    robotFirst = data.robot_first;
+    _applyRobotFirstBtn();
+  }
 });
 
 socket.on("human_move_detected", data => {
@@ -597,16 +615,38 @@ socket.on("vision_log", data => {
   log(data.message, "info");
 });
 
-/* ── Controls ────────────────────────────────────────────────────────────── */
+/* ── Controls ───────────────────────────────────────────────────── */
 function startGame() {
   fetch("/api/start_game", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({board_id: activeBoard, mode: currentMode})
+    body: JSON.stringify({board_id: activeBoard, mode: currentMode, robot_first: robotFirst})
   }).then(r => r.json()).then(d => {
     if (!d.success) log("❌ " + (d.error || "Could not start"), "info");
-    else log(`▶ Game started on ${d.board_id} (mode ${d.mode})`, "info");
+    else log(`▶ Game started on ${d.board_id} (mode ${d.mode}) — ${robotFirst ? '🤖 Robot' : '👤 Human'} plays first`, "info");
   });
+}
+
+function toggleRobotFirst() {
+  robotFirst = !robotFirst;
+  _applyRobotFirstBtn();
+  fetch("/api/set_robot_first", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({enabled: robotFirst})
+  });
+}
+
+function _applyRobotFirstBtn() {
+  const btn = document.getElementById("robot-first-btn");
+  if (!btn) return;
+  if (robotFirst) {
+    btn.className = "robot-first-btn active";
+    btn.textContent = "🤖 Robot First";
+  } else {
+    btn.className = "robot-first-btn";
+    btn.textContent = "👤 Human First";
+  }
 }
 
 function resetGame() {

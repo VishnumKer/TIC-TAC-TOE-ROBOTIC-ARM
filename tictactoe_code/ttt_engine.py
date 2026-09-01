@@ -162,7 +162,7 @@ class GameSession:
     """
     Manages one complete Tic Tac Toe game on a single board.
     Thread-safe via internal lock.
-    Human ALWAYS plays first (Phase: HUMAN_TURN).
+    By default Human plays first (HUMAN_TURN), but robot_first=True makes Robot go first.
     Robot plays at most 4 moves per game (from 4 physical tray slots).
     """
 
@@ -198,18 +198,19 @@ class GameSession:
             }
 
     # ── Game control ───────────────────────────────────────────────────────
-    def start(self) -> bool:
-        """Transition from IDLE → HUMAN_TURN. Human ALWAYS plays first."""
+    def start(self, robot_first: bool = False) -> bool:
+        """Transition from IDLE/GAME_OVER → HUMAN_TURN or ROBOT_TURN depending on robot_first."""
         with self._lock:
             if self.phase not in (GamePhase.IDLE, GamePhase.GAME_OVER):
                 return False
             self.board             = Board()
-            self.phase             = GamePhase.HUMAN_TURN
+            self.phase             = GamePhase.ROBOT_TURN if robot_first else GamePhase.HUMAN_TURN
             self.winner_val        = None
             self.win_line          = None
             self.move_log          = []
             self.robot_moves_count = 0
-        logging.info("[TTT %s] Game started — Human always plays first (Turn 1).", self.board_id)
+        first = "Robot" if robot_first else "Human"
+        logging.info("[TTT %s] Game started — %s plays first.", self.board_id, first)
         return True
 
     def reset(self) -> None:
@@ -317,9 +318,10 @@ class GameManager:
             "B1": GameSession("B1"),
             "B2": GameSession("B2"),
         }
-        self._mode   = 1       # 1 or 2
-        self._lock   = threading.Lock()
-        self._b2_active = False   # True when 2-game mode AND B2 game started
+        self._mode        = 1       # 1 or 2
+        self._lock        = threading.Lock()
+        self._b2_active   = False   # True when 2-game mode AND B2 game started
+        self.robot_first  = False   # If True, robot makes the first move each game
 
     # ── Mode ───────────────────────────────────────────────────────────────
     @property
@@ -336,6 +338,12 @@ class GameManager:
                 self._b2_active = False
         logging.info("[GameManager] Mode set to %d.", mode)
 
+    def set_robot_first(self, enabled: bool) -> None:
+        """Set whether the robot makes the first move each game."""
+        with self._lock:
+            self.robot_first = bool(enabled)
+        logging.info("[GameManager] Robot-first mode: %s.", self.robot_first)
+
     def active_board_ids(self) -> list[str]:
         """Return list of board IDs currently in an active (non-IDLE) game."""
         with self._lock:
@@ -343,14 +351,19 @@ class GameManager:
         return [bid for bid in ids
                 if self.sessions[bid].phase not in (GamePhase.IDLE, GamePhase.GAME_OVER)]
 
-    def start_game(self, board_id: str = "B1") -> bool:
-        """Start (or restart a completed) game on the given board."""
+    def start_game(self, board_id: str = "B1", robot_first: bool | None = None) -> bool:
+        """Start (or restart a completed) game on the given board.
+
+        robot_first: If None (default), uses the manager's stored robot_first flag.
+                     Pass True/False to override for this game only.
+        """
         session = self.sessions.get(board_id)
         if session is None:
             return False
         if session.phase == GamePhase.GAME_OVER:
             session.reset()
-        return session.start()
+        rf = self.robot_first if robot_first is None else robot_first
+        return session.start(robot_first=rf)
 
     def reset_game(self, board_id: str | None = None) -> None:
         """Reset one board or all boards."""
@@ -375,7 +388,8 @@ class GameManager:
 
     def get_snapshot(self) -> dict:
         return {
-            "mode":    self._mode,
+            "mode":         self._mode,
+            "robot_first":  self.robot_first,
             "boards": {bid: s.get_state_snapshot() for bid, s in self.sessions.items()},
         }
 
