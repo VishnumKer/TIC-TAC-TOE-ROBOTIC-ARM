@@ -378,6 +378,10 @@
         <span class="status-key">RAIL</span>
         <span class="status-val badge-err" id="rail-status">—</span>
       </div>
+      <div style="display:flex;gap:4px;margin-top:2px;">
+        <button class="btn btn-muted btn-sm" style="flex:1;padding:3px 0;font-size:0.75rem;" onclick="moveRailPreset('BOARD1')">➡️ Rail B1</button>
+        <button class="btn btn-muted btn-sm" style="flex:1;padding:3px 0;font-size:0.75rem;" onclick="moveRailPreset('BOARD2')">➡️ Rail B2</button>
+      </div>
       <div class="status-row">
         <span class="status-key">VACUUM</span>
         <span class="status-val" id="vac-status">OFF</span>
@@ -667,6 +671,19 @@ function resetGame() {
 function eStop() {
   fetch("/api/emergency_stop", {method: "POST"}).then(() => {
     log("🛑 Emergency stop!", "info");
+  });
+}
+
+function moveRailPreset(preset) {
+  fetch("/api/move_rail", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ preset: preset })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) log(`➡️ Moving rail to ${preset}...`, "info");
+    else log(`❌ Failed to move rail to ${preset}`, "err");
   });
 }
 

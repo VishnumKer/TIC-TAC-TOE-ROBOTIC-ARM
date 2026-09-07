@@ -313,8 +313,10 @@ class TTTMoveExecutor:
         self._stop_evt.clear()
         if self._current_board != board_id:
             if self._current_board is not None:
-                self._move_to("place_safe", self._current_board)
-            self._move_rail_to(board_id)
+                if not self._move_to("place_safe", self._current_board):
+                    return False
+            if not self._move_rail_to(board_id):
+                return False
         return self._move_to("scan_pose", board_id)
 
     def go_to_safe(self, board_id: str, safe_type: str = "place") -> bool:
@@ -327,8 +329,13 @@ class TTTMoveExecutor:
         """Signal stop to interrupt any running motion sequence."""
         self._stop_evt.set()
         self.robot.emergency_stop()
+        self.rail.stop()
         # Unblock any pending wait
         self._cmd_done_event.set()
+
+    def clear_stop(self) -> None:
+        """Reset the stop event so new/manual moves can execute."""
+        self._stop_evt.clear()
 
     # ── Command completion callback (registered with RobotManager) ────────
     def on_command_complete(self, cmd_id: str | None) -> None:
@@ -402,10 +409,15 @@ class TTTMoveExecutor:
         if not preset:
             logging.error("[Executor] No rail preset for board %s.", board_id)
             return False
+        if not self.rail.current_state.get("connected"):
+            logging.error("[Executor] Rail not connected! Cannot move rail to %s (%s).", board_id, preset)
+            return False
         logging.info("[Executor] Rail → %s (%s).", board_id, preset)
-        self.rail.move_to_preset(preset)
+        if not self.rail.move_to_preset(preset):
+            logging.error("[Executor] Failed to send move command to rail for %s.", preset)
+            return False
         # Poll until rail reports it is at the target preset
-        timeout = 30.0
+        timeout = 20.0
         start   = time.time()
         while time.time() - start < timeout:
             if self._stop_evt.is_set():
@@ -418,5 +430,4 @@ class TTTMoveExecutor:
                 return True
             time.sleep(0.3)
         logging.warning("[Executor] Rail move to %s timed out.", preset)
-        self._current_board = board_id  # assume arrived
-        return True
+        return False

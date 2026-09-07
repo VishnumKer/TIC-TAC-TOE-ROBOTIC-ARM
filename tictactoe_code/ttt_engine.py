@@ -384,13 +384,19 @@ class GameManager:
             for s in self.sessions.values():
                 s.reset()
 
-    def next_robot_board(self) -> str | None:
+    def next_robot_board(self, preferred_first: str | None = None) -> str | None:
         """
         Return the board_id where the robot needs to move next, or None.
-        In 2-game mode, interleaves B1/B2. In 1-game mode, returns selected board if ROBOT_TURN.
+        In 2-game mode, interleaves B1/B2 (prioritizing preferred_first if specified).
+        In 1-game mode, returns selected board if ROBOT_TURN.
         """
         with self._lock:
-            order = ["B1", "B2"] if self._mode == 2 else [self.selected_single_board]
+            if self._mode == 2:
+                order = ["B1", "B2"]
+                if preferred_first in order:
+                    order = [preferred_first] + [b for b in order if b != preferred_first]
+            else:
+                order = [self.selected_single_board]
         for bid in order:
             s = self.sessions[bid]
             if s.phase == GamePhase.ROBOT_TURN:

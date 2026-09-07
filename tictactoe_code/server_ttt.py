@@ -456,12 +456,13 @@ class RailManager:
             try:
                 logging.info("[RAIL] Trying %s …", port)
                 ser = _serial_mod.Serial(port, self.SERIAL_BAUD, timeout=1)
-                ser.dtr = False
+                ser.dtr = True
+                ser.rts = True
                 time.sleep(0.5)
                 ser.reset_input_buffer()
                 verified = False
                 start = time.time()
-                while time.time() - start < 15.0:
+                while time.time() - start < 8.0:
                     raw = ser.readline()
                     if raw:
                         line = raw.decode("utf-8", errors="ignore").strip()
@@ -480,7 +481,21 @@ class RailManager:
             except Exception as e:
                 logging.debug("[RAIL] %s failed: %s", port, e)
 
-        logging.warning("⚠️  Rail not found.")
+        logging.warning("⚠️  Rail not found. Retrying in 4s…")
+        time.sleep(4.0)
+        threading.Thread(target=self._connect_serial, daemon=True).start()
+
+    def reconnect(self):
+        """Force close and re-establish serial connection to rail."""
+        with self._serial_lock:
+            self._serial_connected = False
+            if self._serial:
+                try:
+                    self._serial.close()
+                except Exception:
+                    pass
+            self._serial = None
+        threading.Thread(target=self._connect_serial, daemon=True).start()
 
     def _serial_reader(self):
         while True:
@@ -830,8 +845,17 @@ def _game_loop():
     logging.info("[GameLoop] Orchestrated game loop starting.")
 
     while not _game_stop_event.is_set():
+        # Determine current rail board location for position-aware prioritizing
+        curr_b = executor._current_board
+        if not curr_b:
+            rail_pt = rail.current_state.get("point", "").upper()
+            if "BOARD2" in rail_pt or rail_pt == "B2":
+                curr_b = "B2"
+            elif "BOARD1" in rail_pt or rail_pt == "B1":
+                curr_b = "B1"
+
         # ── 1. Priority: Execute any pending Robot Turns ───────────────────────
-        robot_bid = game_mgr.next_robot_board()
+        robot_bid = game_mgr.next_robot_board(preferred_first=curr_b)
         if robot_bid:
             session = game_mgr.sessions[robot_bid]
             led.robot_thinking()
@@ -869,12 +893,16 @@ def _game_loop():
         human_turn_bids = [bid for bid in active_bids if game_mgr.sessions[bid].phase == GamePhase.HUMAN_TURN]
 
         if human_turn_bids:
+            # Rail Position Awareness: prioritize scanning the board the rail is already at
+            if curr_b in human_turn_bids:
+                human_turn_bids = [curr_b] + [b for b in human_turn_bids if b != curr_b]
+
             for board_id in human_turn_bids:
                 if _game_stop_event.is_set():
                     break
 
                 # If another board suddenly entered ROBOT_TURN, prioritize robot move immediately
-                if game_mgr.next_robot_board():
+                if game_mgr.next_robot_board(preferred_first=curr_b):
                     break
 
                 session = game_mgr.sessions[board_id]
@@ -1032,12 +1060,18 @@ def api_reset_game():
     data     = request.get_json(silent=True) or {}
     board_id = data.get("board_id", None)
 
+    logging.info("[ResetGame] Halting game loop, arm, and rail motion...")
     _game_stop_event.set()
     executor.stop()
+    rail.stop()
+
     # Wait for the game loop thread to actually finish before resetting state
     if _game_thread is not None and _game_thread.is_alive():
         _game_thread.join(timeout=3.0)
     _game_thread = None
+
+    # Clear stop flags so manual movements and future games can proceed unblocked
+    executor.clear_stop()
 
     game_mgr.reset_game(board_id)
     led.idle()
@@ -1102,6 +1136,7 @@ def api_reconnect():
     data = request.get_json(silent=True) or {}
     port = data.get("serial_port")
     robot.reconnect(serial_port=port)
+    rail.reconnect()
     return jsonify({"success": True})
 
 @app.route("/api/home_rail", methods=["POST"])
@@ -1114,6 +1149,12 @@ def api_move_rail():
     data = request.get_json(silent=True) or {}
     preset = data.get("preset", "HOME")
     success = rail.move_to_preset(preset)
+    if success:
+        p_upper = str(preset).upper()
+        if p_upper in ("BOARD1", "B1"):
+            executor._current_board = "B1"
+        elif p_upper in ("BOARD2", "B2"):
+            executor._current_board = "B2"
     return jsonify({"success": success})
 
 @app.route("/api/set_rail_preset", methods=["POST"])
