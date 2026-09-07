@@ -820,79 +820,36 @@ threading.Thread(target=_status_broadcaster, daemon=True).start()
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# Game Loop
+# Game Loop (Single Board B1/B2 & Dual-Board Patrol)
 # ═════════════════════════════════════════════════════════════════════════════
-def _game_loop(board_id: str):
+def _game_loop():
     """
-    Main game loop for a single board.
-    Runs in a daemon thread; stopped via _game_stop_event.
+    Orchestrated game loop for Single Board (B1 or B2) and Dual Board Mode.
+    Patrols scanning between active boards in HUMAN_TURN and prioritizes ROBOT_TURN moves.
     """
-    session = game_mgr.sessions[board_id]
-    logging.info("[GameLoop %s] Starting.", board_id)
+    logging.info("[GameLoop] Orchestrated game loop starting.")
 
     while not _game_stop_event.is_set():
-        snapshot = session.get_state_snapshot()
-
-        # ── HUMAN_TURN: move arm to scan pose, wait for human move ────────
-        if snapshot["phase"] == GamePhase.HUMAN_TURN:
-            led.scanning()
-            socketio.emit("scan_started", {"board_id": board_id})
-            logging.info("[GameLoop %s] Moving to scan pose.", board_id)
-
-            if not executor.go_to_scan_pose(board_id):
-                if _game_stop_event.is_set():
-                    break
-                time.sleep(1.0)
-                continue
-
-            time.sleep(cfg.SCAN_SETTLE_TIME)
-            if _game_stop_event.is_set():
-                break
-
-            led.human_turn()
-            socketio.emit("vision_log",
-                          {"level": "info",
-                           "message": f"[{board_id}] Waiting for human move..."})
-
-            # Poll until a new human token appears
-            while not _game_stop_event.is_set():
-                time.sleep(1.5)
-                if _game_stop_event.is_set():
-                    break
-
-                robot_cells = [idx for idx, val in enumerate(session.grid) if val == "R"]
-                new_state = vision.start_scan(board_id, robot_cells=robot_cells, timeout=8.0)
-                if not new_state:
-                    continue
-
-                # Detect if any logically empty cell is now occupied by a white human token
-                cell = next((i for i in range(9) if session.grid[i] == "" and new_state[i] == "H"), None)
-
-                if cell is not None:
-                    logging.info("[GameLoop %s] Human placed on cell %d.", board_id, cell)
-                    socketio.emit("human_move_detected",
-                                  {"board_id": board_id, "cell": cell})
-                    result = session.apply_human_move(cell)
-                    socketio.emit("game_state_update", game_mgr.get_snapshot())
-
-                    if result.get("winner"):
-                        _handle_game_over(board_id, result)
-                    break
-
-        # ── ROBOT_TURN: compute Minimax, execute move ─────────────────────
-        elif snapshot["phase"] == GamePhase.ROBOT_TURN:
+        # ── 1. Priority: Execute any pending Robot Turns ───────────────────────
+        robot_bid = game_mgr.next_robot_board()
+        if robot_bid:
+            session = game_mgr.sessions[robot_bid]
             led.robot_thinking()
             cell = session.get_robot_cell()
-            socketio.emit("robot_thinking", {"board_id": board_id, "cell": cell})
-            logging.info("[GameLoop %s] Robot playing cell %d.", board_id, cell)
+            socketio.emit("robot_thinking", {"board_id": robot_bid, "cell": cell})
+            logging.info("[GameLoop %s] Robot playing cell %d.", robot_bid, cell)
 
             led.robot_moving()
             current_slot = session.robot_moves_count
-            logging.info("[GameLoop %s] Robot picking from tray slot %d for cell %d.", board_id, current_slot, cell)
-            success = executor.execute_robot_turn(board_id, cell, slot_idx=current_slot)
+            logging.info("[GameLoop %s] Robot picking from tray slot %d for cell %d.", robot_bid, current_slot, cell)
+            is_dual_game = (game_mgr.mode == 2)
+            success = executor.execute_robot_turn(
+                robot_bid, cell, slot_idx=current_slot,
+                direct_to_scan=is_dual_game
+            )
 
             if not success:
-                logging.warning("[GameLoop %s] Move executor failed.", board_id)
+                logging.warning("[GameLoop %s] Move executor failed.", robot_bid)
                 if _game_stop_event.is_set():
                     break
                 time.sleep(1.0)
@@ -902,15 +859,64 @@ def _game_loop(board_id: str):
             socketio.emit("game_state_update", game_mgr.get_snapshot())
 
             if result.get("winner"):
-                _handle_game_over(board_id, result)
+                _handle_game_over(robot_bid, result)
             else:
                 led.human_turn()
+            continue
 
-        # ── GAME_OVER / IDLE ──────────────────────────────────────────────
+        # ── 2. Human Turn Scanning Patrol ─────────────────────────────────────
+        active_bids = game_mgr.active_board_ids()
+        human_turn_bids = [bid for bid in active_bids if game_mgr.sessions[bid].phase == GamePhase.HUMAN_TURN]
+
+        if human_turn_bids:
+            for board_id in human_turn_bids:
+                if _game_stop_event.is_set():
+                    break
+
+                # If another board suddenly entered ROBOT_TURN, prioritize robot move immediately
+                if game_mgr.next_robot_board():
+                    break
+
+                session = game_mgr.sessions[board_id]
+                led.scanning()
+                socketio.emit("scan_started", {"board_id": board_id})
+                logging.info("[GameLoop %s] Moving to scan pose.", board_id)
+
+                if not executor.go_to_scan_pose(board_id):
+                    if _game_stop_event.is_set():
+                        break
+                    time.sleep(1.0)
+                    continue
+
+                time.sleep(cfg.SCAN_SETTLE_TIME)
+                if _game_stop_event.is_set():
+                    break
+
+                led.human_turn()
+                socketio.emit("vision_log",
+                              {"level": "info",
+                               "message": f"[{board_id}] Scanning for human move..."})
+
+                robot_cells = [idx for idx, val in enumerate(session.grid) if val == "R"]
+                new_state = vision.start_scan(board_id, robot_cells=robot_cells, timeout=5.0)
+                if new_state:
+                    cell = next((i for i in range(9) if session.grid[i] == "" and new_state[i] == "H"), None)
+                    if cell is not None:
+                        logging.info("[GameLoop %s] Human placed on cell %d.", board_id, cell)
+                        socketio.emit("human_move_detected",
+                                      {"board_id": board_id, "cell": cell})
+                        result = session.apply_human_move(cell)
+                        socketio.emit("game_state_update", game_mgr.get_snapshot())
+
+                        if result.get("winner"):
+                            _handle_game_over(board_id, result)
+                        break
+
+                time.sleep(1.0)
         else:
             time.sleep(0.5)
 
-    logging.info("[GameLoop %s] Stopped.", board_id)
+    logging.info("[GameLoop] Stopped.")
 
 
 def _handle_game_over(board_id: str, result: dict):
@@ -975,17 +981,24 @@ def api_start_game():
     board_id = data.get("board_id", "B1")
     mode     = int(data.get("mode", game_mgr.mode))
 
-    game_mgr.set_mode(mode)
+    if board_id == "BOTH" or mode == 2:
+        mode = 2
+        boards_to_start = ["B1", "B2"]
+        game_mgr.set_mode(2)
+    else:
+        mode = 1
+        target_b = "B2" if board_id == "B2" else "B1"
+        boards_to_start = [target_b]
+        game_mgr.set_mode(1, target_board=target_b)
 
-    # Check waypoints calibrated
-    missing = wp_stores[board_id].missing_keys()
-    if missing:
-        return jsonify({"success": False,
-                        "error": f"Missing waypoints: {missing[:5]}..."})
+    # Check waypoints calibrated for target board(s)
+    for b in boards_to_start:
+        missing = wp_stores[b].missing_keys()
+        if missing:
+            return jsonify({"success": False,
+                            "error": f"[{b}] Missing waypoints: {missing[:5]}..."})
 
     # ── Kill any existing game loop thread before starting a new one ──────────
-    # This prevents ghost threads from previous games/resets emitting duplicate
-    # socket events. We signal stop, drain the executor, then join with timeout.
     if _game_thread is not None and _game_thread.is_alive():
         logging.info("[StartGame] Stopping existing game loop thread...")
         _game_stop_event.set()
@@ -994,15 +1007,19 @@ def api_start_game():
         if _game_thread.is_alive():
             logging.warning("[StartGame] Old game thread did not exit in 3s — proceeding anyway.")
 
-    if not game_mgr.start_game(board_id):
+    started_any = False
+    for b in boards_to_start:
+        if game_mgr.start_game(b):
+            started_any = True
+
+    if not started_any:
         return jsonify({"success": False, "error": "Game already active"})
 
-    # Start fresh game loop thread
+    # Start fresh orchestrated game loop thread
     _game_stop_event.clear()
-    _game_thread = threading.Thread(target=_game_loop, args=(board_id,), daemon=True,
-                                    name=f"GameLoop-{board_id}")
+    _game_thread = threading.Thread(target=_game_loop, daemon=True, name="GameLoop-Orchestrated")
     _game_thread.start()
-    logging.info("[StartGame] Game loop thread started: %s", _game_thread.name)
+    logging.info("[StartGame] Orchestrated game loop thread started: %s", _game_thread.name)
 
     led.idle()
     socketio.emit("game_state_update", game_mgr.get_snapshot())
@@ -1032,9 +1049,11 @@ def api_reset_game():
 def api_set_mode():
     data = request.get_json(silent=True) or {}
     mode = int(data.get("mode", 1))
+    target_b = data.get("target_board", "B1")
     try:
-        game_mgr.set_mode(mode)
-        return jsonify({"success": True, "mode": mode})
+        game_mgr.set_mode(mode, target_board=target_b)
+        socketio.emit("game_state_update", game_mgr.get_snapshot())
+        return jsonify({"success": True, "mode": mode, "selected_single_board": game_mgr.selected_single_board})
     except ValueError as e:
         return jsonify({"success": False, "error": str(e)})
 
@@ -1231,6 +1250,41 @@ def api_import_waypoints(board_id: str):
     })
 
 
+@app.route("/api/waypoints/copy", methods=["POST"])
+def api_copy_waypoints():
+    """Copy all waypoints from source board to destination board (e.g. B1 to B2)."""
+    data = request.get_json(silent=True) or {}
+    src_board = data.get("src_board", "B1")
+    dst_board = data.get("dst_board", "B2")
+
+    src_store = wp_stores.get(src_board)
+    dst_store = wp_stores.get(dst_board)
+    if not src_store or not dst_store:
+        return jsonify({"success": False, "error": "Invalid src or dst board_id"}), 400
+
+    rail_preset = cfg.RAIL_PRESET_MAP.get(dst_board, f"BOARD{dst_board}")
+    with src_store._lock, dst_store._lock:
+        copied = {}
+        for key, wp in src_store.as_dict().items():
+            wp_copy = dict(wp)
+            wp_copy["board_id"] = dst_board
+            wp_copy["rail_preset"] = rail_preset
+            copied[key] = wp_copy
+        dst_store._data = copied
+
+    dst_store.save()
+    logging.info("[WP %s] Copied %d waypoints from %s.", dst_board, len(copied), src_board)
+    socketio.emit("waypoints_updated", {"board_id": dst_board, "count": len(copied)})
+    return jsonify({
+        "success": True,
+        "src_board": src_board,
+        "dst_board": dst_board,
+        "count": len(copied),
+        "calibration_status": dst_store.calibration_status(),
+        "missing_keys": dst_store.missing_keys(),
+    })
+
+
 # ── Victory Dance Management ──────────────────────────────────────────────────
 @app.route("/api/dance")
 def api_get_dance():
@@ -1412,16 +1466,17 @@ def api_test_cell():
          → pick_safe → place_safe → cell_N_approach → place (Vac OFF) → lift
          → place_safe → scan_pose
     """
-    data     = request.get_json(silent=True) or {}
-    board_id = data.get("board_id", "B1")
-    cell_idx = int(data.get("cell_idx", 0))
-    slot_idx = int(data.get("slot_idx", 0))
+    data           = request.get_json(silent=True) or {}
+    board_id       = data.get("board_id", "B1")
+    cell_idx       = int(data.get("cell_idx", 0))
+    slot_idx       = int(data.get("slot_idx", 0))
+    direct_to_scan = bool(data.get("direct_to_scan", game_mgr.mode == 2))
 
     def _run():
-        executor.execute_robot_turn(board_id, cell_idx, slot_idx=slot_idx)
+        executor.execute_robot_turn(board_id, cell_idx, slot_idx=slot_idx, direct_to_scan=direct_to_scan)
 
     threading.Thread(target=_run, daemon=True).start()
-    return jsonify({"success": True, "board_id": board_id, "cell_idx": cell_idx, "slot_idx": slot_idx})
+    return jsonify({"success": True, "board_id": board_id, "cell_idx": cell_idx, "slot_idx": slot_idx, "direct_to_scan": direct_to_scan})
 
 # ── Vision ROI Calibration ────────────────────────────────────────────────────
 @app.route("/api/cell_rois/<board_id>")

@@ -170,7 +170,8 @@ class TTTMoveExecutor:
 
     # ── Public: game moves ────────────────────────────────────────────────
     def execute_robot_turn(self, board_id: str, cell_idx: int,
-                           slot_idx: int = 0, progress_cb=None) -> bool:
+                           slot_idx: int = 0, progress_cb=None,
+                           direct_to_scan: bool = False) -> bool:
         """
         Full pick-and-place robot turn using one of the 4 tray slots:
           1. Cross-board transit if needed (place_safe -> rail_move)
@@ -180,7 +181,7 @@ class TTTMoveExecutor:
           4. Move to pick_safe
           5. Move to place_safe
           6. Place Sequence: cell_N_approach -> cell_N_place (Vac OFF) -> cell_N_lift
-          7. Move to place_safe
+          7. Move to place_safe (skipped if direct_to_scan=True)
           8. Return to scan_pose
         """
         self._stop_evt.clear()
@@ -284,12 +285,13 @@ class TTTMoveExecutor:
                 if self._stop_evt.is_set():
                     return False
 
-            # ── 7. Retract to Place Safe Position ─────────────────────────
-            emit("place_safe", "Retracting to Place Safe Position")
-            if not self._move_to("place_safe", board_id):
-                return False
-            if self._stop_evt.is_set():
-                return False
+            # ── 7. Retract to Place Safe Position (skipped if direct_to_scan is True) ──
+            if not direct_to_scan:
+                emit("place_safe", "Retracting to Place Safe Position")
+                if not self._move_to("place_safe", board_id):
+                    return False
+                if self._stop_evt.is_set():
+                    return False
 
             # ── 8. Move to Scan Pose for Camera Vision ────────────────────
             emit("scan_pose", "Moving to scan pose for camera vision")

@@ -318,25 +318,31 @@ class GameManager:
             "B1": GameSession("B1"),
             "B2": GameSession("B2"),
         }
-        self._mode        = 1       # 1 or 2
-        self._lock        = threading.Lock()
-        self._b2_active   = False   # True when 2-game mode AND B2 game started
-        self.robot_first  = False   # If True, robot makes the first move each game
+        self._mode                  = 1       # 1 or 2
+        self.selected_single_board  = "B1"    # "B1" or "B2" when mode == 1
+        self._lock                  = threading.Lock()
+        self._b2_active             = False   # True when 2-game mode AND B2 game started
+        self.robot_first            = False   # If True, robot makes the first move each game
 
     # ── Mode ───────────────────────────────────────────────────────────────
     @property
     def mode(self) -> int:
         return self._mode
 
-    def set_mode(self, mode: int) -> None:
+    def set_mode(self, mode: int, target_board: str = "B1") -> None:
         if mode not in (1, 2):
             raise ValueError("mode must be 1 or 2")
         with self._lock:
             self._mode = mode
             if mode == 1:
-                self.sessions["B2"].reset()
+                if target_board in ("B1", "B2"):
+                    self.selected_single_board = target_board
+                inactive = "B2" if self.selected_single_board == "B1" else "B1"
+                self.sessions[inactive].reset()
                 self._b2_active = False
-        logging.info("[GameManager] Mode set to %d.", mode)
+            else:
+                self._b2_active = True
+        logging.info("[GameManager] Mode set to %d (selected_board=%s).", mode, self.selected_single_board)
 
     def set_robot_first(self, enabled: bool) -> None:
         """Set whether the robot makes the first move each game."""
@@ -347,7 +353,7 @@ class GameManager:
     def active_board_ids(self) -> list[str]:
         """Return list of board IDs currently in an active (non-IDLE) game."""
         with self._lock:
-            ids = ["B1"] if self._mode == 1 else ["B1", "B2"]
+            ids = [self.selected_single_board] if self._mode == 1 else ["B1", "B2"]
         return [bid for bid in ids
                 if self.sessions[bid].phase not in (GamePhase.IDLE, GamePhase.GAME_OVER)]
 
@@ -357,6 +363,11 @@ class GameManager:
         robot_first: If None (default), uses the manager's stored robot_first flag.
                      Pass True/False to override for this game only.
         """
+        with self._lock:
+            if self._mode == 1 and board_id in ("B1", "B2"):
+                self.selected_single_board = board_id
+                inactive = "B2" if board_id == "B1" else "B1"
+                self.sessions[inactive].reset()
         session = self.sessions.get(board_id)
         if session is None:
             return False
@@ -376,10 +387,10 @@ class GameManager:
     def next_robot_board(self) -> str | None:
         """
         Return the board_id where the robot needs to move next, or None.
-        In 2-game mode, interleaves B1/B2.
+        In 2-game mode, interleaves B1/B2. In 1-game mode, returns selected board if ROBOT_TURN.
         """
         with self._lock:
-            order = ["B1", "B2"] if self._mode == 2 else ["B1"]
+            order = ["B1", "B2"] if self._mode == 2 else [self.selected_single_board]
         for bid in order:
             s = self.sessions[bid]
             if s.phase == GamePhase.ROBOT_TURN:
@@ -388,8 +399,9 @@ class GameManager:
 
     def get_snapshot(self) -> dict:
         return {
-            "mode":         self._mode,
-            "robot_first":  self.robot_first,
+            "mode":                  self._mode,
+            "selected_single_board": self.selected_single_board,
+            "robot_first":           self.robot_first,
             "boards": {bid: s.get_state_snapshot() for bid, s in self.sessions.items()},
         }
 

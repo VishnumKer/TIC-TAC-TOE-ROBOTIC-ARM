@@ -289,6 +289,12 @@
   <div class="panel" id="boards-panel">
     <div class="panel-title">Game Boards</div>
 
+    <!-- Board Selector Tabs (Active in 1-Game Mode) -->
+    <div class="cam-tabs" id="board-select-tabs" style="margin-bottom:10px;">
+      <div class="cam-tab active" id="single-tab-B1" onclick="switchSingleBoard('B1')">Board 1</div>
+      <div class="cam-tab" id="single-tab-B2" onclick="switchSingleBoard('B2')">Board 2</div>
+    </div>
+
     <!-- Board 1 -->
     <div class="board-section" id="section-B1">
       <div class="board-header">
@@ -616,11 +622,12 @@ socket.on("vision_log", data => {
 });
 
 /* ── Controls ───────────────────────────────────────────────────── */
-function startGame() {
+function startGame(overrideBoard) {
+  const targetBoard = overrideBoard || (currentMode === 2 ? "BOTH" : activeBoard);
   fetch("/api/start_game", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({board_id: activeBoard, mode: currentMode, robot_first: robotFirst})
+    body: JSON.stringify({board_id: targetBoard, mode: currentMode, robot_first: robotFirst})
   }).then(r => r.json()).then(d => {
     if (!d.success) log("❌ " + (d.error || "Could not start"), "info");
     else log(`▶ Game started on ${d.board_id} (mode ${d.mode}) — ${robotFirst ? '🤖 Robot' : '👤 Human'} plays first`, "info");
@@ -663,16 +670,40 @@ function eStop() {
   });
 }
 
+function switchSingleBoard(id) {
+  activeBoard = id;
+  const tab1 = document.getElementById("single-tab-B1");
+  const tab2 = document.getElementById("single-tab-B2");
+  if (tab1) tab1.className = "cam-tab" + (id==="B1"?" active":"");
+  if (tab2) tab2.className = "cam-tab" + (id==="B2"?" active":"");
+  if (currentMode === 1) {
+    const s1 = document.getElementById("section-B1");
+    const s2 = document.getElementById("section-B2");
+    if (s1) s1.style.display = (id === "B1") ? "flex" : "none";
+    if (s2) s2.style.display = (id === "B2") ? "flex" : "none";
+  }
+}
+
 function setMode(m) {
   currentMode = m;
   document.getElementById("mode1-btn").className = "mode-btn" + (m===1?" active":"");
   document.getElementById("mode2-btn").className = "mode-btn" + (m===2?" active":"");
-  document.getElementById("section-B2").style.display   = m===2 ? "flex" : "none";
-  document.getElementById("board-divider").style.display = m===2 ? "block" : "none";
+  const tabs = document.getElementById("board-select-tabs");
+  if (tabs) tabs.style.display = (m === 1) ? "flex" : "none";
+
+  if (m === 2) {
+    document.getElementById("section-B1").style.display   = "flex";
+    document.getElementById("section-B2").style.display   = "flex";
+    document.getElementById("board-divider").style.display = "block";
+  } else {
+    document.getElementById("section-B1").style.display   = (activeBoard === "B1") ? "flex" : "none";
+    document.getElementById("section-B2").style.display   = (activeBoard === "B2") ? "flex" : "none";
+    document.getElementById("board-divider").style.display = "none";
+  }
   fetch("/api/set_mode", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({mode: m})
+    body: JSON.stringify({mode: m, target_board: activeBoard})
   });
 }
 

@@ -286,6 +286,8 @@
                 title="Download waypoints as JSON">&#x1F4E4; Export</button>
         <button class="btn btn-muted btn-sm" onclick="document.getElementById('iex-file-input').click()"
                 title="Import waypoints from JSON file">&#x1F4E5; Import</button>
+        <button class="btn btn-muted btn-sm" onclick="copyWaypoints('B1', 'B2')"
+                title="Copy all waypoints from Board 1 to Board 2">&#x1F4CB; Copy B1 &rarr; B2</button>
       </div>
       <input type="file" id="iex-file-input" accept=".json,application/json"
              style="display:none" onchange="importWaypoints(this)">
@@ -1486,6 +1488,34 @@ function importWaypoints(input) {
     });
   // Reset the file input so the same file can be re-imported if needed
   input.value = "";
+}
+
+function copyWaypoints(src, dst) {
+  if (!confirm(`Copy all waypoints from ${src} to ${dst}? This will overwrite ${dst} waypoints.`)) return;
+  const statusEl = document.getElementById("iex-status");
+  statusEl.textContent = `Copying ${src} → ${dst}…`;
+  statusEl.style.color = "var(--gold)";
+  fetch("/api/waypoints/copy", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ src_board: src, dst_board: dst })
+  })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        statusEl.textContent = `✅ Copied ${d.count} waypoints to ${dst}`;
+        statusEl.style.color = "var(--green)";
+        opLog(`📋 Copied ${d.count} waypoints from ${src} to ${dst}`, "ok");
+        if (typeof loadWaypoints === "function") loadWaypoints();
+      } else {
+        statusEl.textContent = `❌ ${d.error || "Copy failed"}`;
+        statusEl.style.color = "var(--red)";
+      }
+    })
+    .catch(e => {
+      statusEl.textContent = `❌ Network error`;
+      statusEl.style.color = "var(--red)";
+    });
 }
 
 /* ── Victory Dance Recorder ──────────────────────────────────────────────── */
