@@ -21,12 +21,13 @@ RGB_LED_COUNT = 45
 # LED effects available (sent as: LEDRGB:<effect>)
 LED_EFFECTS = [
     "idle",           # slow breathing cyan   — no game active
-    "scanning",       # spinning white        — arm at scan pose
-    "human_turn",     # pulsing red           — waiting for human
-    "robot_thinking", # fast blue pulse       — Minimax computing
-    "robot_moving",   # blue chase along rail — arm executing move
-    "win_robot",      # full blue flash       — robot wins
-    "win_human",      # full red flash        — human wins
+    "scanning",       # spinning blue         — arm at scan pose
+    "human_turn",     # breathing blue        — waiting for human
+    "robot_turn",     # vibrant green         — robot's turn (coin detected)
+    "robot_thinking", # fast green pulse      — Minimax computing
+    "robot_moving",   # green chase along rail— arm executing move
+    "win_robot",      # full green flash      — robot wins
+    "win_human",      # full blue flash       — human wins
     "draw",           # alternating purple    — draw
     "alert",          # flashing red          — error / e-stop
     "rainbow",        # rainbow cycle         — aesthetic / attract

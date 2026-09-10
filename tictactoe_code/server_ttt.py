@@ -612,6 +612,7 @@ class RGBLEDManager:
     def idle(self):            self._send("LEDRGB:idle")
     def scanning(self):        self._send("LEDRGB:scanning")
     def human_turn(self):      self._send("LEDRGB:human_turn")
+    def robot_turn(self):      self._send("LEDRGB:robot_turn")
     def robot_thinking(self):  self._send("LEDRGB:robot_thinking")
     def robot_moving(self):    self._send("LEDRGB:robot_moving")
     def win_robot(self):       self._send("LEDRGB:win_robot",  force=True)
@@ -931,6 +932,7 @@ def _game_loop():
                     cell = next((i for i in range(9) if session.grid[i] == "" and new_state[i] == "H"), None)
                     if cell is not None:
                         logging.info("[GameLoop %s] Human placed on cell %d.", board_id, cell)
+                        led.robot_thinking()  # Switch to green immediately on successful coin detection
                         socketio.emit("human_move_detected",
                                       {"board_id": board_id, "cell": cell})
                         result = session.apply_human_move(cell)

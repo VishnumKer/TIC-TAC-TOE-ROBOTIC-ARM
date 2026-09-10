@@ -185,6 +185,7 @@ uint8_t       ledBreathVal       = 0;
 #define LED_ALERT           9
 #define LED_RAINBOW         10
 #define LED_SOLID           11
+#define LED_ROBOT_TURN      12
 
 int     currentLedMode = LED_IDLE;
 CRGB    solidColor     = CRGB::White;
@@ -388,6 +389,7 @@ void applyLedEffect(const String& effect) {
   else if (effect == "idle")           currentLedMode = LED_IDLE;
   else if (effect == "scanning")       currentLedMode = LED_SCANNING;
   else if (effect == "human_turn")     currentLedMode = LED_HUMAN_TURN;
+  else if (effect == "robot_turn")     currentLedMode = LED_ROBOT_TURN;
   else if (effect == "robot_thinking") currentLedMode = LED_ROBOT_THINKING;
   else if (effect == "robot_moving")   currentLedMode = LED_ROBOT_MOVING;
   else if (effect == "win_robot")      currentLedMode = LED_WIN_ROBOT;
@@ -441,45 +443,51 @@ void updateLedStrip() {
     }
 
     case LED_SCANNING: {
-      // Spinning white dot
+      // Spinning standard blue dot
       fill_solid(leds, RGB_LED_COUNT, CRGB::Black);
       for (int j = -1; j <= 1; j++) {
         int idx = ((int)ledAnimIndex + j + RGB_LED_COUNT) % RGB_LED_COUNT;
-        leds[idx] = (j == 0) ? CRGB::White : CRGB(80, 80, 80);
+        leds[idx] = (j == 0) ? CRGB(0, 100, 255) : CRGB(0, 25, 80);
       }
       ledAnimIndex = (ledAnimIndex + 2) % RGB_LED_COUNT;
       break;
     }
 
     case LED_HUMAN_TURN: {
-      // Pulsing red
+      // Breathing standard blue (waiting for human move)
       if (ledBreathDir) {
         ledBreathVal = (ledBreathVal >= 220) ? 220 : ledBreathVal + 3;
         if (ledBreathVal >= 220) ledBreathDir = false;
       } else {
-        ledBreathVal = (ledBreathVal <= 20) ? 20 : ledBreathVal - 3;
-        if (ledBreathVal <= 20) ledBreathDir = true;
+        ledBreathVal = (ledBreathVal <= 30) ? 30 : ledBreathVal - 3;
+        if (ledBreathVal <= 30) ledBreathDir = true;
       }
-      fill_solid(leds, RGB_LED_COUNT, CHSV(0, 255, ledBreathVal));
+      fill_solid(leds, RGB_LED_COUNT, CHSV(160, 255, ledBreathVal));
+      break;
+    }
+
+    case LED_ROBOT_TURN: {
+      // Robot turn: vibrant detection green
+      fill_solid(leds, RGB_LED_COUNT, CRGB(0, 224, 122));
       break;
     }
 
     case LED_ROBOT_THINKING: {
-      // Fast blue pulse
+      // Fast green pulse (coin detected / computing)
       uint8_t phase = (ledAnimIndex / 5) % 4;
-      CRGB col = (phase == 0 || phase == 2) ? CRGB(0, 80, 255) : CRGB::Black;
+      CRGB col = (phase == 0 || phase == 2) ? CRGB(0, 224, 122) : CRGB::Black;
       fill_solid(leds, RGB_LED_COUNT, col);
       ledAnimIndex++;
       break;
     }
 
     case LED_ROBOT_MOVING: {
-      // Blue chase along rail
-      fill_solid(leds, RGB_LED_COUNT, CRGB(0, 0, 30));
+      // Green chase along rail
+      fill_solid(leds, RGB_LED_COUNT, CRGB(0, 25, 12));
       for (int j = 0; j < 8; j++) {
         int idx = ((int)ledAnimIndex + j) % RGB_LED_COUNT;
         uint8_t brightness = 255 - (j * 28);
-        leds[idx] = CRGB(0, uint8_t(brightness / 3), brightness);
+        leds[idx] = CRGB(0, brightness, uint8_t(brightness / 2));
       }
       ledAnimIndex = (ledAnimIndex + 1) % RGB_LED_COUNT;
       break;

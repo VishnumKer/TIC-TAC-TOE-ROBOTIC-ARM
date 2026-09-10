@@ -614,7 +614,24 @@ socket.on("rail_status", data => {
 
 socket.on("led_status", data => {
   const eff = (data.effect || "").replace("LEDRGB:", "").replace("LEDSOLID:", "solid ");
-  document.getElementById("led-badge").textContent = eff || "—";
+  const badge = document.getElementById("led-badge");
+  if (badge) badge.textContent = eff || "—";
+  const preview = document.getElementById("led-preview");
+  if (preview) {
+    if (eff === "scanning" || eff === "human_turn") {
+      preview.style.background = "linear-gradient(90deg, #0055ff, #00b0ff, #0033aa, #0099ff, #0055ff)";
+      if (badge) badge.style.color = "#00b0ff";
+    } else if (eff === "robot_turn" || eff === "robot_thinking" || eff === "robot_moving") {
+      preview.style.background = "linear-gradient(90deg, #0d7a40, #00e07a, #00ff88, #0d7a40)";
+      if (badge) badge.style.color = "#00e07a";
+    } else if (eff === "alert") {
+      preview.style.background = "linear-gradient(90deg, #ff0000, #ff4444, #880000, #ff0000)";
+      if (badge) badge.style.color = "#ff4444";
+    } else {
+      preview.style.background = "linear-gradient(90deg, #00e5ff, #0088cc, #00e5ff)";
+      if (badge) badge.style.color = "var(--accent-cyan)";
+    }
+  }
 });
 
 socket.on("scan_started", data => {
